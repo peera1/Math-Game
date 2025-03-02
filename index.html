@@ -3,130 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק חשבון</title>
+    <title>דף נחיתה</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #f0f8ff;
-            font-size: 18px; /* שינוי גודל הגופן של כל הדף */
         }
-        #game-container {
-            margin: 50px auto;
+        table {
             width: 50%;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 50px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        td {
+            background-color: #f2f2f2;
         }
         h1 {
-            font-size: 36px; /* שינוי גודל הגופן של הכותרת */
+            font-size: 36px;
+            margin-top: 50px;
         }
-        .hidden { display: none; }
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
-
 <body>
-    <div id="game-container">
-        <h1>שאלון חשבון לאלופים כיתה ד</h1>
-        <p id="question-number"></p>
-        <p id="question"></p>
-        <input type="number" id="answer" placeholder="הקלד תשובה">
-        <button onclick="checkAnswer()">בדיקה</button>
-        <p id="feedback"></p>
-        <div id="summary" class="hidden">
-            <h2>סיכום</h2>
-            <table border="1">
-                <thead>
-                    <tr><th>שאלה מספר</th><th>השאלה</th><th>הזמן שלקח</th></tr>
-                </thead>
-                <tbody id="summary-body"></tbody>
-            </table>
-            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מביטח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
-        </div>
-    </div>
-    <script>
-        let questions = [];
-        let currentQuestion = 0;
-        let startTime;
-        let times = [];
-
-        function generateQuestion() {
-            let operators = ['+', '-', '*', ':'];
-            let operator = operators[Math.floor(Math.random() * operators.length)];
-            let num1, num2;
-            
-            if (operator === '*') {
-                if (Math.random() < 0.5) {
-                    num1 = Math.floor(Math.random() * 9) + 1; // חד ספרתי
-                    num2 = Math.floor(Math.random() * 90) + 10; // דו ספרתי
-                } else {
-                    num1 = Math.floor(Math.random() * 9) + 1; // חד ספרתי
-                    num2 = Math.floor(Math.random() * 9) + 1; // חד ספרתי
-                }
-            } else if (operator === ':') {
-                num2 = Math.floor(Math.random() * 100) + 1; // מחלק בין 1 ל-100
-                num1 = num2 * Math.floor(Math.random() * 10 + 1); // מבטיח שהתוצאה תהיה מספר שלם עד 100
-                while (num1 > 100) {
-                    num1 = num2 * Math.floor(Math.random() * 10 + 1);
-                }
-            } else if (operator === '-') {
-                num1 = Math.floor(Math.random() * 200) + 1;
-                num2 = Math.floor(Math.random() * num1); // מבטיח שהתוצאה לא תהיה שלילית
-            } else {
-                num1 = Math.floor(Math.random() * 200) + 1;
-                num2 = Math.floor(Math.random() * 200) + 1;
-            }
-            
-            let questionStr = `${num1} ${operator} ${num2}`;
-            let answer = operator === ':' ? num1 / num2 : eval(questionStr.replace(':', '/'));
-            return { questionStr, answer };
-        }
-
-        function startGame() {
-            for (let i = 0; i < 10; i++) {
-                questions.push(generateQuestion());
-            }
-            nextQuestion();
-        }
-
-        function nextQuestion() {
-            if (currentQuestion >= questions.length) {
-                showSummary();
-                return;
-            }
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
-            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
-            document.getElementById("answer").value = "";
-            document.getElementById("feedback").innerText = "";
-            startTime = new Date();
-        }
-
-        function checkAnswer() {
-            let userAnswer = parseFloat(document.getElementById("answer").value);
-            let correctAnswer = questions[currentQuestion].answer;
-            if (userAnswer === correctAnswer) {
-                let endTime = new Date();
-                let timeTaken = Math.round((endTime - startTime) / 1000);
-                times.push(timeTaken);
-                currentQuestion++;
-                nextQuestion();
-            } else {
-                document.getElementById("feedback").innerText = "נסה שוב , לא למהר נסה להתרכז";
-            }
-        }
-
-        function showSummary() {
-            let summaryBody = document.getElementById("summary-body");
-            summaryBody.innerHTML = "";
-            questions.forEach((q, i) => {
-                let row = `<tr><td>${i + 1}</td><td>${q.questionStr} = ${q.answer}</td><td>${times[i]} שניות</td></tr>`;
-                summaryBody.innerHTML += row;
-            });
-            document.getElementById("summary").classList.remove("hidden");
-        }
-
-        startGame();
-    </script>
+    <h1>ברוכים הבאים לדף הנחיתה</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>כיתה</th>
+                <th>לינק</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>כיתה ב</td>
+                <td><a href="core-2.html">לחץ כאן</a></td>
+            </tr>
+            <tr>
+                <td>כיתה ד</td>
+                <td><a href="core-4.html">לחץ כאן</a></td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
