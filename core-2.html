@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #f0f8ff;
-            font-size: 18px; /* שינוי גודל הגופן של כל הדף */
+            font-size: 18px;
         }
         #game-container {
             margin: 50px auto;
@@ -20,20 +20,47 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
-            font-size: 36px; /* שינוי גודל הגופן של הכותרת */
+            font-size: 36px;
         }
         .hidden { display: none; }
+        
+        /* עיצוב פס התקדמות */
+        #progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px auto;
+            height: 25px;
+            position: relative;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
     <div id="game-container">
         <h1>שאלון חשבון לאלופים כיתה ב</h1>
+        
+        <!-- פס התקדמות -->
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+
         <p id="question-number"></p>
         <p id="question"></p>
         <input type="number" id="answer" placeholder="הקלד תשובה">
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
+
         <div id="summary" class="hidden">
             <h2>סיכום</h2>
             <table border="1">
@@ -42,9 +69,10 @@
                 </thead>
                 <tbody id="summary-body"></tbody>
             </table>
-            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מביטח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
+            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
         </div>
     </div>
+
     <script>
         let questions = [];
         let currentQuestion = 0;
@@ -57,22 +85,14 @@
             let num1, num2;
             
             if (operator === '*') {
-                // כפל עד 100, או כפל של חד ספרתי במספר דו ספרתי
-                if (Math.random() < 0.5) {
-                    num1 = Math.floor(Math.random() * 9) + 1; // חד ספרתי
-                    num2 = Math.floor(Math.random() * 10) + 1; // עד 100
-                } else {
-                    num1 = Math.floor(Math.random() * 9) + 1; // חד ספרתי
-                    num2 = Math.floor(Math.random() * 90) + 10; // דו ספרתי
-                }
+                num1 = Math.floor(Math.random() * 9) + 1;
+                num2 = Math.floor(Math.random() * 10) + 1;
             } else if (operator === ':') {
-                // חילוק: מונה תמיד גדול מהמכנה והתוצאה תמיד שלמה
-                num2 = Math.floor(Math.random() * 9) + 1; // מכנה חד ספרתי
-                num1 = num2 * (Math.floor(Math.random() * 10) + 1); // מונה יהיה כפולה של המכנה (תוצאה שלמה)
-
+                num2 = Math.floor(Math.random() * 9) + 1;
+                num1 = num2 * (Math.floor(Math.random() * 10) + 1);
             } else if (operator === '-') {
                 num1 = Math.floor(Math.random() * 100) + 1;
-                num2 = Math.floor(Math.random() * num1); // מבטיח שהתוצאה לא תהיה שלילית
+                num2 = Math.floor(Math.random() * num1);
             } else {
                 num1 = Math.floor(Math.random() * 100) + 1;
                 num2 = Math.floor(Math.random() * 100) + 1;
@@ -87,6 +107,7 @@
             for (let i = 0; i < 10; i++) {
                 questions.push(generateQuestion());
             }
+            updateProgress();
             nextQuestion();
         }
 
@@ -110,10 +131,20 @@
                 let timeTaken = Math.round((endTime - startTime) / 1000);
                 times.push(timeTaken);
                 currentQuestion++;
+                updateProgress();
                 nextQuestion();
             } else {
-                document.getElementById("feedback").innerText = "נסה שוב , לא למהר נסה להתרכז";
+                document.getElementById("feedback").innerText = "נסה שוב, לא למהר נסה להתרכז";
             }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) {
+                progress = 100;
+            }
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
 
         function showSummary() {
@@ -124,6 +155,7 @@
                 summaryBody.innerHTML += row;
             });
             document.getElementById("summary").classList.remove("hidden");
+            updateProgress(); // מבטיח שהפס יוצג על 100% בסוף המשחק
         }
 
         startGame();
