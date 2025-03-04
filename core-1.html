@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חשבון</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            font-size: 18px;
+        }
+        #game-container {
+            margin: 50px auto;
+            width: 50%;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 36px;
+        }
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px auto;
+            height: 25px;
+            position: relative;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>שאלון חשבון לאלופים כיתה א</h1>
+        
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה">
+        <button onclick="checkAnswer()">בדיקה</button>
+        <p id="feedback"></p>
+
+        <div id="summary" class="hidden">
+            <h2>סיכום</h2>
+            <table border="1">
+                <thead>
+                    <tr><th>שאלה מספר</th><th>השאלה</th><th>הזמן שלקח</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+			<p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let times = [];
+
+        function generateQuestion() {
+            let num1 = Math.floor(Math.random() * 11);
+            let num2 = Math.floor(Math.random() * (11 - num1));
+            let questionStr = `${num1} + ${num2}`;
+            let answer = num1 + num2;
+            return { questionStr, answer };
+        }
+
+        function startGame() {
+            for (let i = 0; i < 10; i++) {
+                questions.push(generateQuestion());
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById("answer").value);
+            let correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                let endTime = new Date();
+                let timeTaken = Math.round((endTime - startTime) / 1000);
+                times.push(timeTaken);
+                currentQuestion++;
+                updateProgress();
+                nextQuestion();
+            } else {
+                document.getElementById("feedback").innerText = "נסה שוב, תחשוב טוב!";
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questions.forEach((q, i) => {
+                let row = `<tr><td>${i + 1}</td><td>${q.questionStr} = ${q.answer}</td><td>${times[i]} שניות</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+            updateProgress();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
