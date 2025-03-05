@@ -84,7 +84,6 @@
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
-            display: none;
         }
         .confetti {
             position: fixed;
@@ -107,6 +106,19 @@
             0% { transform: translateY(-100%) rotate(0deg); }
             100% { transform: translateY(100vh) rotate(360deg); }
         }
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #summary-table th, #summary-table td {
+            border: 1px solid white;
+            padding: 10px;
+            text-align: center;
+        }
+        #summary-table th {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -125,21 +137,22 @@
         </div>
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
-        <div id="summary" class="hidden">
-            <h2>סיכום</h2>
-            <table border="1">
-                <thead>
-                    <tr><th>שאלה מספר</th><th>השאלה</th><th>הזמן שלקח</th></tr>
-                </thead>
-                <tbody id="summary-body"></tbody>
-            </table>
-	<p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
-        </div>
-        <div id="congratulations">
-            <h2>כל הכבוד!</h2>
-            <p>עשית עבודה מעולה! אתה באמת אלוף השברים!</p>
-            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים.</p>
-        </div>
+    </div>
+    <div id="congratulations" style="display:none;">
+        <h2>כל הכבוד!</h2>
+        <p>עשית עבודה מעולה! אתה באמת אלוף השברים!</p>
+        <table id="summary-table">
+            <thead>
+                <tr>
+                    <th>שאלה</th>
+                    <th>תרגיל</th>
+                    <th>תשובה</th>
+                    <th>זמן (שניות)</th>
+                </tr>
+            </thead>
+            <tbody id="summary-body"></tbody>
+        </table>
+        <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים.</p>
     </div>
     <div class="confetti"></div>
 
@@ -148,6 +161,7 @@
         let currentQuestion = 0;
         let startTime;
         let times = [];
+        let questionDetails = [];
 
         function gcd(a, b) {
             return b === 0 ? a : gcd(b, a % b);
@@ -184,6 +198,8 @@
                                   <span class='denominator'>${denominator2}</span>
                               </div>`;
 
+            let questionDisplayStr = `${numerator1}/${denominator1} ${operator} ${numerator2}/${denominator2}`;
+
             let commonDenominator = denominator1 * denominator2;
             let newNumerator1 = numerator1 * denominator2;
             let newNumerator2 = numerator2 * denominator1;
@@ -196,7 +212,11 @@
 
             let { numerator, denominator: newDenominator } = simplifyFraction(finalNumerator, commonDenominator);
 
-            return { questionStr, answer: { numerator, denominator: newDenominator } };
+            return { 
+                questionStr, 
+                questionDisplayStr,
+                answer: { numerator, denominator: newDenominator } 
+            };
         }
 
         function startGame() {
@@ -209,7 +229,6 @@
 
         function createConfetti() {
             const confettiContainer = document.querySelector('.confetti');
-            // Clear any existing confetti
             confettiContainer.innerHTML = '';
             
             for (let i = 0; i < 50; i++) {
@@ -244,6 +263,14 @@
                 let endTime = new Date();
                 let timeTaken = Math.round((endTime - startTime) / 1000);
                 times.push(timeTaken);
+                
+                // Store question details
+                questionDetails.push({
+                    question: questions[currentQuestion].questionDisplayStr,
+                    answer: `${correctAnswer.numerator}/${correctAnswer.denominator}`,
+                    time: timeTaken
+                });
+
                 currentQuestion++;
                 updateProgress();
                 nextQuestion();
@@ -261,9 +288,24 @@
         function showCongratulations() {
             document.getElementById("game-container").style.display = "none";
             const congratsDiv = document.getElementById("congratulations");
+            const summaryBody = document.getElementById("summary-body");
+
+            // Populate summary table
+            questionDetails.forEach((detail, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${detail.question}</td>
+                        <td>${detail.answer}</td>
+                        <td>${detail.time}</td>
+                    </tr>
+                `;
+                summaryBody.innerHTML += row;
+            });
+
             congratsDiv.style.display = "block";
             
-            // Create confetti only when all questions are answered correctly
+            // Create confetti
             createConfetti();
         }
 
