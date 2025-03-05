@@ -157,13 +157,24 @@
     { "question": "יש לי 189 ממתקים. חילקתי 99 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 90 }
 ];
 
+        let shuffledProblems = [...problems]; // מערך מעורבב של השאלות
         let currentQuestion = 0;
         let results = [];
         let startTime;
 
+        // בלג את השאלות בתחילת המבחן
+        shuffleProblems();
+
+        function shuffleProblems() {
+            for (let i = shuffledProblems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledProblems[i], shuffledProblems[j]] = [shuffledProblems[j], shuffledProblems[i]];
+            }
+        }
+
         function startQuestion() {
-            if (currentQuestion < 5) {
-                document.getElementById('problem').textContent = problems[currentQuestion].question;
+            if (currentQuestion < shuffledProblems.length) {
+                document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
                 document.getElementById('answer').value = '';
                 document.getElementById('feedback').textContent = '';
                 updateProgress();
@@ -173,7 +184,7 @@
 
         function updateProgress() {
             const progress = document.getElementById('progress');
-            const percentage = (currentQuestion / 5) * 100;
+            const percentage = (currentQuestion / shuffledProblems.length) * 100;
             progress.style.width = `${percentage}%`;
         }
 
@@ -189,11 +200,11 @@
                 return;
             }
 
-            const correctAnswer = problems[currentQuestion].answer;
+            const correctAnswer = shuffledProblems[currentQuestion].answer;
             const isCorrect = parseInt(userAnswer) === correctAnswer;
 
             results.push({
-                question: problems[currentQuestion].question,
+                question: shuffledProblems[currentQuestion].question,
                 userAnswer: userAnswer,
                 correctAnswer: correctAnswer,
                 timeTaken: timeTaken,
@@ -205,7 +216,7 @@
 
             setTimeout(() => {
                 currentQuestion++;
-                if (currentQuestion < 5) {
+                if (currentQuestion < shuffledProblems.length) {
                     startQuestion();
                 } else {
                     showSummary();
@@ -343,6 +354,9 @@
             results = [];
             document.getElementById('quizContainer').style.display = 'block';
             document.getElementById('summaryContainer').style.display = 'none';
+            // בלג מחדש את השאלות עבור התחלה מחדש
+            shuffledProblems = [...problems];
+            shuffleProblems();
             startQuestion();
         }
 
