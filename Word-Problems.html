@@ -47,18 +47,27 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .progress-container {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         .progress-bar {
             width: 100%;
             background-color: #ddd;
             height: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-top: 5px;
         }
         .progress {
             height: 100%;
             background-color: #4CAF50;
             border-radius: 10px;
             transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 1em;
+            color: #333;
         }
         .summary-container {
             display: none;
@@ -86,8 +95,11 @@
 </head>
 <body>
     <div class="problem-container" id="quizContainer">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+        <div class="progress-container">
+            <div class="progress-text" id="progressText"></div>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
         </div>
         <div class="problem" id="problem"></div>
         <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
@@ -105,20 +117,81 @@
 
     <script>
         const problems = [
-            { question: "יוסי קנה 24 עוגיות. הוא אכל 7 עוגיות ונתן לחברו 5 עוגיות. כמה עוגיות נשארו לו?", answer: 12 },
-            { question: "בכיתה יש 32 תלמידים. 15 תלמידים הם בנים. כמה תלמידות יש בכיתה?", answer: 17 },
-            { question: "אמא קנתה 45 תפוחים. היא חילקה 18 תפוחים לילדים שלה ו-12 תפוחים לשכנים. כמה תפוחים נשארו לה?", answer: 15 },
-            { question: "בבריכה היו 56 מטרים. שחיינית שחתה 23 מטרים. כמה מטרים נשארו לשחות?", answer: 33 },
-            { question: "משה אסף 67 מדבקות. הוא נתן לחברו 19 מדבקות. כמה מדבקות נשארו לו?", answer: 48 }
-        ];
+    { "question": "ליאור קנה 45 תפוחים. הוא נתן 18 תפוחים לחברו. כמה תפוחים נשארו לו?", "answer": 27 },
+    { "question": "בכיתה יש 67 תלמידים. 23 מהם הלכו הביתה. כמה תלמידים נשארו בכיתה?", "answer": 44 },
+    { "question": "אורי אסף 89 מדבקות. הוא קיבל עוד 34 מדבקות מחבר. כמה מדבקות יש לו עכשיו?", "answer": 123 },
+    { "question": "בחנות היו 156 עפרונות. מכרו 78 עפרונות. כמה עפרונות נשארו בחנות?", "answer": 78 },
+    { "question": "יש לי 112 שוקולדים. חילקתי 56 שוקולדים לחברים. כמה שוקולדים נשארו לי?", "answer": 56 },
+    { "question": "בבריכה היו 145 מטרים. שחיין שחה 67 מטרים. כמה מטרים נשארו לשחות?", "answer": 78 },
+    { "question": "נועה קנתה 78 בלונים. היא נתנה 45 בלונים לחברה שלה. כמה בלונים נשארו לה?", "answer": 33 },
+    { "question": "בגן היו 123 ילדים. 56 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 67 },
+    { "question": "יש לי 98 ספרים. קיבלתי עוד 45 ספרים במתנה. כמה ספרים יש לי עכשיו?", "answer": 143 },
+    { "question": "בחנות היו 189 צעצועים. מכרו 95 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 94 },
+    { "question": "דני אסף 134 עוגיות. הוא אכל 67 עוגיות. כמה עוגיות נשארו לו?", "answer": 67 },
+    { "question": "בבריכה היו 178 מטרים. שחיינית שחתה 89 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
+    { "question": "רוני קנה 56 תפוחים. הוא קנה עוד 78 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 134 },
+    { "question": "בכיתה יש 145 תלמידים. 67 מהם יצאו להפסקה. כמה תלמידים נשארו בכיתה?", "answer": 78 },
+    { "question": "יש לי 123 ממתקים. חילקתי 45 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 78 },
+    { "question": "בחנות היו 167 בלונים. מכרו 89 בלונים. כמה בלונים נשארו בחנות?", "answer": 78 },
+    { "question": "תמר אספה 156 פרחים. היא נתנה 78 פרחים למורה. כמה פרחים נשארו לה?", "answer": 78 },
+    { "question": "בגן היו 189 ילדים. 56 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 133 },
+    { "question": "יש לי 78 עפרונות. קניתי עוד 89 עפרונות. כמה עפרונות יש לי עכשיו?", "answer": 167 },
+    { "question": "בבריכה היו 134 מטרים. שחיין שחה 45 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
+    { "question": "שלומי קנה 145 עוגיות. הוא נתן 67 עוגיות לחבר. כמה עוגיות נשארו לו?", "answer": 78 },
+    { "question": "בחנות היו 123 צעצועים. מכרו 56 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 67 },
+    { "question": "יש לי 89 תפוחים. קיבלתי עוד 78 תפוחים. כמה תפוחים יש לי עכשיו?", "answer": 167 },
+    { "question": "בכיתה יש 156 תלמידים. 78 מהם יצאו לחצר. כמה תלמידים נשארו בכיתה?", "answer": 78 },
+    { "question": "בגן היו 145 ילדים. 67 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 78 },
+    { "question": "רעות אספה 178 פרחים. היא נתנה 89 פרחים לחברה. כמה פרחים נשארו לה?", "answer": 89 },
+    { "question": "בחנות היו 167 עפרונות. מכרו 78 עפרונות. כמה עפרונות נשארו בחנות?", "answer": 89 },
+    { "question": "יש לי 134 שוקולדים. חילקתי 56 שוקולדים לחברים. כמה שוקולדים נשארו לי?", "answer": 78 },
+    { "question": "בבריכה היו 189 מטרים. שחיינית שחתה 99 מטרים. כמה מטרים נשארו לשחות?", "answer": 90 },
+    { "question": "ניר קנה 78 בלונים. הוא קנה עוד 67 בלונים. כמה בלונים יש לו עכשיו?", "answer": 145 },
+    { "question": "בכיתה יש 123 תלמידים. 45 מהם הלכו הביתה. כמה תלמידים נשארו בכיתה?", "answer": 78 },
+    { "question": "יש לי 156 ממתקים. חילקתי 67 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 89 },
+    { "question": "בחנות היו 178 צעצועים. מכרו 89 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 89 },
+    { "question": "תומר אסף 145 מדבקות. הוא נתן 78 מדבקות לחבר. כמה מדבקות נשארו לו?", "answer": 67 },
+    { "question": "בבריכה היו 167 מטרים. שחיין שחה 78 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
+    { "question": "לילך קנתה 89 תפוחים. היא קנתה עוד 56 תפוחים. כמה תפוחים יש לה עכשיו?", "answer": 145 },
+    { "question": "בגן היו 134 ילדים. 67 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 67 },
+    { "question": "יש לי 178 עוגיות. חילקתי 89 עוגיות לחברים. כמה עוגיות נשארו לי?", "answer": 89 },
+    { "question": "בחנות היו 156 בלונים. מכרו 67 בלונים. כמה בלונים נשארו בחנות?", "answer": 89 },
+    { "question": "דוד אסף 123 פרחים. הוא נתן 45 פרחים למורה. כמה פרחים נשארו לו?", "answer": 78 },
+    { "question": "בבריכה היו 145 מטרים. שחיינית שחתה 56 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
+    { "question": "מיכל קנתה 167 עפרונות. היא נתנה 78 עפרונות לחברה. כמה עפרונות נשארו לה?", "answer": 89 },
+    { "question": "בכיתה יש 189 תלמידים. 99 מהם יצאו לחצר. כמה תלמידים נשארו בכיתה?", "answer": 90 },
+    { "question": "יש לי 134 שוקולדים. קיבלתי עוד 45 שוקולדים. כמה שוקולדים יש לי עכשיו?", "answer": 179 },
+    { "question": "בחנות היו 178 צעצועים. מכרו 89 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 89 },
+    { "question": "איתי אסף 156 מדבקות. הוא נתן 67 מדבקות לחבר. כמה מדבקות נשארו לו?", "answer": 89 },
+    { "question": "בבריכה היו 123 מטרים. שחיין שחה 34 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
+    { "question": "שרון קנתה 145 תפוחים. היא נתנה 56 תפוחים לחברה. כמה תפוחים נשארו לה?", "answer": 89 },
+    { "question": "בגן היו 167 ילדים. 78 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 89 },
+    { "question": "יש לי 189 ממתקים. חילקתי 99 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 90 }
+];
 
+        let shuffledProblems = [];
         let currentQuestion = 0;
         let results = [];
         let startTime;
 
+        // בחר 10 שאלות אקראיות ובלג אותן
+        function selectRandomQuestions() {
+            shuffledProblems = [...problems]; // העתק את כל השאלות
+            shuffleProblems(); // בלג את כל השאלות
+            shuffledProblems = shuffledProblems.slice(0, 10); // קח רק את 10 הראשונות מהמערך המעורבב
+        }
+
+        // בלג את השאלות (אלגוריתם Fisher-Yates)
+        function shuffleProblems() {
+            for (let i = shuffledProblems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledProblems[i], shuffledProblems[j]] = [shuffledProblems[j], shuffledProblems[i]];
+            }
+        }
+
         function startQuestion() {
-            if (currentQuestion < 5) {
-                document.getElementById('problem').textContent = problems[currentQuestion].question;
+            if (currentQuestion < shuffledProblems.length) { // 10 שאלות
+                document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
                 document.getElementById('answer').value = '';
                 document.getElementById('feedback').textContent = '';
                 updateProgress();
@@ -128,8 +201,11 @@
 
         function updateProgress() {
             const progress = document.getElementById('progress');
-            const percentage = (currentQuestion / 5) * 100;
+            const progressText = document.getElementById('progressText');
+            const totalQuestions = shuffledProblems.length; // 10 שאלות
+            const percentage = (currentQuestion / totalQuestions) * 100;
             progress.style.width = `${percentage}%`;
+            progressText.textContent = `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - ${Math.round(percentage)}%`;
         }
 
         function submitAnswer() {
@@ -144,23 +220,29 @@
                 return;
             }
 
-            const correctAnswer = problems[currentQuestion].answer;
+            const correctAnswer = shuffledProblems[currentQuestion].answer;
             const isCorrect = parseInt(userAnswer) === correctAnswer;
 
+            if (!isCorrect) {
+                feedbackElement.textContent = 'טעות! התרכז ונסה שוב.';
+                feedbackElement.style.color = 'red';
+                return; // לא עוברים לשאלה הבאה עד שהתשובה נכונה
+            }
+
             results.push({
-                question: problems[currentQuestion].question,
+                question: shuffledProblems[currentQuestion].question,
                 userAnswer: userAnswer,
                 correctAnswer: correctAnswer,
                 timeTaken: timeTaken,
                 isCorrect: isCorrect
             });
 
-            feedbackElement.textContent = isCorrect ? 'כל הכבוד!' : `טעות! התשובה הנכונה היא ${correctAnswer}`;
-            feedbackElement.style.color = isCorrect ? 'green' : 'red';
+            feedbackElement.textContent = 'כל הכבוד!';
+            feedbackElement.style.color = 'green';
 
             setTimeout(() => {
                 currentQuestion++;
-                if (currentQuestion < 5) {
+                if (currentQuestion < shuffledProblems.length) {
                     startQuestion();
                 } else {
                     showSummary();
@@ -298,9 +380,13 @@
             results = [];
             document.getElementById('quizContainer').style.display = 'block';
             document.getElementById('summaryContainer').style.display = 'none';
+            // בחר 10 שאלות חדשות באקראי
+            selectRandomQuestions();
             startQuestion();
         }
 
+        // התחל עם 10 שאלות אקראיות
+        selectRandomQuestions();
         startQuestion();
     </script>
 </body>
