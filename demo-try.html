@@ -157,14 +157,19 @@
     { "question": "יש לי 189 ממתקים. חילקתי 99 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 90 }
 ];
 
-        let shuffledProblems = [...problems]; // מערך מעורבב של השאלות
+        let shuffledProblems = [];
         let currentQuestion = 0;
         let results = [];
         let startTime;
 
-        // בלג את השאלות בתחילת המבחן
-        shuffleProblems();
+        // בחר 10 שאלות אקראיות ובלג אותן
+        function selectRandomQuestions() {
+            shuffledProblems = [...problems]; // העתק את כל השאלות
+            shuffleProblems(); // בלג את כל השאלות
+            shuffledProblems = shuffledProblems.slice(0, 10); // קח רק את 10 הראשונות מהמערך המעורבב
+        }
 
+        // בלג את השאלות (אלגוריתם Fisher-Yates)
         function shuffleProblems() {
             for (let i = shuffledProblems.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -173,7 +178,7 @@
         }
 
         function startQuestion() {
-            if (currentQuestion < shuffledProblems.length) {
+            if (currentQuestion < shuffledProblems.length) { // 10 שאלות
                 document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
                 document.getElementById('answer').value = '';
                 document.getElementById('feedback').textContent = '';
@@ -184,7 +189,7 @@
 
         function updateProgress() {
             const progress = document.getElementById('progress');
-            const percentage = (currentQuestion / shuffledProblems.length) * 100;
+            const percentage = (currentQuestion / shuffledProblems.length) * 100; // חישוב אחוזים מתוך 10
             progress.style.width = `${percentage}%`;
         }
 
@@ -354,12 +359,13 @@
             results = [];
             document.getElementById('quizContainer').style.display = 'block';
             document.getElementById('summaryContainer').style.display = 'none';
-            // בלג מחדש את השאלות עבור התחלה מחדש
-            shuffledProblems = [...problems];
-            shuffleProblems();
+            // בחר 10 שאלות חדשות באקראי
+            selectRandomQuestions();
             startQuestion();
         }
 
+        // התחל עם 10 שאלות אקראיות
+        selectRandomQuestions();
         startQuestion();
     </script>
 </body>
