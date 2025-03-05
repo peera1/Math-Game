@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון חשבון מדהים לכיתה ג'</title>
+    <style>
+        body {
+            font-family: 'Rubik', Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            font-size: 20px;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        #game-container {
+            margin: 50px auto;
+            width: 70%;
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease-in-out;
+        }
+        #game-container:hover {
+            transform: scale(1.02);
+        }
+        h1 {
+            font-size: 48px;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 36px;
+            color: #e74c3c;
+            animation: bounce 2s infinite;
+        }
+        #progress-container {
+            width: 100%;
+            background-color: #ecf0f1;
+            border-radius: 15px;
+            margin: 20px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+        }
+        .correct { background-color: rgba(46, 204, 113, 0.2); }
+        .wrong { background-color: rgba(231, 76, 60, 0.2); }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 2px solid #3498db;
+            margin: 10px;
+            width: 150px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+        #summary-table th, #summary-table td {
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+        #summary-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        #summary-table tr:hover {
+            background-color: #ddd;
+        }
+        #fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #fff;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="fireworks"></div>
+    <div id="game-container">
+        <h1>שאלון חשבון מדהים לכיתה ג'</h1>
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה" autofocus>
+        <button onclick="checkAnswer()">בדוק תשובה</button>
+        <p id="feedback"></p>
+    </div>
+    <audio id="correct-sound" src="https://www.myinstants.com/media/sounds/correct.mp3"></audio>
+    <script>
+        let uniqueQuestions = [
+ { questionStr: "(8 + 4) × 2", answer: 24 },
+    { questionStr: "18 ÷ 3 + 5", answer: 11 },
+    { questionStr: "7 × (6 - 2)", answer: 28 },
+    { questionStr: "20 - 4 × 3", answer: 8 },
+    { questionStr: "(15 - 5) ÷ 2", answer: 5 },
+    { questionStr: "9 + 6 ÷ 3", answer: 11 },
+    { questionStr: "(12 ÷ 4) + 7", answer: 10 },
+    { questionStr: "5 × (10 - 6)", answer: 20 },
+    { questionStr: "(18 - 6) ÷ 3", answer: 4 },
+    { questionStr: "14 + 8 ÷ 2", answer: 18 },
+    { questionStr: "(10 + 5) × 2", answer: 30 },
+    { questionStr: "25 - 10 ÷ 2", answer: 20 },
+    { questionStr: "30 ÷ (5 + 1)", answer: 5 },
+    { questionStr: "(9 + 3) × 4", answer: 48 },
+    { questionStr: "40 ÷ (8 - 4)", answer: 10 },
+    { questionStr: "7 × (10 - 8)", answer: 14 },
+    { questionStr: "(24 ÷ 6) + 9", answer: 13 },
+    { questionStr: "50 - 4 × 5", answer: 30 },
+    { questionStr: "16 ÷ (4 + 4)", answer: 2 },
+    { questionStr: "(6 + 2) × 3", answer: 24 },
+    { questionStr: "10 + 4 × 2", answer: 18 },
+    { questionStr: "(20 - 8) ÷ 4", answer: 3 },
+    { questionStr: "35 ÷ 5 + 2", answer: 9 },
+    { questionStr: "(7 × 3) - 5", answer: 16 },
+    { questionStr: "(18 ÷ 3) + 6", answer: 12 },
+    { questionStr: "50 ÷ (10 - 5)", answer: 10 },
+    { questionStr: "6 × (9 - 3)", answer: 36 },
+    { questionStr: "(21 ÷ 7) + 10", answer: 13 },
+    { questionStr: "8 + 4 × 3", answer: 20 },
+    { questionStr: "(5 + 3) × 2", answer: 16 },
+    { questionStr: "45 ÷ (9 - 4)", answer: 9 },
+    { questionStr: "30 - 6 × 5", answer: 0 },
+    { questionStr: "(14 ÷ 2) + 7", answer: 14 },
+    { questionStr: "10 + (8 ÷ 4)", answer: 12 },
+    { questionStr: "5 × (12 ÷ 6)", answer: 10 },
+    { questionStr: "(9 + 6) × 2", answer: 30 },
+    { questionStr: "100 ÷ (20 - 10)", answer: 10 },
+    { questionStr: "(50 - 20) ÷ 5", answer: 6 },
+    { questionStr: "8 × (7 - 5)", answer: 16 },
+    { questionStr: "(24 ÷ 8) + 6", answer: 9 },
+    { questionStr: "42 ÷ (14 ÷ 2)", answer: 6 },
+    { questionStr: "(11 - 3) × 4", answer: 32 },
+    { questionStr: "60 ÷ (15 - 5)", answer: 6 },
+    { questionStr: "(30 - 18) ÷ 2", answer: 6 },
+    { questionStr: "9 × (5 - 2)", answer: 27 },
+    { questionStr: "(36 ÷ 6) + 8", answer: 14 },
+    { questionStr: "48 ÷ (12 ÷ 4)", answer: 16 },
+    { questionStr: "(20 + 10) ÷ 5", answer: 6 },
+    { questionStr: "9 + 6 × (8 - 5)", answer: 27 }
+        ];
+        
+        // הסר כפולות
+        let questions = [];
+        function selectUniqueQuestions() {
+            let shuffled = uniqueQuestions.sort(() => 0.5 - Math.random());
+            let selected = new Set();
+            
+            for (let q of shuffled) {
+                if (questions.length >= 10) break;
+                
+                // בדוק אם השאלה כבר קיימת
+                let isDuplicate = questions.some(existQ => 
+                    existQ.questionStr === q.questionStr || existQ.answer === q.answer
+                );
+                
+                if (!isDuplicate) {
+                    questions.push(q);
+                }
+            }
+        }
+        
+        selectUniqueQuestions();
+        let currentQuestion = 0;
+        let startTime = Date.now();
+        let times = [];
+
+        function startGame() {
+            updateProgress();
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            let container = document.getElementById("game-container");
+            container.classList.remove("correct", "wrong");
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            document.getElementById("question").innerHTML = `<span dir="ltr">${questions[currentQuestion].questionStr}</span>`;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").innerText = "";
+            document.getElementById("answer").focus();
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById("answer").value);
+            let correctAnswer = questions[currentQuestion].answer;
+            let gameContainer = document.getElementById("game-container");
+            let feedback = document.getElementById("feedback");
+            let correctSound = document.getElementById("correct-sound");
+            
+            let timeTaken = (Date.now() - startTime) / 1000;
+            times.push({ 
+                question: questions[currentQuestion].questionStr, 
+                answer: userAnswer, 
+                correct: correctAnswer, 
+                time: timeTaken,
+                correctFlag: userAnswer === correctAnswer 
+            });
+            startTime = Date.now();
+
+            if (userAnswer === correctAnswer) {
+                currentQuestion++;
+                gameContainer.classList.add("correct");
+                correctSound.play();
+                feedback.innerText = "כל הכבוד! תשובה נכונה!";
+                updateProgress();
+                setTimeout(nextQuestion, 1000);
+            } else {
+                gameContainer.classList.add("wrong");
+                feedback.innerText = "תנסה שוב ותתרכז!";
+                setTimeout(() => gameContainer.classList.remove("wrong"), 1500);
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            let progressBar = document.getElementById("progress-bar");
+            progressBar.style.width = progress + "%";
+            progressBar.innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            let container = document.getElementById("game-container");
+            let correctCount = times.filter(t => t.correctFlag).length;
+            container.innerHTML = `
+                <h2>כל הכבוד! סיימת את החידון!</h2>
+                <p>צדקת ב-${correctCount} מתוך ${questions.length} שאלות!</p>
+                <table id="summary-table">
+                    <tr>
+                        <th>שאלה</th>
+                        <th>תשובתך</th>
+                        <th>תשובה נכונה</th>
+                        <th>זמן (שניות)</th>
+                        <th>מצב</th>
+                    </tr>
+                    ${times.map(t => `
+                        <tr>
+                            <td>${t.question}</td>
+                            <td>${t.answer}</td>
+                            <td>${t.correct}</td>
+                            <td>${t.time.toFixed(2)}</td>
+                            <td style="color: ${t.correctFlag ? '#27ae60' : '#e74c3c'}">
+                                ${t.correctFlag ? '✓ נכון' : '✗ שגוי'}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+            startFireworks();
+        }
+
+        function startFireworks() {
+            const fireworksContainer = document.getElementById("fireworks");
+            function createFirework() {
+                const firework = document.createElement("div");
+                firework.className = "firework";
+                firework.style.left = Math.random() * 100 + "vw";
+                firework.style.top = Math.random() * 100 + "vh";
+                firework.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                fireworksContainer.appendChild(firework);
+
+                let x = (Math.random() - 0.5) * 300;
+                let y = (Math.random() - 0.5) * 300;
+                let scale = Math.random() * 2 + 1;
+                firework.style.transition = "all 1s ease-out";
+                setTimeout(() => {
+                    firework.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+                    firework.style.opacity = "0";
+                }, 10);
+                setTimeout(() => firework.remove(), 1000);
+            }
+
+            let interval = setInterval(createFirework, 100);
+            setTimeout(() => clearInterval(interval), 5000); // 5 שניות של זיקוקים
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
