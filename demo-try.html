@@ -47,18 +47,27 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .progress-container {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
         .progress-bar {
             width: 100%;
             background-color: #ddd;
             height: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-top: 5px;
         }
         .progress {
             height: 100%;
             background-color: #4CAF50;
             border-radius: 10px;
             transition: width 0.3s ease;
+        }
+        .progress-text {
+            font-size: 1em;
+            color: #333;
         }
         .summary-container {
             display: none;
@@ -86,8 +95,11 @@
 </head>
 <body>
     <div class="problem-container" id="quizContainer">
-        <div class="progress-bar">
-            <div class="progress" id="progress"></div>
+        <div class="progress-container">
+            <div class="progress-text" id="progressText"></div>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
         </div>
         <div class="problem" id="problem"></div>
         <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
@@ -189,8 +201,11 @@
 
         function updateProgress() {
             const progress = document.getElementById('progress');
-            const percentage = (currentQuestion / shuffledProblems.length) * 100; // חישוב אחוזים מתוך 10
+            const progressText = document.getElementById('progressText');
+            const totalQuestions = shuffledProblems.length; // 10 שאלות
+            const percentage = (currentQuestion / totalQuestions) * 100;
             progress.style.width = `${percentage}%`;
+            progressText.textContent = `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - ${Math.round(percentage)}%`;
         }
 
         function submitAnswer() {
@@ -208,6 +223,12 @@
             const correctAnswer = shuffledProblems[currentQuestion].answer;
             const isCorrect = parseInt(userAnswer) === correctAnswer;
 
+            if (!isCorrect) {
+                feedbackElement.textContent = 'טעות! התרכז ונסה שוב.';
+                feedbackElement.style.color = 'red';
+                return; // לא עוברים לשאלה הבאה עד שהתשובה נכונה
+            }
+
             results.push({
                 question: shuffledProblems[currentQuestion].question,
                 userAnswer: userAnswer,
@@ -216,8 +237,8 @@
                 isCorrect: isCorrect
             });
 
-            feedbackElement.textContent = isCorrect ? 'כל הכבוד!' : `טעות! התשובה הנכונה היא ${correctAnswer}`;
-            feedbackElement.style.color = isCorrect ? 'green' : 'red';
+            feedbackElement.textContent = 'כל הכבוד!';
+            feedbackElement.style.color = 'green';
 
             setTimeout(() => {
                 currentQuestion++;
