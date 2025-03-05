@@ -102,12 +102,14 @@
     <canvas class="fireworks" id="fireworksCanvas"></canvas>
     <script>
         let problems = [];
-        fetch('questions.json')
-            .then(response => response.json())
-            .then(data => {
-                problems = data;
-                startQuestion();
-            });
+    fetch('questions.json')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // בדוק ב-Console של הדפדפן אם הנתונים נטענים
+            problems = data;
+            startQuestion();
+        })
+        .catch(error => console.error('Error loading JSON:', error));
 
         let currentQuestion = 0;
         let results = [];
