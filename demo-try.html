@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלות מילוליות בחשבון</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            position: relative;
+        }
+        .problem-container, .summary-container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .problem {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        #answer {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .summary-container {
+            display: none;
+        }
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        #summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #summary li {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(240, 240, 240, 0.9);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="problem-container" id="quizContainer">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="problem" id="problem"></div>
+        <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
+        <button onclick="submitAnswer()">שלח תשובה</button>
+        <div id="feedback"></div>
+    </div>
+    <div class="summary-container" id="summaryContainer">
+        <h2>סיכום המבחן</h2>
+        <div id="summary"></div>
+        <button onclick="restartQuiz()">התחל מחדש</button>
+    </div>
+    <canvas class="fireworks" id="fireworksCanvas"></canvas>
+    <script>
+        let problems = [];
+        fetch('questions.json')
+            .then(response => response.json())
+            .then(data => {
+                problems = data;
+                startQuestion();
+            });
+
+        let currentQuestion = 0;
+        let results = [];
+        let startTime;
+
+        function startQuestion() {
+            if (currentQuestion < problems.length) {
+                document.getElementById('problem').textContent = problems[currentQuestion].question;
+                document.getElementById('answer').value = '';
+                document.getElementById('feedback').textContent = '';
+                updateProgress();
+                startTime = new Date();
+            }
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = (currentQuestion / problems.length) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function submitAnswer() {
+            const userAnswer = document.getElementById('answer').value;
+            const feedbackElement = document.getElementById('feedback');
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+            if (userAnswer === '') {
+                feedbackElement.textContent = 'אנא הכנס תשובה';
+                feedbackElement.style.color = 'orange';
+                return;
+            }
+            const correctAnswer = problems[currentQuestion].answer;
+            const isCorrect = parseInt(userAnswer) === correctAnswer;
+            results.push({
+                question: problems[currentQuestion].question,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                timeTaken: timeTaken,
+                isCorrect: isCorrect
+            });
+            feedbackElement.textContent = isCorrect ? 'כל הכבוד!' : `טעות! התשובה הנכונה היא ${correctAnswer}`;
+            feedbackElement.style.color = isCorrect ? 'green' : 'red';
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < problems.length) {
+                    startQuestion();
+                } else {
+                    showSummary();
+                }
+            }, 1000);
+        }
+
+        function showSummary() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const summaryContainer = document.getElementById('summaryContainer');
+            summaryContainer.style.display = 'block';
+            let summaryHTML = '<ul>';
+            results.forEach((result, index) => {
+                summaryHTML += `
+                    <li>
+                        <strong>שאלה ${index + 1}:</strong> ${result.question}<br>
+                        <strong>תשובתך:</strong> ${result.userAnswer}<br>
+                        <strong>תשובה נכונה:</strong> ${result.correctAnswer}<br>
+                        <strong>זמן:</strong> ${result.timeTaken} שניות<br>
+                        <strong>מצב:</strong> ${result.isCorrect ? 'נכון' : 'שגוי'}
+                    </li>`;
+            });
+            summaryHTML += '</ul>';
+            document.getElementById('summary').innerHTML = summaryHTML;
+            launchFireworks();
+        }
+
+        function launchFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+            class Firework {
+                constructor() {
+                    this.x = random(0, canvas.width);
+                    this.y = canvas.height;
+                    this.targetY = random(0, canvas.height * 0.5);
+                    this.speed = random(2, 5);
+                    this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
+                    this.radius = random(2, 4);
+                    this.exploded = false;
+                    this.particles = [];
+                }
+                update() {
+                    if (!this.exploded) {
+                        this.y -= this.speed;
+                        if (this.y <= this.targetY) {
+                            this.explode();
+                        }
+                    }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x
