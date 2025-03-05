@@ -78,6 +78,35 @@
             width: 50px;
             border-bottom: 2px solid black;
         }
+        #congratulations {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: yellow;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100%) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -106,7 +135,14 @@
             </table>
 	<p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
         </div>
+        <div id="congratulations">
+            <h2>כל הכבוד!</h2>
+            <p>עשית עבודה מעולה! אתה באמת אלוף השברים!</p>
+            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים.</p>
+        </div>
     </div>
+    <div class="confetti"></div>
+
     <script>
         let questions = [];
         let currentQuestion = 0;
@@ -122,72 +158,76 @@
             return { numerator: numerator / divisor, denominator: denominator / divisor };
         }
 
-function generateFractionQuestion() {
-    let operators = ['+', '-'];
-    let operator = operators[Math.floor(Math.random() * operators.length)];
-    
-    // מכנים שונים לשאלות
-    let denominator1 = Math.floor(Math.random() * 10) + 1;
-    let denominator2 = Math.floor(Math.random() * 10) + 1;
-    
-    // מנויים אקראיים לכל מכנה
-    let numerator1 = Math.floor(Math.random() * denominator1) + 1;
-    let numerator2 = Math.floor(Math.random() * denominator2) + 1;
-    
-    // במקרה של חיסור, נוודא שהתוצאה לא תהיה שלילית
-    if (operator === '-') {
-        // נוודא שהמונה הראשון יהיה גדול מהמכנה השני במקרה של חיסור
-        if (numerator1 < numerator2) {
-            // אם התוצאה של החיסור תהיה שלילית, נשנה את השאלה לחיבור
-            operator = '+';
+        function generateFractionQuestion() {
+            let operators = ['+', '-'];
+            let operator = operators[Math.floor(Math.random() * operators.length)];
+            
+            let denominator1 = Math.floor(Math.random() * 10) + 1;
+            let denominator2 = Math.floor(Math.random() * 10) + 1;
+            
+            let numerator1 = Math.floor(Math.random() * denominator1) + 1;
+            let numerator2 = Math.floor(Math.random() * denominator2) + 1;
+            
+            if (operator === '-') {
+                if (numerator1 < numerator2) {
+                    operator = '+';
+                }
+            }
+
+            let questionStr = `<div class='fraction'>
+                                  <span class='numerator'>${numerator1}</span>
+                                  <span class='denominator'>${denominator1}</span>
+                              </div>
+                              <div class='operator'>${operator}</div>
+                              <div class='fraction'>
+                                  <span class='numerator'>${numerator2}</span>
+                                  <span class='denominator'>${denominator2}</span>
+                              </div>`;
+
+            let commonDenominator = denominator1 * denominator2;
+            let newNumerator1 = numerator1 * denominator2;
+            let newNumerator2 = numerator2 * denominator1;
+
+            let finalNumerator = operator === '+' ? newNumerator1 + newNumerator2 : newNumerator1 - newNumerator2;
+
+            if (finalNumerator < 0) {
+                finalNumerator = 0;
+            }
+
+            let { numerator, denominator: newDenominator } = simplifyFraction(finalNumerator, commonDenominator);
+
+            return { questionStr, answer: { numerator, denominator: newDenominator } };
         }
-    }
-
-    let questionStr = `<div class='fraction'>
-                          <span class='numerator'>${numerator1}</span>
-                          <span class='denominator'>${denominator1}</span>
-                      </div>
-                      <div class='operator'>${operator}</div>
-                      <div class='fraction'>
-                          <span class='numerator'>${numerator2}</span>
-                          <span class='denominator'>${denominator2}</span>
-                      </div>`;
-
-    // חישוב התשובה לפי מכנים שונים
-    let commonDenominator = denominator1 * denominator2;
-    let newNumerator1 = numerator1 * denominator2;
-    let newNumerator2 = numerator2 * denominator1;
-
-    let finalNumerator = operator === '+' ? newNumerator1 + newNumerator2 : newNumerator1 - newNumerator2;
-
-    // אם התוצאה של החיסור שלילית, נשנה אותה לחיבור
-    if (finalNumerator < 0) {
-        finalNumerator = 0;
-    }
-
-    let { numerator, denominator: newDenominator } = simplifyFraction(finalNumerator, commonDenominator);
-
-    return { questionStr, answer: { numerator, denominator: newDenominator } };
-}
-
-
-
-
 
         function startGame() {
-            for (let i = 0; i < 5; i++) {  // שינוי כאן ל-5 שאלות
+            for (let i = 0; i < 5; i++) {
                 questions.push(generateFractionQuestion());
             }
             updateProgress();
             nextQuestion();
         }
 
+        function createConfetti() {
+            const confettiContainer = document.querySelector('.confetti');
+            // Clear any existing confetti
+            confettiContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.opacity = Math.random();
+                confettiContainer.appendChild(star);
+            }
+        }
+
         function nextQuestion() {
             if (currentQuestion >= questions.length) {
-                showSummary();
+                showCongratulations();
                 return;
             }
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 5`;  // שינוי כאן ל-5 שאלות
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 5`;
             document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
             document.getElementById("answer-numerator").value = "";
             document.getElementById("answer-denominator").value = "";
@@ -216,6 +256,15 @@ function generateFractionQuestion() {
             let progress = (currentQuestion / questions.length) * 100;
             document.getElementById("progress-bar").style.width = progress + "%";
             document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showCongratulations() {
+            document.getElementById("game-container").style.display = "none";
+            const congratsDiv = document.getElementById("congratulations");
+            congratsDiv.style.display = "block";
+            
+            // Create confetti only when all questions are answered correctly
+            createConfetti();
         }
 
         startGame();
