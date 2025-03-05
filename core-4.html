@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק חשבון</title>
+    <title>שאלון חשבון לאלופים כיתה ד</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,9 +41,49 @@
             color: white;
             font-weight: bold;
         }
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: yellow;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-100%) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        #congratulations {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        #summary-table th, #summary-table td {
+            border: 1px solid white;
+            padding: 10px;
+            text-align: center;
+        }
+        #summary-table th {
+            background-color: #45a049;
+        }
     </style>
 </head>
-
 <body>
     <div id="game-container">
         <h1>שאלון חשבון לאלופים כיתה ד</h1>
@@ -55,23 +95,31 @@
         <input type="number" id="answer" placeholder="הקלד תשובה">
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
-        <div id="summary" class="hidden">
-            <h2>סיכום</h2>
-            <table border="1">
-                <thead>
-                    <tr><th>שאלה מספר</th><th>השאלה</th><th>הזמן שלקח</th></tr>
-                </thead>
-                <tbody id="summary-body"></tbody>
-            </table>
-            <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
-        </div>
     </div>
+    <div id="congratulations" style="display:none;">
+        <h2>כל הכבוד!</h2>
+        <p>עשית עבודה מעולה! אתה באמת אלוף החשבון!</p>
+        <table id="summary-table">
+            <thead>
+                <tr>
+                    <th>שאלה</th>
+                    <th>תרגיל</th>
+                    <th>תשובה</th>
+                    <th>זמן (שניות)</th>
+                </tr>
+            </thead>
+            <tbody id="summary-body"></tbody>
+        </table>
+        <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
+    </div>
+    <div class="confetti"></div>
 
     <script>
         let questions = [];
         let currentQuestion = 0;
         let startTime;
         let times = [];
+        let questionDetails = [];
 
         function generateQuestion() {
             let operators = ['+', '-', '*', ':'];
@@ -113,9 +161,23 @@
             nextQuestion();
         }
 
+        function createConfetti() {
+            const confettiContainer = document.querySelector('.confetti');
+            confettiContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.opacity = Math.random();
+                confettiContainer.appendChild(star);
+            }
+        }
+
         function nextQuestion() {
             if (currentQuestion >= questions.length) {
-                showSummary();
+                showCongratulations();
                 return;
             }
             document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
@@ -132,6 +194,14 @@
                 let endTime = new Date();
                 let timeTaken = Math.round((endTime - startTime) / 1000);
                 times.push(timeTaken);
+                
+                // Store question details
+                questionDetails.push({
+                    question: questions[currentQuestion].questionStr,
+                    answer: correctAnswer,
+                    time: timeTaken
+                });
+
                 currentQuestion++;
                 updateProgress();
                 nextQuestion();
@@ -149,15 +219,28 @@
             document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
 
-        function showSummary() {
-            let summaryBody = document.getElementById("summary-body");
-            summaryBody.innerHTML = "";
-            questions.forEach((q, i) => {
-                let row = `<tr><td>${i + 1}</td><td>${q.questionStr} = ${q.answer}</td><td>${times[i]} שניות</td></tr>`;
+        function showCongratulations() {
+            document.getElementById("game-container").style.display = "none";
+            const congratsDiv = document.getElementById("congratulations");
+            const summaryBody = document.getElementById("summary-body");
+
+            // Populate summary table
+            questionDetails.forEach((detail, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${detail.question}</td>
+                        <td>${detail.answer}</td>
+                        <td>${detail.time}</td>
+                    </tr>
+                `;
                 summaryBody.innerHTML += row;
             });
-            document.getElementById("summary").classList.remove("hidden");
-            updateProgress(); // מבטיח שהפס יוצג על 100% בסוף המשחק
+
+            congratsDiv.style.display = "block";
+            
+            // Create confetti
+            createConfetti();
         }
 
         startGame();
