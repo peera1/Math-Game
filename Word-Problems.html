@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלות מילוליות בחשבון</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            position: relative;
+        }
+        .problem-container, .summary-container {
+            background-color: rgba(255, 255, 255, 0.95); /* שקיפות קלה לרקע */
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            z-index: 2; /* מעל הזיקוקים */
+        }
+        .problem {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+        #answer {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #feedback {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            height: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        .summary-container {
+            display: none;
+        }
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; /* מתחת לטבלה */
+        }
+        #summary ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #summary li {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: rgba(240, 240, 240, 0.9);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="problem-container" id="quizContainer">
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="problem" id="problem"></div>
+        <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
+        <button onclick="submitAnswer()">שלח תשובה</button>
+        <div id="feedback"></div>
+    </div>
+
+    <div class="summary-container" id="summaryContainer">
+        <h2>סיכום המבחן</h2>
+        <div id="summary"></div>
+        <button onclick="restartQuiz()">התחל מחדש</button>
+    </div>
+
+    <canvas class="fireworks" id="fireworksCanvas"></canvas>
+
+    <script>
+        const problems = [
+            { question: "יוסי קנה 24 עוגיות. הוא אכל 7 עוגיות ונתן לחברו 5 עוגיות. כמה עוגיות נשארו לו?", answer: 12 },
+            { question: "בכיתה יש 32 תלמידים. 15 תלמידים הם בנים. כמה תלמידות יש בכיתה?", answer: 17 },
+            { question: "אמא קנתה 45 תפוחים. היא חילקה 18 תפוחים לילדים שלה ו-12 תפוחים לשכנים. כמה תפוחים נשארו לה?", answer: 15 },
+            { question: "בבריכה היו 56 מטרים. שחיינית שחתה 23 מטרים. כמה מטרים נשארו לשחות?", answer: 33 },
+            { question: "משה אסף 67 מדבקות. הוא נתן לחברו 19 מדבקות. כמה מדבקות נשארו לו?", answer: 48 }
+        ];
+
+        let currentQuestion = 0;
+        let results = [];
+        let startTime;
+
+        function startQuestion() {
+            if (currentQuestion < 5) {
+                document.getElementById('problem').textContent = problems[currentQuestion].question;
+                document.getElementById('answer').value = '';
+                document.getElementById('feedback').textContent = '';
+                updateProgress();
+                startTime = new Date();
+            }
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = (currentQuestion / 5) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function submitAnswer() {
+            const userAnswer = document.getElementById('answer').value;
+            const feedbackElement = document.getElementById('feedback');
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+
+            if (userAnswer === '') {
+                feedbackElement.textContent = 'אנא הכנס תשובה';
+                feedbackElement.style.color = 'orange';
+                return;
+            }
+
+            const correctAnswer = problems[currentQuestion].answer;
+            const isCorrect = parseInt(userAnswer) === correctAnswer;
+
+            results.push({
+                question: problems[currentQuestion].question,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                timeTaken: timeTaken,
+                isCorrect: isCorrect
+            });
+
+            feedbackElement.textContent = isCorrect ? 'כל הכבוד!' : `טעות! התשובה הנכונה היא ${correctAnswer}`;
+            feedbackElement.style.color = isCorrect ? 'green' : 'red';
+
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < 5) {
+                    startQuestion();
+                } else {
+                    showSummary();
+                }
+            }, 1000);
+        }
+
+        function showSummary() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const summaryContainer = document.getElementById('summaryContainer');
+            summaryContainer.style.display = 'block';
+
+            let summaryHTML = '<ul>';
+            results.forEach((result, index) => {
+                summaryHTML += `
+                    <li>
+                        <strong>שאלה ${index + 1}:</strong> ${result.question}<br>
+                        <strong>תשובתך:</strong> ${result.userAnswer}<br>
+                        <strong>תשובה נכונה:</strong> ${result.correctAnswer}<br>
+                        <strong>זמן:</strong> ${result.timeTaken} שניות<br>
+                        <strong>מצב:</strong> ${result.isCorrect ? 'נכון' : 'שגוי'}
+                    </li>`;
+            });
+            summaryHTML += '</ul>';
+            document.getElementById('summary').innerHTML = summaryHTML;
+
+            launchFireworks();
+        }
+
+        function launchFireworks() {
+            const canvas = document.getElementById('fireworksCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            class Firework {
+                constructor() {
+                    this.x = random(0, canvas.width);
+                    this.y = canvas.height;
+                    this.targetY = random(0, canvas.height * 0.5);
+                    this.speed = random(2, 5);
+                    this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
+                    this.radius = random(2, 4);
+                    this.exploded = false;
+                    this.particles = [];
+                }
+
+                update() {
+                    if (!this.exploded) {
+                        this.y -= this.speed;
+                        if (this.y <= this.targetY) {
+                            this.explode();
+                        }
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                }
+
+                explode() {
+                    this.exploded = true;
+                    for (let i = 0; i < 30; i++) {
+                        this.particles.push(new Particle(this.x, this.y, this.color));
+                    }
+                }
+            }
+
+            class Particle {
+                constructor(x, y, color) {
+                    this.x = x;
+                    this.y = y;
+                    this.color = color;
+                    this.radius = random(1, 3);
+                    this.speed = random(1, 3);
+                    this.angle = random(0, Math.PI * 2);
+                    this.life = 100;
+                }
+
+                update() {
+                    this.x += Math.cos(this.angle) * this.speed;
+                    this.y += Math.sin(this.angle) * this.speed;
+                    this.life -= 2;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                }
+            }
+
+            const fireworks = [];
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; /* שקיפות גבוהה יותר */
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                if (Math.random() < 0.1) {
+                    fireworks.push(new Firework());
+                }
+
+                for (let i = fireworks.length - 1; i >= 0; i--) {
+                    fireworks[i].update();
+                    fireworks[i].draw();
+
+                    if (fireworks[i].exploded) {
+                        fireworks[i].particles.forEach((particle, j) => {
+                            particle.update();
+                            particle.draw();
+                            if (particle.life <= 0) {
+                                fireworks[i].particles.splice(j, 1);
+                            }
+                        });
+
+                        if (fireworks[i].particles.length === 0) {
+                            fireworks.splice(i, 1);
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            results = [];
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('summaryContainer').style.display = 'none';
+            startQuestion();
+        }
+
+        startQuestion();
+    </script>
+</body>
+</html>
