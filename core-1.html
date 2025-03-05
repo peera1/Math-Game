@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>משחק חשבון</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,6 +22,7 @@
         }
         h1 {
             font-size: 36px;
+            color: #2c3e50;
         }
         .hidden { display: none; }
         
@@ -42,6 +44,32 @@
             color: white;
             font-weight: bold;
         }
+        #summary-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+        }
+        #summary-table th, #summary-table td {
+            border: 2px solid #4CAF50;
+            padding: 10px;
+            text-align: center;
+        }
+        #summary-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        #summary-message {
+            font-size: 20px;
+            color: #2c3e50;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -61,13 +89,15 @@
 
         <div id="summary" class="hidden">
             <h2>סיכום</h2>
-            <table border="1">
+            <table id="summary-table">
                 <thead>
                     <tr><th>שאלה מספר</th><th>השאלה</th><th>הזמן שלקח</th></tr>
                 </thead>
                 <tbody id="summary-body"></tbody>
             </table>
-			<p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים</p>
+            <div id="summary-message">
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים, מי שמזיע ומשקיע יגיע למקומות יפים בחיים , זה לא תמיד קל אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד , אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים
+            </div>
         </div>
     </div>
 
@@ -122,6 +152,9 @@
 
         function updateProgress() {
             let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) {
+                progress = 100;
+            }
             document.getElementById("progress-bar").style.width = progress + "%";
             document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
@@ -135,9 +168,30 @@
             });
             document.getElementById("summary").classList.remove("hidden");
             updateProgress();
+
+            // Confetti celebration
+            function fireConfetti() {
+                // Fallback check for confetti function
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FDCB6E']
+                    });
+                } else {
+                    console.warn('Confetti library not loaded');
+                }
+            }
+
+            // Multiple bursts of confetti
+            fireConfetti();
+            setTimeout(fireConfetti, 500);
+            setTimeout(fireConfetti, 1000);
         }
 
-        startGame();
+        // Ensure game starts after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', startGame);
     </script>
 </body>
 </html>
