@@ -90,6 +90,17 @@
             background-color: #45a049;
             color: white;
         }
+        .fraction {
+            display: inline-block;
+            text-align: center;
+        }
+        .fraction .top {
+            border-bottom: 1px solid #000;
+            display: block;
+        }
+        .fraction .bottom {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -133,7 +144,7 @@
         function generateQuestion() {
             const cases = ['divide_by_one', 'self_divide', 'zero_divided', 'divide_by_zero'];
             const selectedCase = cases[Math.floor(Math.random() * cases.length)];
-            let num1, num2, questionStr, answer;
+            let num1, num2, answer;
 
             switch (selectedCase) {
                 case 'divide_by_one':
@@ -157,8 +168,9 @@
                     answer = 'בחמ';
                     break;
             }
-            questionStr = `${num1} : ${num2}`;
-            return { questionStr, answer };
+
+            const questionHTML = `<span class="fraction"><span class="top">${num1}</span><span class="bottom">${num2}</span></span>`;
+            return { questionHTML, answer, rawQuestion: `${num1} : ${num2}` };
         }
 
         function startGame() {
@@ -175,7 +187,7 @@
                 return;
             }
             document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
-            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("question").innerHTML = questions[currentQuestion].questionHTML;
             document.getElementById("answer").value = "";
             document.getElementById("feedback").innerText = "";
             startTime = new Date();
@@ -197,7 +209,7 @@
             }
 
             questionDetails.push({
-                question: questions[currentQuestion].questionStr,
+                question: questions[currentQuestion].rawQuestion,
                 correctAnswer: correctAnswer,
                 userAnswer: userAnswer,
                 isCorrect: isCorrect ? "נכון" : "לא נכון",
