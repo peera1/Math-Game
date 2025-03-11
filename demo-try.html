@@ -93,20 +93,13 @@
         .fraction {
             display: inline-block;
             text-align: center;
-            vertical-align: middle;
-            margin: 0 5px;
         }
         .fraction .top {
-            border-bottom: 2px solid #000;
+            border-bottom: 1px solid #000;
             display: block;
         }
         .fraction .bottom {
             display: block;
-        }
-        .operator {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 10px;
         }
     </style>
 </head>
@@ -149,36 +142,36 @@
         let questionDetails = [];
 
         function generateQuestion() {
-            const num1 = Math.floor(Math.random() * 9) + 1;
-            const num2 = Math.floor(Math.random() * 9) + 1;
-            const num3 = Math.floor(Math.random() * 9) + 1;
-            const num4 = Math.floor(Math.random() * 9) + 1;
+            const numerator = Math.floor(Math.random() * 9) + 1;
+            const denominator = Math.floor(Math.random() * 9) + 1;
             const operators = ['+', '-', '*', ':'];
             const operator = operators[Math.floor(Math.random() * operators.length)];
 
+            let secondNumerator = Math.floor(Math.random() * 9) + 1;
+            let secondDenominator = Math.floor(Math.random() * 9) + 1;
+
+            let value1 = numerator / denominator;
+            let value2 = secondNumerator / secondDenominator;
             let answer;
-            if (operator === ':') {
-                if (num3 === 0) {
-                    answer = 'בחמ';
-                } else {
-                    answer = parseFloat(((num1 / num2) / (num3 / num4)).toFixed(2));
-                }
-            } else if (operator === '+') {
-                answer = parseFloat(((num1 / num2) + (num3 / num4)).toFixed(2));
-            } else if (operator === '-') {
-                answer = parseFloat(((num1 / num2) - (num3 / num4)).toFixed(2));
-            } else if (operator === '*') {
-                answer = parseFloat(((num1 / num2) * (num3 / num4)).toFixed(2));
+            switch(operator) {
+                case '+':
+                    answer = parseFloat((value1 + value2).toFixed(2)); break;
+                case '-':
+                    answer = parseFloat((value1 - value2).toFixed(2)); break;
+                case '*':
+                    answer = parseFloat((value1 * value2).toFixed(2)); break;
+                case ':':
+                    if (value2 === 0) {
+                        answer = 'בחמ';
+                    } else {
+                        answer = parseFloat((value1 / value2).toFixed(2));
+                    }
+                    break;
             }
 
-            const questionStr = `
-                <span class="fraction"><span class="top">${num1}</span><span class="bottom">${num2}</span></span>
-                <span class="operator">${operator}</span>
-                <span class="fraction"><span class="top">${num3}</span><span class="bottom">${num4}</span></span>
-                <span class="operator">= ?</span>
-            `;
+            const questionStr = `<span class="fraction"><span class="top">${numerator}</span><span class="bottom">${denominator}</span></span> ${operator} <span class="fraction"><span class="top">${secondNumerator}</span><span class="bottom">${secondDenominator}</span></span>`;
 
-            return { questionStr, answer };
+            return { questionStr, answer, fullText: `${numerator}/${denominator} ${operator} ${secondNumerator}/${secondDenominator}` };
         }
 
         function startGame() {
@@ -216,7 +209,7 @@
             }
 
             questionDetails.push({
-                question: questions[currentQuestion].questionStr,
+                question: questions[currentQuestion].fullText,
                 correctAnswer: correctAnswer,
                 userAnswer: userAnswer,
                 isCorrect: isCorrect ? "נכון" : "לא נכון",
