@@ -58,13 +58,7 @@
             align-items: center;
             margin: 20px;
         }
-        .answer-input input[type="number"] {
-            width: 50px;
-            text-align: center;
-            font-size: 18px;
-            margin: 2px;
-        }
-        .answer-input input[type="text"] {
+        .answer-input input {
             width: 100px;
             text-align: center;
             font-size: 18px;
@@ -87,13 +81,32 @@
             pointer-events: none;
             z-index: 9999;
         }
-        .star {
+        .confetti-piece {
             position: absolute;
+            animation: fall linear infinite;
+        }
+        .star {
             width: 20px;
             height: 20px;
             background-color: yellow;
             clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            animation: fall linear infinite;
+        }
+        .circle {
+            width: 15px;
+            height: 15px;
+            background-color: red;
+            border-radius: 50%;
+        }
+        .heart {
+            width: 20px;
+            height: 20px;
+            background-color: pink;
+            clip-path: polygon(50% 0%, 100% 35%, 75% 100%, 25% 100%, 0% 35%);
+        }
+        .square {
+            width: 15px;
+            height: 15px;
+            background-color: blue;
         }
         @keyframes fall {
             0% { transform: translateY(-100%) rotate(0deg); }
@@ -109,41 +122,39 @@
         </div>
         <p id="question-number"></p>
         <div id="question" class="fraction"></div>
-        <div id="answer-container" class="answer-input"></div>
+        <div class="answer-input">
+            <input type="text" id="answer-value" placeholder="תשובה">
+            <p id="hint">אם המכנה הוא 0, רשום "חסר משמעות"</p>
+        </div>
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
     </div>
     <div id="congratulations">
         <h2>כל הכבוד!</h2>
-        <p>סיימת את כל השאלות בהצלחה!</p>
+        <p>סיימת את כל 10 השאלות בהצלחה!</p>
     </div>
-    <div class="confetti"></div>
+    <div class="confetti" id="confetti-container"></div>
 
     <script>
         let questions = [];
         let currentQuestion = 0;
+        let confettiCount = 0;
 
         function generateFractionQuestion() {
             const cases = [
-                // מצב 1: מונה 0, תשובה 0
-                { numerator: 0, denominator: Math.floor(Math.random() * 10) + 1, answer: { type: 'number', value: 0 } },
-                // מצב 2: מכנה 1, תשובה המונה
-                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 1, answer: { type: 'number', value: null } },
-                // מצב 3: מונה ומכנה שווים, תשובה 1
-                { numerator: Math.floor(Math.random() * 10) + 1, denominator: null, answer: { type: 'number', value: 1 } },
-                // מצב 4: מכנה 0, תשובה "חסר משמעות"
-                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 0, answer: { type: 'text', value: 'חסר משמעות' } }
+                { numerator: 0, denominator: Math.floor(Math.random() * 10) + 1, answer: "0" },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 1, answer: null },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: null, answer: "1" },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 0, answer: "חסר משמעות" }
             ];
             
             let selectedCase = cases[Math.floor(Math.random() * cases.length)];
             
-            // אם המכנה הוא null (מצב 3), הוא יהיה שווה למונה
             if (selectedCase.denominator === null) {
                 selectedCase.denominator = selectedCase.numerator;
             }
-            // אם התשובה היא המונה (מצב 2), עדכן את הערך
-            if (selectedCase.answer.value === null) {
-                selectedCase.answer.value = selectedCase.numerator;
+            if (selectedCase.answer === null) {
+                selectedCase.answer = selectedCase.numerator.toString();
             }
 
             let questionStr = `<div class='fraction'>
@@ -158,24 +169,34 @@
         }
 
         function startGame() {
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 10; i++) {
                 questions.push(generateFractionQuestion());
             }
             updateProgress();
             nextQuestion();
         }
 
-        function createConfetti() {
-            const confettiContainer = document.querySelector('.confetti');
+        function createConfetti(type) {
+            const confettiContainer = document.getElementById("confetti-container");
             confettiContainer.innerHTML = '';
             
-            for (let i = 0; i < 50; i++) {
-                const star = document.createElement('div');
-                star.classList.add('star');
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
-                star.style.opacity = Math.random();
-                confettiContainer.appendChild(star);
+            for (let i = 0; i < 30; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('confetti-piece');
+                
+                switch(type % 4) {
+                    case 0: piece.classList.add('star'); break;
+                    case 1: piece.classList.add('circle'); break;
+                    case 2: piece.classList.add('heart'); break;
+                    case 3: piece.classList.add('square'); break;
+                }
+                
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                piece.style.opacity = Math.random();
+                confettiContainer.appendChild(piece);
+                
+                setTimeout(() => piece.remove(), 3000); // מסיר את הקונפטי אחרי 3 שניות
             }
         }
 
@@ -185,35 +206,18 @@
                 return;
             }
             
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 5`;
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
             document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
-            
-            let answerContainer = document.getElementById("answer-container");
-            if (questions[currentQuestion].answer.type === 'number') {
-                answerContainer.innerHTML = `
-                    <input type="number" id="answer-value" placeholder="תשובה">
-                `;
-            } else {
-                answerContainer.innerHTML = `
-                    <input type="text" id="answer-value" placeholder="תשובה">
-                `;
-            }
-            
+            document.getElementById("answer-value").value = "";
             document.getElementById("feedback").innerText = "";
         }
 
         function checkAnswer() {
-            let userAnswer = document.getElementById("answer-value").value;
+            let userAnswer = document.getElementById("answer-value").value.trim();
             let correctAnswer = questions[currentQuestion].answer;
             
-            let isCorrect = false;
-            if (correctAnswer.type === 'number') {
-                isCorrect = parseInt(userAnswer) === correctAnswer.value;
-            } else {
-                isCorrect = userAnswer === correctAnswer.value;
-            }
-
-            if (isCorrect) {
+            if (userAnswer === correctAnswer) {
+                createConfetti(confettiCount++); // קונפטי שונה בכל הצלחה
                 currentQuestion++;
                 updateProgress();
                 nextQuestion();
@@ -231,7 +235,7 @@
         function showCongratulations() {
             document.getElementById("game-container").style.display = "none";
             document.getElementById("congratulations").style.display = "block";
-            createConfetti();
+            createConfetti(confettiCount); // קונפטי אחרון בסיום
         }
 
         startGame();
