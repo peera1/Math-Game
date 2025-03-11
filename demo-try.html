@@ -3,123 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>תרגול שברים - כיתה ד</title>
+    <title>שאלון שברים לאלופים</title>
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: Arial, sans-serif;
             text-align: center;
-            background: linear-gradient(to right, #c1eaff, #e6f7ff);
+            background: linear-gradient(to bottom, #e0f7fa, #ffffff);
             font-size: 18px;
-            margin: 0;
-            padding: 0;
+            direction: rtl;
         }
         #game-container {
             margin: 50px auto;
             width: 60%;
             padding: 30px;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 1s ease-in-out;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
         h1 {
             font-size: 36px;
-            color: #0077b6;
+            color: #00796b;
         }
+        .hidden { display: none; }
         #progress-container {
             width: 100%;
-            background-color: #eee;
-            border-radius: 20px;
-            margin: 20px 0;
-            height: 30px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 20px auto;
+            height: 25px;
+            position: relative;
         }
         #progress-bar {
             width: 0%;
             height: 100%;
-            background-color: #00b894;
-            border-radius: 20px;
+            background-color: #4CAF50;
+            border-radius: 10px;
             text-align: center;
-            line-height: 30px;
+            line-height: 25px;
             color: white;
             font-weight: bold;
         }
-        input[type=number] {
+        input[type="text"] {
             padding: 10px;
             font-size: 18px;
-            margin: 10px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            width: 100px;
+            width: 50%;
+            margin-top: 10px;
         }
         button {
             padding: 10px 20px;
             font-size: 18px;
-            border: none;
-            background-color: #0077b6;
+            margin-top: 10px;
+            background-color: #4CAF50;
             color: white;
-            border-radius: 10px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #005f87;
         }
         #feedback {
-            font-size: 20px;
+            margin-top: 15px;
+            color: #d32f2f;
             font-weight: bold;
+        }
+        #hint {
             margin-top: 10px;
+            font-size: 14px;
+            color: #555;
         }
         #congratulations {
-            display: none;
-            background-color: #00b894;
+            background-color: #4CAF50;
             color: white;
             padding: 20px;
-            border-radius: 15px;
-            margin: 20px auto;
+            border-radius: 10px;
+            margin-top: 20px;
         }
         #summary-table {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         #summary-table th, #summary-table td {
-            border: 1px solid white;
+            border: 1px solid #ccc;
             padding: 10px;
-            background-color: #66d9e8;
+            text-align: center;
         }
         #summary-table th {
-            background-color: #00b4d8;
+            background-color: #45a049;
             color: white;
-        }
-        @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(20px);}
-            to {opacity: 1; transform: translateY(0);}
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>תרגול שברים - כיתה ד</h1>
+        <h1>שאלון שברים לאלופים</h1>
         <div id="progress-container">
             <div id="progress-bar">0%</div>
         </div>
         <p id="question-number"></p>
         <p id="question"></p>
-        <input type="number" id="answer" placeholder="הקלד תשובה">
+        <input type="text" id="answer" placeholder="הקלד את התשובה או 'בחמ' אם ביטוי חסר משמעות">
+        <div id="hint">אם הביטוי חסר משמעות (למשל חילוק באפס) - יש לרשום "בחמ"</div>
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
     </div>
-
-    <div id="congratulations">
+    <div id="congratulations" style="display:none;">
         <h2>כל הכבוד!</h2>
-        <p>סיימת את כל התרגילים בהצלחה!</p>
+        <p>סיימת את השאלון בהצלחה!</p>
         <table id="summary-table">
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>שאלה</th>
                     <th>תרגיל</th>
-                    <th>תשובה נכונה</th>
-                    <th>התשובה שלך</th>
+                    <th>תשובה</th>
                     <th>זמן (שניות)</th>
                 </tr>
             </thead>
@@ -131,41 +125,43 @@
         let questions = [];
         let currentQuestion = 0;
         let startTime;
-        let results = [];
+        let times = [];
+        let questionDetails = [];
 
-        function generateFractionQuestion() {
-            const type = Math.floor(Math.random() * 4);
-            let numerator, denominator, questionStr, correctAnswer;
+        function generateQuestion() {
+            const cases = ['divide_by_one', 'self_divide', 'zero_divided', 'divide_by_zero'];
+            const selectedCase = cases[Math.floor(Math.random() * cases.length)];
+            let num1, num2, questionStr, answer;
 
-            switch (type) {
-                case 0: // מחולק חלקי 1
-                    numerator = Math.floor(Math.random() * 100) + 1;
-                    questionStr = `${numerator} : 1`;
-                    correctAnswer = numerator;
+            switch (selectedCase) {
+                case 'divide_by_one':
+                    num1 = Math.floor(Math.random() * 100) + 1;
+                    num2 = 1;
+                    answer = num1;
                     break;
-                case 1: // מספר חלקי עצמו
-                    numerator = Math.floor(Math.random() * 99) + 1;
-                    questionStr = `${numerator} : ${numerator}`;
-                    correctAnswer = 1;
+                case 'self_divide':
+                    num1 = Math.floor(Math.random() * 99) + 1;
+                    num2 = num1;
+                    answer = 1;
                     break;
-                case 2: // 0 מחולק במספר
-                    denominator = Math.floor(Math.random() * 99) + 1;
-                    questionStr = `0 : ${denominator}`;
-                    correctAnswer = 0;
+                case 'zero_divided':
+                    num1 = 0;
+                    num2 = Math.floor(Math.random() * 99) + 1;
+                    answer = 0;
                     break;
-                case 3: // מספר מחולק באפס - ביטוי חסר משמעות
-                    numerator = Math.floor(Math.random() * 100) + 1;
-                    questionStr = `${numerator} : 0`;
-                    correctAnswer = 'ביטוי חסר משמעות';
+                case 'divide_by_zero':
+                    num1 = Math.floor(Math.random() * 100) + 1;
+                    num2 = 0;
+                    answer = 'בחמ';
                     break;
             }
-
-            return { questionStr, correctAnswer };
+            questionStr = `${num1} : ${num2}`;
+            return { questionStr, answer };
         }
 
         function startGame() {
             for (let i = 0; i < 10; i++) {
-                questions.push(generateFractionQuestion());
+                questions.push(generateQuestion());
             }
             updateProgress();
             nextQuestion();
@@ -176,8 +172,7 @@
                 showCongratulations();
                 return;
             }
-
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${questions.length}`;
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
             document.getElementById("question").innerText = questions[currentQuestion].questionStr;
             document.getElementById("answer").value = "";
             document.getElementById("feedback").innerText = "";
@@ -185,57 +180,63 @@
         }
 
         function checkAnswer() {
-            const userAnswer = document.getElementById("answer").value.trim();
-            const correctAnswer = questions[currentQuestion].correctAnswer;
-            const endTime = new Date();
-            const timeTaken = Math.round((endTime - startTime) / 1000);
+            let userAnswer = document.getElementById("answer").value.trim();
+            let correctAnswer = questions[currentQuestion].answer;
 
-            let feedbackText = "";
-            let isCorrect = false;
-
-            if (correctAnswer === 'ביטוי חסר משמעות') {
-                if (userAnswer === correctAnswer) isCorrect = true;
-            } else if (!isNaN(userAnswer) && parseFloat(userAnswer) === correctAnswer) {
-                isCorrect = true;
-            }
-
-            if (isCorrect) {
-                results.push({
-                    question: questions[currentQuestion].questionStr,
-                    correctAnswer: correctAnswer,
-                    userAnswer: userAnswer,
-                    time: timeTaken
-                });
-                currentQuestion++;
-                updateProgress();
-                nextQuestion();
+            if (correctAnswer === 'בחמ') {
+                if (userAnswer === 'בחמ') {
+                    success();
+                } else {
+                    document.getElementById("feedback").innerText = "נסה שוב, זו שאלה עם ביטוי חסר משמעות - כתוב 'בחמ'";
+                }
             } else {
-                feedbackText = "נסה שוב - תחשוב טוב!";
-                document.getElementById("feedback").innerText = feedbackText;
+                if (parseFloat(userAnswer) === correctAnswer) {
+                    success();
+                } else {
+                    document.getElementById("feedback").innerText = "נסה שוב, אתה יכול להצליח!";
+                }
             }
         }
 
+        function success() {
+            let endTime = new Date();
+            let timeTaken = Math.round((endTime - startTime) / 1000);
+            times.push(timeTaken);
+            questionDetails.push({
+                question: questions[currentQuestion].questionStr,
+                answer: questions[currentQuestion].answer,
+                time: timeTaken
+            });
+            currentQuestion++;
+            updateProgress();
+            nextQuestion();
+        }
+
         function updateProgress() {
-            const percent = Math.round((currentQuestion / questions.length) * 100);
-            document.getElementById("progress-bar").style.width = `${percent}%`;
-            document.getElementById("progress-bar").innerText = `${percent}%`;
+            let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) progress = 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
 
         function showCongratulations() {
             document.getElementById("game-container").style.display = "none";
-            document.getElementById("congratulations").style.display = "block";
-
+            const congratsDiv = document.getElementById("congratulations");
             const summaryBody = document.getElementById("summary-body");
-            results.forEach((item, i) => {
-                const row = `<tr>
-                    <td>${i + 1}</td>
-                    <td>${item.question}</td>
-                    <td>${item.correctAnswer}</td>
-                    <td>${item.userAnswer}</td>
-                    <td>${item.time}</td>
-                </tr>`;
+
+            questionDetails.forEach((detail, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${detail.question}</td>
+                        <td>${detail.answer}</td>
+                        <td>${detail.time}</td>
+                    </tr>
+                `;
                 summaryBody.innerHTML += row;
             });
+
+            congratsDiv.style.display = "block";
         }
 
         startGame();
