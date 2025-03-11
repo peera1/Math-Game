@@ -114,6 +114,8 @@
                     <th>שאלה</th>
                     <th>תרגיל</th>
                     <th>תשובה</th>
+                    <th>תשובתך</th>
+                    <th>נכון/לא נכון</th>
                     <th>זמן (שניות)</th>
                 </tr>
             </thead>
@@ -182,34 +184,33 @@
         function checkAnswer() {
             let userAnswer = document.getElementById("answer").value.trim();
             let correctAnswer = questions[currentQuestion].answer;
-
-            if (correctAnswer === 'בחמ') {
-                if (userAnswer === 'בחמ') {
-                    success();
-                } else {
-                    document.getElementById("feedback").innerText = "נסה שוב, זו שאלה עם ביטוי חסר משמעות - כתוב 'בחמ'";
-                }
-            } else {
-                if (parseFloat(userAnswer) === correctAnswer) {
-                    success();
-                } else {
-                    document.getElementById("feedback").innerText = "נסה שוב, אתה יכול להצליח!";
-                }
-            }
-        }
-
-        function success() {
             let endTime = new Date();
             let timeTaken = Math.round((endTime - startTime) / 1000);
             times.push(timeTaken);
+
+            let isCorrect;
+
+            if (correctAnswer === 'בחמ') {
+                isCorrect = (userAnswer === 'בחמ');
+            } else {
+                isCorrect = (parseFloat(userAnswer) === correctAnswer);
+            }
+
             questionDetails.push({
                 question: questions[currentQuestion].questionStr,
-                answer: questions[currentQuestion].answer,
+                correctAnswer: correctAnswer,
+                userAnswer: userAnswer,
+                isCorrect: isCorrect ? "נכון" : "לא נכון",
                 time: timeTaken
             });
-            currentQuestion++;
-            updateProgress();
-            nextQuestion();
+
+            if (isCorrect) {
+                currentQuestion++;
+                updateProgress();
+                nextQuestion();
+            } else {
+                document.getElementById("feedback").innerText = correctAnswer === 'בחמ' ? "נסה שוב, זו שאלה עם ביטוי חסר משמעות - כתוב 'בחמ'" : "נסה שוב, אתה יכול להצליח!";
+            }
         }
 
         function updateProgress() {
@@ -229,7 +230,9 @@
                     <tr>
                         <td>${index + 1}</td>
                         <td>${detail.question}</td>
-                        <td>${detail.answer}</td>
+                        <td>${detail.correctAnswer}</td>
+                        <td>${detail.userAnswer}</td>
+                        <td>${detail.isCorrect}</td>
                         <td>${detail.time}</td>
                     </tr>
                 `;
