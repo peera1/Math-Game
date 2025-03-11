@@ -3,391 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שאלות מילוליות בחשבון</title>
+    <title>תרגול שברים - כיתה ד</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            direction: rtl;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            position: relative;
-        }
-        .problem-container, .summary-container {
-            background-color: rgba(255, 255, 255, 0.95); /* שקיפות קלה לרקע */
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-family: 'Segoe UI', sans-serif;
             text-align: center;
-            position: relative;
-            z-index: 2; /* מעל הזיקוקים */
+            background: linear-gradient(to right, #c1eaff, #e6f7ff);
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
         }
-        .problem {
-            margin-bottom: 20px;
-            font-size: 1.2em;
+        #game-container {
+            margin: 50px auto;
+            width: 60%;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-in-out;
         }
-        #answer {
+        h1 {
+            font-size: 36px;
+            color: #0077b6;
+        }
+        #progress-container {
             width: 100%;
+            background-color: #eee;
+            border-radius: 20px;
+            margin: 20px 0;
+            height: 30px;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #00b894;
+            border-radius: 20px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+        }
+        input[type=number] {
             padding: 10px;
-            margin-bottom: 20px;
-            font-size: 1em;
+            font-size: 18px;
+            margin: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            width: 100px;
         }
         button {
             padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
+            font-size: 18px;
             border: none;
-            border-radius: 5px;
+            background-color: #0077b6;
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #005f87;
         }
         #feedback {
-            margin-top: 20px;
+            font-size: 20px;
             font-weight: bold;
+            margin-top: 10px;
         }
-        .progress-container {
-            width: 100%;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .progress-bar {
-            width: 100%;
-            background-color: #ddd;
-            height: 20px;
-            border-radius: 10px;
-            margin-top: 5px;
-        }
-        .progress {
-            height: 100%;
-            background-color: #4CAF50;
-            border-radius: 10px;
-            transition: width 0.3s ease;
-        }
-        .progress-text {
-            font-size: 1em;
-            color: #333;
-        }
-        .summary-container {
+        #congratulations {
             display: none;
+            background-color: #00b894;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px auto;
         }
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
+        #summary-table {
             width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1; /* מתחת לטבלה */
+            margin-top: 20px;
+            border-collapse: collapse;
         }
-        #summary ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        #summary li {
-            margin: 15px 0;
+        #summary-table th, #summary-table td {
+            border: 1px solid white;
             padding: 10px;
-            background-color: rgba(240, 240, 240, 0.9);
-            border-radius: 5px;
+            background-color: #66d9e8;
+        }
+        #summary-table th {
+            background-color: #00b4d8;
+            color: white;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
         }
     </style>
 </head>
 <body>
-    <div class="problem-container" id="quizContainer">
-        <div class="progress-container">
-            <div class="progress-text" id="progressText"></div>
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
+    <div id="game-container">
+        <h1>תרגול שברים - כיתה ד</h1>
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
         </div>
-        <div class="problem" id="problem"></div>
-        <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
-        <button onclick="submitAnswer()">שלח תשובה</button>
-        <div id="feedback"></div>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה">
+        <button onclick="checkAnswer()">בדיקה</button>
+        <p id="feedback"></p>
     </div>
 
-    <div class="summary-container" id="summaryContainer">
-        <h2>סיכום המבחן</h2>
-        <div id="summary"></div>
-        <button onclick="restartQuiz()">התחל מחדש</button>
+    <div id="congratulations">
+        <h2>כל הכבוד!</h2>
+        <p>סיימת את כל התרגילים בהצלחה!</p>
+        <table id="summary-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>תרגיל</th>
+                    <th>תשובה נכונה</th>
+                    <th>התשובה שלך</th>
+                    <th>זמן (שניות)</th>
+                </tr>
+            </thead>
+            <tbody id="summary-body"></tbody>
+        </table>
     </div>
-
-    <canvas class="fireworks" id="fireworksCanvas"></canvas>
 
     <script>
-        const problems = [
-    { "question": "ליאור קנה 45 תפוחים. הוא נתן 18 תפוחים לחברו. כמה תפוחים נשארו לו?", "answer": 27 },
-    { "question": "בכיתה יש 67 תלמידים. 23 מהם הלכו הביתה. כמה תלמידים נשארו בכיתה?", "answer": 44 },
-    { "question": "אורי אסף 89 מדבקות. הוא קיבל עוד 34 מדבקות מחבר. כמה מדבקות יש לו עכשיו?", "answer": 123 },
-    { "question": "בחנות היו 156 עפרונות. מכרו 78 עפרונות. כמה עפרונות נשארו בחנות?", "answer": 78 },
-    { "question": "יש לי 112 שוקולדים. חילקתי 56 שוקולדים לחברים. כמה שוקולדים נשארו לי?", "answer": 56 },
-    { "question": "בבריכה היו 145 מטרים. שחיין שחה 67 מטרים. כמה מטרים נשארו לשחות?", "answer": 78 },
-    { "question": "נועה קנתה 78 בלונים. היא נתנה 45 בלונים לחברה שלה. כמה בלונים נשארו לה?", "answer": 33 },
-    { "question": "בגן היו 123 ילדים. 56 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 67 },
-    { "question": "יש לי 98 ספרים. קיבלתי עוד 45 ספרים במתנה. כמה ספרים יש לי עכשיו?", "answer": 143 },
-    { "question": "בחנות היו 189 צעצועים. מכרו 95 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 94 },
-    { "question": "דני אסף 134 עוגיות. הוא אכל 67 עוגיות. כמה עוגיות נשארו לו?", "answer": 67 },
-    { "question": "בבריכה היו 178 מטרים. שחיינית שחתה 89 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
-    { "question": "רוני קנה 56 תפוחים. הוא קנה עוד 78 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 134 },
-    { "question": "בכיתה יש 145 תלמידים. 67 מהם יצאו להפסקה. כמה תלמידים נשארו בכיתה?", "answer": 78 },
-    { "question": "יש לי 123 ממתקים. חילקתי 45 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 78 },
-    { "question": "בחנות היו 167 בלונים. מכרו 89 בלונים. כמה בלונים נשארו בחנות?", "answer": 78 },
-    { "question": "תמר אספה 156 פרחים. היא נתנה 78 פרחים למורה. כמה פרחים נשארו לה?", "answer": 78 },
-    { "question": "בגן היו 189 ילדים. 56 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 133 },
-    { "question": "יש לי 78 עפרונות. קניתי עוד 89 עפרונות. כמה עפרונות יש לי עכשיו?", "answer": 167 },
-    { "question": "בבריכה היו 134 מטרים. שחיין שחה 45 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
-    { "question": "שלומי קנה 145 עוגיות. הוא נתן 67 עוגיות לחבר. כמה עוגיות נשארו לו?", "answer": 78 },
-    { "question": "בחנות היו 123 צעצועים. מכרו 56 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 67 },
-    { "question": "יש לי 89 תפוחים. קיבלתי עוד 78 תפוחים. כמה תפוחים יש לי עכשיו?", "answer": 167 },
-    { "question": "בכיתה יש 156 תלמידים. 78 מהם יצאו לחצר. כמה תלמידים נשארו בכיתה?", "answer": 78 },
-    { "question": "בגן היו 145 ילדים. 67 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 78 },
-    { "question": "רעות אספה 178 פרחים. היא נתנה 89 פרחים לחברה. כמה פרחים נשארו לה?", "answer": 89 },
-    { "question": "בחנות היו 167 עפרונות. מכרו 78 עפרונות. כמה עפרונות נשארו בחנות?", "answer": 89 },
-    { "question": "יש לי 134 שוקולדים. חילקתי 56 שוקולדים לחברים. כמה שוקולדים נשארו לי?", "answer": 78 },
-    { "question": "בבריכה היו 189 מטרים. שחיינית שחתה 99 מטרים. כמה מטרים נשארו לשחות?", "answer": 90 },
-    { "question": "ניר קנה 78 בלונים. הוא קנה עוד 67 בלונים. כמה בלונים יש לו עכשיו?", "answer": 145 },
-    { "question": "בכיתה יש 123 תלמידים. 45 מהם הלכו הביתה. כמה תלמידים נשארו בכיתה?", "answer": 78 },
-    { "question": "יש לי 156 ממתקים. חילקתי 67 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 89 },
-    { "question": "בחנות היו 178 צעצועים. מכרו 89 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 89 },
-    { "question": "תומר אסף 145 מדבקות. הוא נתן 78 מדבקות לחבר. כמה מדבקות נשארו לו?", "answer": 67 },
-    { "question": "בבריכה היו 167 מטרים. שחיין שחה 78 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
-    { "question": "לילך קנתה 89 תפוחים. היא קנתה עוד 56 תפוחים. כמה תפוחים יש לה עכשיו?", "answer": 145 },
-    { "question": "בגן היו 134 ילדים. 67 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 67 },
-    { "question": "יש לי 178 עוגיות. חילקתי 89 עוגיות לחברים. כמה עוגיות נשארו לי?", "answer": 89 },
-    { "question": "בחנות היו 156 בלונים. מכרו 67 בלונים. כמה בלונים נשארו בחנות?", "answer": 89 },
-    { "question": "דוד אסף 123 פרחים. הוא נתן 45 פרחים למורה. כמה פרחים נשארו לו?", "answer": 78 },
-    { "question": "בבריכה היו 145 מטרים. שחיינית שחתה 56 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
-    { "question": "מיכל קנתה 167 עפרונות. היא נתנה 78 עפרונות לחברה. כמה עפרונות נשארו לה?", "answer": 89 },
-    { "question": "בכיתה יש 189 תלמידים. 99 מהם יצאו לחצר. כמה תלמידים נשארו בכיתה?", "answer": 90 },
-    { "question": "יש לי 134 שוקולדים. קיבלתי עוד 45 שוקולדים. כמה שוקולדים יש לי עכשיו?", "answer": 179 },
-    { "question": "בחנות היו 178 צעצועים. מכרו 89 צעצועים. כמה צעצועים נשארו בחנות?", "answer": 89 },
-    { "question": "איתי אסף 156 מדבקות. הוא נתן 67 מדבקות לחבר. כמה מדבקות נשארו לו?", "answer": 89 },
-    { "question": "בבריכה היו 123 מטרים. שחיין שחה 34 מטרים. כמה מטרים נשארו לשחות?", "answer": 89 },
-    { "question": "שרון קנתה 145 תפוחים. היא נתנה 56 תפוחים לחברה. כמה תפוחים נשארו לה?", "answer": 89 },
-    { "question": "בגן היו 167 ילדים. 78 מהם הלכו הביתה. כמה ילדים נשארו בגן?", "answer": 89 },
-    { "question": "יש לי 189 ממתקים. חילקתי 99 ממתקים לחברים. כמה ממתקים נשארו לי?", "answer": 90 }
-];
-
-        let shuffledProblems = [];
+        let questions = [];
         let currentQuestion = 0;
-        let results = [];
         let startTime;
+        let results = [];
 
-        // בחר 10 שאלות אקראיות ובלג אותן
-        function selectRandomQuestions() {
-            shuffledProblems = [...problems]; // העתק את כל השאלות
-            shuffleProblems(); // בלג את כל השאלות
-            shuffledProblems = shuffledProblems.slice(0, 10); // קח רק את 10 הראשונות מהמערך המעורבב
-        }
+        function generateFractionQuestion() {
+            const type = Math.floor(Math.random() * 4);
+            let numerator, denominator, questionStr, correctAnswer;
 
-        // בלג את השאלות (אלגוריתם Fisher-Yates)
-        function shuffleProblems() {
-            for (let i = shuffledProblems.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledProblems[i], shuffledProblems[j]] = [shuffledProblems[j], shuffledProblems[i]];
+            switch (type) {
+                case 0: // מחולק חלקי 1
+                    numerator = Math.floor(Math.random() * 100) + 1;
+                    questionStr = `${numerator} : 1`;
+                    correctAnswer = numerator;
+                    break;
+                case 1: // מספר חלקי עצמו
+                    numerator = Math.floor(Math.random() * 99) + 1;
+                    questionStr = `${numerator} : ${numerator}`;
+                    correctAnswer = 1;
+                    break;
+                case 2: // 0 מחולק במספר
+                    denominator = Math.floor(Math.random() * 99) + 1;
+                    questionStr = `0 : ${denominator}`;
+                    correctAnswer = 0;
+                    break;
+                case 3: // מספר מחולק באפס - ביטוי חסר משמעות
+                    numerator = Math.floor(Math.random() * 100) + 1;
+                    questionStr = `${numerator} : 0`;
+                    correctAnswer = 'ביטוי חסר משמעות';
+                    break;
             }
+
+            return { questionStr, correctAnswer };
         }
 
-        function startQuestion() {
-            if (currentQuestion < shuffledProblems.length) { // 10 שאלות
-                document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
-                document.getElementById('answer').value = '';
-                document.getElementById('feedback').textContent = '';
+        function startGame() {
+            for (let i = 0; i < 10; i++) {
+                questions.push(generateFractionQuestion());
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showCongratulations();
+                return;
+            }
+
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${questions.length}`;
+            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById("answer").value.trim();
+            const correctAnswer = questions[currentQuestion].correctAnswer;
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+
+            let feedbackText = "";
+            let isCorrect = false;
+
+            if (correctAnswer === 'ביטוי חסר משמעות') {
+                if (userAnswer === correctAnswer) isCorrect = true;
+            } else if (!isNaN(userAnswer) && parseFloat(userAnswer) === correctAnswer) {
+                isCorrect = true;
+            }
+
+            if (isCorrect) {
+                results.push({
+                    question: questions[currentQuestion].questionStr,
+                    correctAnswer: correctAnswer,
+                    userAnswer: userAnswer,
+                    time: timeTaken
+                });
+                currentQuestion++;
                 updateProgress();
-                startTime = new Date();
+                nextQuestion();
+            } else {
+                feedbackText = "נסה שוב - תחשוב טוב!";
+                document.getElementById("feedback").innerText = feedbackText;
             }
         }
 
         function updateProgress() {
-            const progress = document.getElementById('progress');
-            const progressText = document.getElementById('progressText');
-            const totalQuestions = shuffledProblems.length; // 10 שאלות
-            const percentage = (currentQuestion / totalQuestions) * 100;
-            progress.style.width = `${percentage}%`;
-            progressText.textContent = `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - ${Math.round(percentage)}%`;
+            const percent = Math.round((currentQuestion / questions.length) * 100);
+            document.getElementById("progress-bar").style.width = `${percent}%`;
+            document.getElementById("progress-bar").innerText = `${percent}%`;
         }
 
-        function submitAnswer() {
-            const userAnswer = document.getElementById('answer').value;
-            const feedbackElement = document.getElementById('feedback');
-            const endTime = new Date();
-            const timeTaken = Math.round((endTime - startTime) / 1000);
+        function showCongratulations() {
+            document.getElementById("game-container").style.display = "none";
+            document.getElementById("congratulations").style.display = "block";
 
-            if (userAnswer === '') {
-                feedbackElement.textContent = 'אנא הכנס תשובה';
-                feedbackElement.style.color = 'orange';
-                return;
-            }
-
-            const correctAnswer = shuffledProblems[currentQuestion].answer;
-            const isCorrect = parseInt(userAnswer) === correctAnswer;
-
-            if (!isCorrect) {
-                feedbackElement.textContent = 'טעות! התרכז ונסה שוב.';
-                feedbackElement.style.color = 'red';
-                return; // לא עוברים לשאלה הבאה עד שהתשובה נכונה
-            }
-
-            results.push({
-                question: shuffledProblems[currentQuestion].question,
-                userAnswer: userAnswer,
-                correctAnswer: correctAnswer,
-                timeTaken: timeTaken,
-                isCorrect: isCorrect
+            const summaryBody = document.getElementById("summary-body");
+            results.forEach((item, i) => {
+                const row = `<tr>
+                    <td>${i + 1}</td>
+                    <td>${item.question}</td>
+                    <td>${item.correctAnswer}</td>
+                    <td>${item.userAnswer}</td>
+                    <td>${item.time}</td>
+                </tr>`;
+                summaryBody.innerHTML += row;
             });
-
-            feedbackElement.textContent = 'כל הכבוד!';
-            feedbackElement.style.color = 'green';
-
-            setTimeout(() => {
-                currentQuestion++;
-                if (currentQuestion < shuffledProblems.length) {
-                    startQuestion();
-                } else {
-                    showSummary();
-                }
-            }, 1000);
         }
 
-        function showSummary() {
-            document.getElementById('quizContainer').style.display = 'none';
-            const summaryContainer = document.getElementById('summaryContainer');
-            summaryContainer.style.display = 'block';
-
-            let summaryHTML = '<ul>';
-            results.forEach((result, index) => {
-                summaryHTML += `
-                    <li>
-                        <strong>שאלה ${index + 1}:</strong> ${result.question}<br>
-                        <strong>תשובתך:</strong> ${result.userAnswer}<br>
-                        <strong>תשובה נכונה:</strong> ${result.correctAnswer}<br>
-                        <strong>זמן:</strong> ${result.timeTaken} שניות<br>
-                        <strong>מצב:</strong> ${result.isCorrect ? 'נכון' : 'שגוי'}
-                    </li>`;
-            });
-            summaryHTML += '</ul>';
-            document.getElementById('summary').innerHTML = summaryHTML;
-
-            launchFireworks();
-        }
-
-        function launchFireworks() {
-            const canvas = document.getElementById('fireworksCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            function random(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-
-            class Firework {
-                constructor() {
-                    this.x = random(0, canvas.width);
-                    this.y = canvas.height;
-                    this.targetY = random(0, canvas.height * 0.5);
-                    this.speed = random(2, 5);
-                    this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
-                    this.radius = random(2, 4);
-                    this.exploded = false;
-                    this.particles = [];
-                }
-
-                update() {
-                    if (!this.exploded) {
-                        this.y -= this.speed;
-                        if (this.y <= this.targetY) {
-                            this.explode();
-                        }
-                    }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                }
-
-                explode() {
-                    this.exploded = true;
-                    for (let i = 0; i < 30; i++) {
-                        this.particles.push(new Particle(this.x, this.y, this.color));
-                    }
-                }
-            }
-
-            class Particle {
-                constructor(x, y, color) {
-                    this.x = x;
-                    this.y = y;
-                    this.color = color;
-                    this.radius = random(1, 3);
-                    this.speed = random(1, 3);
-                    this.angle = random(0, Math.PI * 2);
-                    this.life = 100;
-                }
-
-                update() {
-                    this.x += Math.cos(this.angle) * this.speed;
-                    this.y += Math.sin(this.angle) * this.speed;
-                    this.life -= 2;
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                }
-            }
-
-            const fireworks = [];
-            function animate() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; /* שקיפות גבוהה יותר */
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                if (Math.random() < 0.1) {
-                    fireworks.push(new Firework());
-                }
-
-                for (let i = fireworks.length - 1; i >= 0; i--) {
-                    fireworks[i].update();
-                    fireworks[i].draw();
-
-                    if (fireworks[i].exploded) {
-                        fireworks[i].particles.forEach((particle, j) => {
-                            particle.update();
-                            particle.draw();
-                            if (particle.life <= 0) {
-                                fireworks[i].particles.splice(j, 1);
-                            }
-                        });
-
-                        if (fireworks[i].particles.length === 0) {
-                            fireworks.splice(i, 1);
-                        }
-                    }
-                }
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
-
-        function restartQuiz() {
-            currentQuestion = 0;
-            results = [];
-            document.getElementById('quizContainer').style.display = 'block';
-            document.getElementById('summaryContainer').style.display = 'none';
-            // בחר 10 שאלות חדשות באקראי
-            selectRandomQuestions();
-            startQuestion();
-        }
-
-        // התחל עם 10 שאלות אקראיות
-        selectRandomQuestions();
-        startQuestion();
+        startGame();
     </script>
 </body>
 </html>
