@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק חשבון - שברים</title>
+    <title>משחק חשבון - שברים פשוטים</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,14 +22,12 @@
         h1 {
             font-size: 36px;
         }
-        .hidden { display: none; }
         #progress-container {
             width: 100%;
             background-color: #ddd;
             border-radius: 10px;
             margin: 20px auto;
             height: 25px;
-            position: relative;
         }
         #progress-bar {
             width: 0%;
@@ -41,16 +39,11 @@
             color: white;
             font-weight: bold;
         }
-        .fraction-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
         .fraction {
             display: inline-block;
             text-align: center;
             font-size: 24px;
-            margin: 0 10px;
+            margin: 20px;
         }
         .fraction .numerator {
             border-bottom: 2px solid black;
@@ -59,17 +52,20 @@
         .fraction .denominator {
             display: block;
         }
-        .operator {
-            font-size: 24px;
-            margin: 0 10px;
-        }
         .answer-input {
             display: flex;
             flex-direction: column;
             align-items: center;
+            margin: 20px;
         }
-        .answer-input input {
+        .answer-input input[type="number"] {
             width: 50px;
+            text-align: center;
+            font-size: 18px;
+            margin: 2px;
+        }
+        .answer-input input[type="text"] {
+            width: 100px;
             text-align: center;
             font-size: 18px;
             margin: 2px;
@@ -84,6 +80,7 @@
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
+            display: none;
         }
         .confetti {
             position: fixed;
@@ -106,53 +103,23 @@
             0% { transform: translateY(-100%) rotate(0deg); }
             100% { transform: translateY(100vh) rotate(360deg); }
         }
-        #summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        #summary-table th, #summary-table td {
-            border: 1px solid white;
-            padding: 10px;
-            text-align: center;
-        }
-        #summary-table th {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>משחק שברים</h1>
+        <h1>משחק שברים פשוטים</h1>
         <div id="progress-container">
             <div id="progress-bar">0%</div>
         </div>
         <p id="question-number"></p>
-        <div id="question" class="fraction-container"></div>
-		<br>
-        <div class="answer-input">
-            <input type="number" id="answer-numerator" placeholder="מונה">
-            <div class="fraction-line"></div>
-            <input type="number" id="answer-denominator" placeholder="מכנה">
-        </div>
+        <div id="question" class="fraction"></div>
+        <div id="answer-container" class="answer-input"></div>
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
     </div>
-    <div id="congratulations" style="display:none;">
+    <div id="congratulations">
         <h2>כל הכבוד!</h2>
-        <p>עשית עבודה מעולה! אתה באמת אלוף השברים!</p>
-        <table id="summary-table">
-            <thead>
-                <tr>
-                    <th>שאלה</th>
-                    <th>תרגיל</th>
-                    <th>תשובה</th>
-                    <th>זמן (שניות)</th>
-                </tr>
-            </thead>
-            <tbody id="summary-body"></tbody>
-        </table>
-        <p>אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים.</p>
+        <p>סיימת את כל השאלות בהצלחה!</p>
     </div>
     <div class="confetti"></div>
 
@@ -160,62 +127,32 @@
         let questions = [];
         let currentQuestion = 0;
         let startTime;
-        let times = [];
-        let questionDetails = [];
-
-        function gcd(a, b) {
-            return b === 0 ? a : gcd(b, a % b);
-        }
-
-        function simplifyFraction(numerator, denominator) {
-            let divisor = gcd(numerator, denominator);
-            return { numerator: numerator / divisor, denominator: denominator / divisor };
-        }
 
         function generateFractionQuestion() {
-            let operators = ['+', '-'];
-            let operator = operators[Math.floor(Math.random() * operators.length)];
+            const cases = [
+                { numerator: 0, denominator: Math.floor(Math.random() * 10) + 1, answer: { type: 'number', value: 0 } },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 1, answer: { type: 'number', value: null } },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: null, answer: { type: 'number', value: 1 } },
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 0, answer: { type: 'text', value: 'חסר משמעות' } }
+            ];
             
-            let denominator1 = Math.floor(Math.random() * 10) + 1;
-            let denominator2 = Math.floor(Math.random() * 10) + 1;
+            let selectedCase = cases[Math.floor(Math.random() * cases.length)];
             
-            let numerator1 = Math.floor(Math.random() * denominator1) + 1;
-            let numerator2 = Math.floor(Math.random() * denominator2) + 1;
-            
-            if (operator === '-') {
-                if (numerator1 < numerator2) {
-                    operator = '+';
-                }
+            if (selectedCase.denominator === null) {
+                selectedCase.denominator = selectedCase.numerator;
+            }
+            if (selectedCase.answer.type === 'number' && selectedCase.answer.value === null) {
+                selectedCase.answer.value = selectedCase.numerator;
             }
 
             let questionStr = `<div class='fraction'>
-                                  <span class='numerator'>${numerator1}</span>
-                                  <span class='denominator'>${denominator1}</span>
-                              </div>
-                              <div class='operator'>${operator}</div>
-                              <div class='fraction'>
-                                  <span class='numerator'>${numerator2}</span>
-                                  <span class='denominator'>${denominator2}</span>
+                                <span class='numerator'>${selectedCase.numerator}</span>
+                                <span class='denominator'>${selectedCase.denominator}</span>
                               </div>`;
-
-            let questionDisplayStr = `${numerator1}/${denominator1} ${operator} ${numerator2}/${denominator2}`;
-
-            let commonDenominator = denominator1 * denominator2;
-            let newNumerator1 = numerator1 * denominator2;
-            let newNumerator2 = numerator2 * denominator1;
-
-            let finalNumerator = operator === '+' ? newNumerator1 + newNumerator2 : newNumerator1 - newNumerator2;
-
-            if (finalNumerator < 0) {
-                finalNumerator = 0;
-            }
-
-            let { numerator, denominator: newDenominator } = simplifyFraction(finalNumerator, commonDenominator);
 
             return { 
                 questionStr, 
-                questionDisplayStr,
-                answer: { numerator, denominator: newDenominator } 
+                answer: selectedCase.answer 
             };
         }
 
@@ -246,36 +183,42 @@
                 showCongratulations();
                 return;
             }
+            
             document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 5`;
             document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
-            document.getElementById("answer-numerator").value = "";
-            document.getElementById("answer-denominator").value = "";
+            
+            let answerContainer = document.getElementById("answer-container");
+            if (questions[currentQuestion].answer.type === 'number') {
+                answerContainer.innerHTML = `
+                    <input type="number" id="answer-value" placeholder="תשובה">
+                `;
+            } else {
+                answerContainer.innerHTML = `
+                    <input type="text" id="answer-value" placeholder="תשובה">
+                `;
+            }
+            
             document.getElementById("feedback").innerText = "";
             startTime = new Date();
         }
 
         function checkAnswer() {
-            let userNumerator = parseInt(document.getElementById("answer-numerator").value);
-            let userDenominator = parseInt(document.getElementById("answer-denominator").value);
+            let userAnswer = document.getElementById("answer-value").value;
             let correctAnswer = questions[currentQuestion].answer;
             
-            if (userNumerator === correctAnswer.numerator && userDenominator === correctAnswer.denominator) {
-                let endTime = new Date();
-                let timeTaken = Math.round((endTime - startTime) / 1000);
-                times.push(timeTaken);
-                
-                // Store question details
-                questionDetails.push({
-                    question: questions[currentQuestion].questionDisplayStr,
-                    answer: `${correctAnswer.numerator}/${correctAnswer.denominator}`,
-                    time: timeTaken
-                });
+            let isCorrect = false;
+            if (correctAnswer.type === 'number') {
+                isCorrect = parseInt(userAnswer) === correctAnswer.value;
+            } else {
+                isCorrect = userAnswer === correctAnswer.value;
+            }
 
+            if (isCorrect) {
                 currentQuestion++;
                 updateProgress();
                 nextQuestion();
             } else {
-                document.getElementById("feedback").innerText = "נסה שוב, התרכז היטב!";
+                document.getElementById("feedback").innerText = "נסה שוב!";
             }
         }
 
@@ -287,25 +230,7 @@
 
         function showCongratulations() {
             document.getElementById("game-container").style.display = "none";
-            const congratsDiv = document.getElementById("congratulations");
-            const summaryBody = document.getElementById("summary-body");
-
-            // Populate summary table
-            questionDetails.forEach((detail, index) => {
-                const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${detail.question}</td>
-                        <td>${detail.answer}</td>
-                        <td>${detail.time}</td>
-                    </tr>
-                `;
-                summaryBody.innerHTML += row;
-            });
-
-            congratsDiv.style.display = "block";
-            
-            // Create confetti
+            document.getElementById("congratulations").style.display = "block";
             createConfetti();
         }
 
