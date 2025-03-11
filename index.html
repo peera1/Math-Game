@@ -10,11 +10,12 @@
         @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap');
         
         :root {
-            --primary-gradient-start: #6a11cb;
-            --primary-gradient-end: #2575fc;
-            --secondary-color: #ff9a9e;
+            --primary-gradient-start: #2A0944; /* סגול כהה עמוק */
+            --primary-gradient-end: #A12568; /* ורוד-סגול אלגנטי */
+            --secondary-color: #FEC260; /* זהב חם */
             --text-color: #333;
-            --background-color: #f4f4f4;
+            --background-overlay: rgba(255, 255, 255, 0.15);
+            --button-shadow: rgba(42, 9, 68, 0.3);
         }
 
         * {
@@ -26,15 +27,12 @@
         body {
             font-family: 'Rubik', Arial, sans-serif;
             background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
             margin: 0;
             direction: rtl;
-            overflow: hidden;
             color: var(--text-color);
             line-height: 1.6;
+            overflow-y: auto; /* מאפשר גלילה */
         }
 
         .background-overlay {
@@ -43,21 +41,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255,255,255,0.1);
+            background: var(--background-overlay);
             pointer-events: none;
             z-index: 1;
         }
 
         .container {
             background-color: white;
-            border-radius: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            border-radius: 30px;
+            box-shadow: 0 30px 60px var(--button-shadow);
             padding: 50px;
             text-align: center;
-            width: 500px;
+            width: 90%;
+            max-width: 500px;
+            margin: 30px auto;
             position: relative;
             transition: all 0.5s ease;
-            border: 2px solid rgba(255,255,255,0.2);
+            border: 3px solid rgba(254, 194, 96, 0.3); /* גבול זהוב עדין */
         }
 
         h1 {
@@ -65,17 +65,17 @@
             margin-bottom: 30px;
             font-size: 2.8rem;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-            background: linear-gradient(to right, var(--primary-gradient-start), var(--primary-gradient-end));
+            background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .quote {
             font-style: italic;
-            color: #666;
+            color: #555;
             margin-bottom: 25px;
             font-size: 1.1rem;
-            opacity: 0.8;
+            opacity: 0.9;
             position: relative;
             padding: 0 20px;
         }
@@ -85,7 +85,7 @@
             color: var(--secondary-color);
             font-size: 2rem;
             position: absolute;
-            opacity: 0.5;
+            opacity: 0.7;
         }
 
         .quote::before {
@@ -104,79 +104,70 @@
             padding: 15px;
             margin-bottom: 15px;
             border: none;
-            border-radius: 15px;
+            border-radius: 20px;
             font-size: 18px;
             cursor: pointer;
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 8px 16px var(--button-shadow);
             text-transform: uppercase;
             letter-spacing: 1px;
+            color: white;
         }
 
         .button:hover {
-            background: linear-gradient(to right, #ff9a9e, #fecfef);
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+            background: linear-gradient(to right, var(--secondary-color), #FFD700); /* זהב אלגנטי */
+            box-shadow: 0 0 20px rgba(254, 194, 96, 0.6);
             transform: scale(1.05);
         }
 
         .blue { 
-            background: linear-gradient(to right, #2196F3, #21D4FD);
-            color: white; 
+            background: linear-gradient(to right, #3B4F7D, #6B728E); /* כחול עמוק אלגנטי */
         }
 
         .green { 
-            background: linear-gradient(to right, #4CAF50, #81FBB8);
-            color: white; 
+            background: linear-gradient(to right, #355E3B, #7D9D72); /* ירוק מלכותי */
         }
 
         .yellow { 
-            background: linear-gradient(to right, #FFC107, #FFF720);
-            color: white; 
+            background: linear-gradient(to right, #F4A261, #E9C46A); /* צהוב-כתום חם */
         }
 
         .red { 
-            background: linear-gradient(to right, #F44336, #FF7E5F);
-            color: white; 
+            background: linear-gradient(to right, #8B1E3F, #C84767); /* אדום עמוק */
         }
 
         .pink {
-            background: linear-gradient(to right, #FF69B4, #FFB6C1);
-            color: white; 
+            background: linear-gradient(to right, #A63C6D, #D47B9A); /* ורוד אלגנטי */
         }
 
         .coral {
-            background: linear-gradient(to right, #FF7F50, #FF9F80);
-            color: white;
+            background: linear-gradient(to right, #D76A03, #F89F5B); /* קורל חם */
         }
 
         .purple {
-            background: linear-gradient(to right, #6A1B9A, #9C27B0);
-            color: white;
+            background: linear-gradient(to right, #4A235A, #8E44AD); /* סגול מלכותי */
         }
 
         .radiant {
-        background: linear-gradient(to right, #6a11cb, #2575fc);
-        color: white;
+            background: linear-gradient(to right, #2A0944, #A12568); /* התאמה לרקע */
         }
 
         .info-text {
-            background: linear-gradient(to right, #E3F2FD, #B3E5FC);
+            background: linear-gradient(to right, #F6F4E6, #EDE4E0); /* בז' אלגנטי */
             padding: 20px;
             border-radius: 15px;
             margin-top: 25px;
-            color: #0D47A1;
+            color: #4A235A; /* סגול כהה לטקסט */
             font-size: 15px;
-            position: relative;
-            overflow: hidden;
+            border: 1px solid rgba(254, 194, 96, 0.4);
         }
 
         @media (max-width: 600px) {
             .container {
-                width: 95%;
                 padding: 30px;
+                margin: 15px auto;
             }
         }
     </style>
@@ -197,11 +188,9 @@
             <button class="button green" onclick="openLinkWithConfetti('core-2.html')">
                 <i class="fas fa-calculator"></i> כיתה ב - פעולות יסוד
             </button>
-
             <button class="button radiant" onclick="openLinkWithConfetti('core-3.html')">
                 <i class="fas fa-arrow-up-9-1"></i> כיתה ג - סדר פעולות חשבון
             </button>
-            
             <button class="button yellow" onclick="openLinkWithConfetti('core-4.html')">
                 <i class="fas fa-chart-line"></i> כיתה ד - חשבון מתקדם
             </button>
@@ -230,7 +219,7 @@
                 particleCount: 150,
                 spread: 80,
                 origin: { y: 0.6 },
-                colors: ['#2196F3', '#4CAF50', '#FFC107', '#F44336']
+                colors: ['#FEC260', '#A12568', '#2A0944', '#8E44AD']
             });
 
             setTimeout(() => {
@@ -246,8 +235,8 @@
                     x: Math.random(),
                     y: Math.random()
                 },
-                colors: ['#6a11cb', '#2575fc', '#ff9a9e'],
-                opacity: 0.4
+                colors: ['#FEC260', '#A12568', '#2A0944'],
+                opacity: 0.5
             });
         }
 
