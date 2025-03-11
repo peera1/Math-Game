@@ -3,35 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שאלון שברים לאלופים</title>
+    <title>משחק חשבון - שברים פשוטים</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+            background-color: #f0f8ff;
             font-size: 18px;
-            direction: rtl;
         }
         #game-container {
             margin: 50px auto;
-            width: 60%;
-            padding: 30px;
+            width: 50%;
+            padding: 20px;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         h1 {
             font-size: 36px;
-            color: #00796b;
         }
-        .hidden { display: none; }
         #progress-container {
             width: 100%;
             background-color: #ddd;
             border-radius: 10px;
             margin: 20px auto;
             height: 25px;
-            position: relative;
         }
         #progress-bar {
             width: 0%;
@@ -43,31 +39,36 @@
             color: white;
             font-weight: bold;
         }
-        input[type="text"] {
-            padding: 10px;
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            font-size: 24px;
+            margin: 20px;
+        }
+        .fraction .numerator {
+            border-bottom: 2px solid black;
+            display: block;
+        }
+        .fraction .denominator {
+            display: block;
+        }
+        .answer-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+        }
+        .answer-input input[type="number"] {
+            width: 50px;
+            text-align: center;
             font-size: 18px;
-            width: 50%;
-            margin-top: 10px;
+            margin: 2px;
         }
-        button {
-            padding: 10px 20px;
+        .answer-input input[type="text"] {
+            width: 100px;
+            text-align: center;
             font-size: 18px;
-            margin-top: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #feedback {
-            margin-top: 15px;
-            color: #d32f2f;
-            font-weight: bold;
-        }
-        #hint {
-            margin-top: 10px;
-            font-size: 14px;
-            color: #555;
+            margin: 2px;
         }
         #congratulations {
             background-color: #4CAF50;
@@ -75,111 +76,107 @@
             padding: 20px;
             border-radius: 10px;
             margin-top: 20px;
+            display: none;
         }
-        #summary-table {
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
         }
-        #summary-table th, #summary-table td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
+        .star {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: yellow;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: fall linear infinite;
         }
-        #summary-table th {
-            background-color: #45a049;
-            color: white;
-        }
-        .fraction {
-            display: inline-block;
-            text-align: center;
-        }
-        .fraction .top {
-            border-bottom: 1px solid #000;
-            display: block;
-        }
-        .fraction .bottom {
-            display: block;
+        @keyframes fall {
+            0% { transform: translateY(-100%) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1>שאלון שברים לאלופים</h1>
+        <h1>משחק שברים פשוטים</h1>
         <div id="progress-container">
             <div id="progress-bar">0%</div>
         </div>
         <p id="question-number"></p>
-        <p id="question"></p>
-        <input type="text" id="answer" placeholder="הקלד את התשובה או 'בחמ' אם ביטוי חסר משמעות">
-        <div id="hint">אם הביטוי חסר משמעות (למשל חילוק באפס) - יש לרשום "בחמ"</div>
+        <div id="question" class="fraction"></div>
+        <div id="answer-container" class="answer-input"></div>
         <button onclick="checkAnswer()">בדיקה</button>
         <p id="feedback"></p>
     </div>
-    <div id="congratulations" style="display:none;">
+    <div id="congratulations">
         <h2>כל הכבוד!</h2>
-        <p>סיימת את השאלון בהצלחה!</p>
-        <table id="summary-table">
-            <thead>
-                <tr>
-                    <th>שאלה</th>
-                    <th>תרגיל</th>
-                    <th>תשובה</th>
-                    <th>תשובתך</th>
-                    <th>נכון/לא נכון</th>
-                    <th>זמן (שניות)</th>
-                </tr>
-            </thead>
-            <tbody id="summary-body"></tbody>
-        </table>
+        <p>סיימת את כל השאלות בהצלחה!</p>
     </div>
+    <div class="confetti"></div>
 
     <script>
         let questions = [];
         let currentQuestion = 0;
-        let startTime;
-        let times = [];
-        let questionDetails = [];
 
-        function generateQuestion() {
-            const numerator = Math.floor(Math.random() * 9) + 1;
-            const denominator = Math.floor(Math.random() * 9) + 1;
-            const operators = ['+', '-', '*', ':'];
-            const operator = operators[Math.floor(Math.random() * operators.length)];
-
-            let secondNumerator = Math.floor(Math.random() * 9) + 1;
-            let secondDenominator = Math.floor(Math.random() * 9) + 1;
-
-            let value1 = numerator / denominator;
-            let value2 = secondNumerator / secondDenominator;
-            let answer;
-            switch(operator) {
-                case '+':
-                    answer = parseFloat((value1 + value2).toFixed(2)); break;
-                case '-':
-                    answer = parseFloat((value1 - value2).toFixed(2)); break;
-                case '*':
-                    answer = parseFloat((value1 * value2).toFixed(2)); break;
-                case ':':
-                    if (value2 === 0) {
-                        answer = 'בחמ';
-                    } else {
-                        answer = parseFloat((value1 / value2).toFixed(2));
-                    }
-                    break;
+        function generateFractionQuestion() {
+            const cases = [
+                // מצב 1: מונה 0, תשובה 0
+                { numerator: 0, denominator: Math.floor(Math.random() * 10) + 1, answer: { type: 'number', value: 0 } },
+                // מצב 2: מכנה 1, תשובה המונה
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 1, answer: { type: 'number', value: null } },
+                // מצב 3: מונה ומכנה שווים, תשובה 1
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: null, answer: { type: 'number', value: 1 } },
+                // מצב 4: מכנה 0, תשובה "חסר משמעות"
+                { numerator: Math.floor(Math.random() * 10) + 1, denominator: 0, answer: { type: 'text', value: 'חסר משמעות' } }
+            ];
+            
+            let selectedCase = cases[Math.floor(Math.random() * cases.length)];
+            
+            // אם המכנה הוא null (מצב 3), הוא יהיה שווה למונה
+            if (selectedCase.denominator === null) {
+                selectedCase.denominator = selectedCase.numerator;
+            }
+            // אם התשובה היא המונה (מצב 2), עדכן את הערך
+            if (selectedCase.answer.value === null) {
+                selectedCase.answer.value = selectedCase.numerator;
             }
 
-            const questionStr = `<span class="fraction"><span class="top">${numerator}</span><span class="bottom">${denominator}</span></span> ${operator} <span class="fraction"><span class="top">${secondNumerator}</span><span class="bottom">${secondDenominator}</span></span>`;
+            let questionStr = `<div class='fraction'>
+                                <span class='numerator'>${selectedCase.numerator}</span>
+                                <span class='denominator'>${selectedCase.denominator}</span>
+                              </div>`;
 
-            return { questionStr, answer, fullText: `${numerator}/${denominator} ${operator} ${secondNumerator}/${secondDenominator}` };
+            return { 
+                questionStr, 
+                answer: selectedCase.answer 
+            };
         }
 
         function startGame() {
-            for (let i = 0; i < 10; i++) {
-                questions.push(generateQuestion());
+            for (let i = 0; i < 5; i++) {
+                questions.push(generateFractionQuestion());
             }
             updateProgress();
             nextQuestion();
+        }
+
+        function createConfetti() {
+            const confettiContainer = document.querySelector('.confetti');
+            confettiContainer.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                star.style.opacity = Math.random();
+                confettiContainer.appendChild(star);
+            }
         }
 
         function nextQuestion() {
@@ -187,68 +184,54 @@
                 showCongratulations();
                 return;
             }
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 5`;
             document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
-            document.getElementById("answer").value = "";
+            
+            let answerContainer = document.getElementById("answer-container");
+            if (questions[currentQuestion].answer.type === 'number') {
+                answerContainer.innerHTML = `
+                    <input type="number" id="answer-value" placeholder="תשובה">
+                `;
+            } else {
+                answerContainer.innerHTML = `
+                    <input type="text" id="answer-value" placeholder="תשובה">
+                `;
+            }
+            
             document.getElementById("feedback").innerText = "";
-            startTime = new Date();
         }
 
         function checkAnswer() {
-            const userAnswer = document.getElementById("answer").value.trim();
-            const correctAnswer = questions[currentQuestion].answer;
-            const endTime = new Date();
-            const timeTaken = Math.round((endTime - startTime) / 1000);
-            times.push(timeTaken);
-
-            let isCorrect;
-            if (correctAnswer === 'בחמ') {
-                isCorrect = userAnswer === 'בחמ';
+            let userAnswer = document.getElementById("answer-value").value;
+            let correctAnswer = questions[currentQuestion].answer;
+            
+            let isCorrect = false;
+            if (correctAnswer.type === 'number') {
+                isCorrect = parseInt(userAnswer) === correctAnswer.value;
             } else {
-                isCorrect = Math.abs(parseFloat(userAnswer) - correctAnswer) < 0.01;
+                isCorrect = userAnswer === correctAnswer.value;
             }
-
-            questionDetails.push({
-                question: questions[currentQuestion].fullText,
-                correctAnswer: correctAnswer,
-                userAnswer: userAnswer,
-                isCorrect: isCorrect ? "נכון" : "לא נכון",
-                time: timeTaken
-            });
 
             if (isCorrect) {
                 currentQuestion++;
                 updateProgress();
                 nextQuestion();
             } else {
-                document.getElementById("feedback").innerText = correctAnswer === 'בחמ'
-                    ? "נסה שוב, זו שאלה עם ביטוי חסר משמעות - כתוב 'בחמ'"
-                    : "נסה שוב, אתה יכול להצליח!";
+                document.getElementById("feedback").innerText = "נסה שוב!";
             }
         }
 
         function updateProgress() {
-            const progress = (currentQuestion / questions.length) * 100;
+            let progress = (currentQuestion / questions.length) * 100;
             document.getElementById("progress-bar").style.width = progress + "%";
             document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
 
         function showCongratulations() {
             document.getElementById("game-container").style.display = "none";
-            const summaryBody = document.getElementById("summary-body");
-            questionDetails.forEach((detail, index) => {
-                const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${detail.question}</td>
-                        <td>${detail.correctAnswer}</td>
-                        <td>${detail.userAnswer}</td>
-                        <td>${detail.isCorrect}</td>
-                        <td>${detail.time}</td>
-                    </tr>`;
-                summaryBody.innerHTML += row;
-            });
             document.getElementById("congratulations").style.display = "block";
+            createConfetti();
         }
 
         startGame();
