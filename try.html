@@ -95,7 +95,7 @@
             margin-top: 15px;
             color: #d81b60;
         }
-        #summary-table, #leaderboard-table {
+        #summary-table {
             margin: 30px auto;
             border-collapse: collapse;
             width: 90%;
@@ -104,21 +104,21 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        #summary-table th, #summary-table td, #leaderboard-table th, #leaderboard-table td {
+        #summary-table th, #summary-table td {
             border: 2px solid #4CAF50;
             padding: 15px;
             text-align: center;
         }
-        #summary-table th, #leaderboard-table th {
+        #summary-table th {
             background: linear-gradient(to right, #4CAF50, #81C784);
             color: white;
             font-size: 20px;
         }
-        #summary-table td, #leaderboard-table td {
+        #summary-table td {
             font-size: 18px;
             color: #2c3e50;
         }
-        #summary-table tr:nth-child(even), #leaderboard-table tr:nth-child(even) {
+        #summary-table tr:nth-child(even) {
             background-color: #f1f8e9;
         }
         #summary-message {
@@ -140,41 +140,6 @@
             pointer-events: none;
             z-index: 9999;
         }
-        #player-info {
-            margin: 20px 0;
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            border: 2px solid #0288d1;
-        }
-        #player-name {
-            width: 200px;
-            padding: 10px;
-            font-size: 18px;
-            border: 2px solid #0288d1;
-            border-radius: 10px;
-            margin: 10px;
-            text-align: center;
-        }
-        #leaderboard-section {
-            margin-top: 30px;
-        }
-        #leaderboard-table .winner {
-            background-color: #fffde7;
-            font-weight: bold;
-        }
-        #leaderboard-table .medal-1 {
-            color: gold;
-            font-size: 24px;
-        }
-        #leaderboard-table .medal-2 {
-            color: silver;
-            font-size: 24px;
-        }
-        #leaderboard-table .medal-3 {
-            color: #cd7f32; /* bronze */
-            font-size: 24px;
-        }
     </style>
 </head>
 
@@ -182,23 +147,15 @@
     <div id="game-container">
         <h1>שאלון חשבון לאלופים - כיתה א</h1>
         
-        <div id="player-info">
-            <label for="player-name">הכנס את שמך:</label>
-            <input type="text" id="player-name" placeholder="השם שלך">
-            <button id="start-button" onclick="startGameWithName()">התחל משחק</button>
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
         </div>
-        
-        <div id="game-section" class="hidden">
-            <div id="progress-container">
-                <div id="progress-bar">0%</div>
-            </div>
-            <p id="score">ניקוד: 0</p>
-            <p id="question-number"></p>
-            <p id="question"></p>
-            <input type="number" id="answer" placeholder="הקלד תשובה">
-            <button onclick="checkAnswer()">בדיקה</button>
-            <p id="feedback"></p>
-        </div>
+        <p id="score">ניקוד: 0</p>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה">
+        <button onclick="checkAnswer()">בדיקה</button>
+        <p id="feedback"></p>
 
         <div id="summary" class="hidden">
             <h2>כל הכבוד, אלוף!</h2>
@@ -211,18 +168,6 @@
             <div id="summary-message">
                 אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
             </div>
-            
-            <div id="leaderboard-section">
-                <h2>טבלת השיאים</h2>
-                <table id="leaderboard-table">
-                    <thead>
-                        <tr><th>מקום</th><th>שם</th><th>ניקוד</th><th>זמן כולל (שניות)</th><th>תאריך</th></tr>
-                    </thead>
-                    <tbody id="leaderboard-body"></tbody>
-                </table>
-            </div>
-            
-            <button onclick="playAgain()">שחק שוב</button>
         </div>
     </div>
     <div class="confetti-container" id="confetti-container"></div>
@@ -231,117 +176,15 @@
         let questions = [];
         let currentQuestion = 0;
         let startTime;
-        let gameStartTime;
         let times = [];
         let score = 0;
         let questionDetails = [];
-        let playerName = "";
-        let leaderboard = [];
-        
-        // טען את טבלת השיאים מהאחסון המקומי
-        function loadLeaderboard() {
-            const savedLeaderboard = localStorage.getItem('mathGameLeaderboard');
-            if (savedLeaderboard) {
-                leaderboard = JSON.parse(savedLeaderboard);
-            }
-        }
-        
-        // שמור את טבלת השיאים באחסון המקומי
-        function saveLeaderboard() {
-            localStorage.setItem('mathGameLeaderboard', JSON.stringify(leaderboard));
-        }
-        
-        // הוסף שחקן חדש לטבלת השיאים
-        function addToLeaderboard(name, score, totalTime) {
-            const today = new Date();
-            const dateString = today.toLocaleDateString('he-IL');
-            
-            leaderboard.push({
-                name: name,
-                score: score,
-                totalTime: totalTime,
-                date: dateString
-            });
-            
-            // מיין את הטבלה לפי ניקוד גבוה וזמן נמוך
-            leaderboard.sort((a, b) => {
-                if (b.score !== a.score) {
-                    return b.score - a.score; // מיון לפי ניקוד בסדר יורד
-                }
-                return a.totalTime - b.totalTime; // אם הניקוד זהה, מיין לפי זמן בסדר עולה
-            });
-            
-            // שמור רק את 10 התוצאות הטובות ביותר
-            if (leaderboard.length > 10) {
-                leaderboard = leaderboard.slice(0, 10);
-            }
-            
-            saveLeaderboard();
-        }
-        
-        // הצג את טבלת השיאים
-        function displayLeaderboard() {
-            const leaderboardBody = document.getElementById("leaderboard-body");
-            leaderboardBody.innerHTML = "";
-            
-            leaderboard.forEach((player, index) => {
-                const row = document.createElement("tr");
-                
-                // הוסף סימון מיוחד למקומות הראשונים
-                if (index < 3) {
-                    row.classList.add("winner");
-                }
-                
-                let medal = "";
-                if (index === 0) medal = "<span class='medal-1'>🥇</span>";
-                else if (index === 1) medal = "<span class='medal-2'>🥈</span>";
-                else if (index === 2) medal = "<span class='medal-3'>🥉</span>";
-                
-                row.innerHTML = `
-                    <td>${index + 1} ${medal}</td>
-                    <td>${player.name}</td>
-                    <td>${player.score}</td>
-                    <td>${player.totalTime}</td>
-                    <td>${player.date}</td>
-                `;
-                
-                // הדגש את השחקן הנוכחי
-                if (player.name === playerName && player.date === new Date().toLocaleDateString('he-IL')) {
-                    row.style.backgroundColor = "#ffecb3";
-                    row.style.fontWeight = "bold";
-                }
-                
-                leaderboardBody.appendChild(row);
-            });
-        }
-        
-        function startGameWithName() {
-            playerName = document.getElementById("player-name").value.trim();
-            if (playerName === "") {
-                alert("אנא הכנס את שמך לפני תחילת המשחק");
-                return;
-            }
-            
-            document.getElementById("player-info").classList.add("hidden");
-            document.getElementById("game-section").classList.remove("hidden");
-            
-            // איפוס נתוני המשחק
-            questions = [];
-            currentQuestion = 0;
-            times = [];
-            score = 0;
-            questionDetails = [];
-            
-            // התחל את המשחק
-            gameStartTime = new Date();
-            startGame();
-        }
 
         function generateQuestion() {
-            let num1 = Math.floor(Math.random() * 11);
-            let num2 = Math.floor(Math.random() * (11 - num1));
-            let questionStr = `${num1} + ${num2}`;
-            let answer = num1 + num2;
+            let num1 = Math.floor(Math.random() * 11); // מספר ראשון בין 0 ל-10
+            let num2 = Math.floor(Math.random() * (num1 + 1)); // מספר שני קטן או שווה לראשון
+            let questionStr = `${num1} - ${num2}`;
+            let answer = num1 - num2;
             return { questionStr, answer };
         }
 
@@ -399,12 +242,6 @@
 
         function checkAnswer() {
             let userAnswer = parseFloat(document.getElementById("answer").value);
-            if (isNaN(userAnswer)) {
-                document.getElementById("feedback").innerText = "אנא הכנס מספר";
-                document.getElementById("feedback").style.color = "#d81b60";
-                return;
-            }
-            
             let correctAnswer = questions[currentQuestion].answer;
             if (userAnswer === correctAnswer) {
                 let endTime = new Date();
@@ -430,7 +267,6 @@
                 setTimeout(nextQuestion, 1000); // עיכוב קל להנאה מהאפקט
             } else {
                 document.getElementById("feedback").innerText = "נסה שוב, אתה יכול!";
-                document.getElementById("feedback").style.color = "#d81b60";
             }
         }
 
@@ -442,52 +278,22 @@
         }
 
         function showSummary() {
-            // חישוב הזמן הכולל שלקח לפתור את כל השאלות
-            let totalTime = 0;
-            times.forEach(time => {
-                totalTime += time;
-            });
-            
-            // הוספה לטבלת השיאים
-            loadLeaderboard();
-            addToLeaderboard(playerName, score, totalTime);
-            
-            // הצגת סיכום התרגילים
             let summaryBody = document.getElementById("summary-body");
             summaryBody.innerHTML = "";
             questionDetails.forEach((detail, i) => {
                 let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
                 summaryBody.innerHTML += row;
             });
-            
-            // הצגת טבלת השיאים
-            displayLeaderboard();
-            
-            // הצגת סיכום המשחק
-            document.getElementById("game-section").classList.add("hidden");
             document.getElementById("summary").classList.remove("hidden");
-            
+            updateProgress();
+
             // חגיגה סופית
             createConfetti();
             setTimeout(createStars, 500);
             setTimeout(createConfetti, 1000);
         }
-        
-        function playAgain() {
-            document.getElementById("summary").classList.add("hidden");
-            document.getElementById("player-info").classList.remove("hidden");
-            document.getElementById("player-name").value = playerName;
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            loadLeaderboard();
-            // הוסף האזנה למקש Enter בשדה התשובה
-            document.getElementById("answer").addEventListener("keyup", function(event) {
-                if (event.key === "Enter") {
-                    checkAnswer();
-                }
-            });
-        });
+        document.addEventListener('DOMContentLoaded', startGame);
 
         // אנימציה לכוכבים
         const styleSheet = document.createElement('style');
