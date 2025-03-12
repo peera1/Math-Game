@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חשבון - כיתה א</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        #game-container {
+            margin: 40px auto;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        h1 {
+            font-size: 40px;
+            color: #0288d1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #b0bec5;
+            border-radius: 15px;
+            margin: 20px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        #score {
+            font-size: 24px;
+            color: #f57c00;
+            margin: 15px 0;
+        }
+        #question-number {
+            font-size: 22px;
+            color: #0288d1;
+        }
+        #question {
+            font-size: 28px;
+            color: #d81b60;
+            margin: 20px 0;
+        }
+        #answer {
+            width: 120px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #0288d1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: linear-gradient(to right, #0288d1, #4fc3f7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        #feedback {
+            font-size: 20px;
+            margin-top: 15px;
+            color: #d81b60;
+        }
+        #summary-table, #leaderboard-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 90%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #summary-table th, #summary-table td, #leaderboard-table th, #leaderboard-table td {
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            text-align: center;
+        }
+        #summary-table th, #leaderboard-table th {
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            color: white;
+            font-size: 20px;
+        }
+        #summary-table td, #leaderboard-table td {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        #summary-table tr:nth-child(even), #leaderboard-table tr:nth-child(even) {
+            background-color: #f1f8e9;
+        }
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.6;
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #4CAF50;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        #player-info {
+            margin: 20px 0;
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #0288d1;
+        }
+        #player-name {
+            width: 200px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #0288d1;
+            border-radius: 10px;
+            margin: 10px;
+            text-align: center;
+        }
+        #leaderboard-section {
+            margin-top: 30px;
+        }
+        #leaderboard-table .winner {
+            background-color: #fffde7;
+            font-weight: bold;
+        }
+        #leaderboard-table .medal-1 {
+            color: gold;
+            font-size: 24px;
+        }
+        #leaderboard-table .medal-2 {
+            color: silver;
+            font-size: 24px;
+        }
+        #leaderboard-table .medal-3 {
+            color: #cd7f32; /* bronze */
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>שאלון חשבון לאלופים - כיתה א</h1>
+        
+        <div id="player-info">
+            <label for="player-name">הכנס את שמך:</label>
+            <input type="text" id="player-name" placeholder="השם שלך">
+            <button id="start-button" onclick="startGameWithName()">התחל משחק</button>
+        </div>
+        
+        <div id="game-section" class="hidden">
+            <div id="progress-container">
+                <div id="progress-bar">0%</div>
+            </div>
+            <p id="score">ניקוד: 0</p>
+            <p id="question-number"></p>
+            <p id="question"></p>
+            <input type="number" id="answer" placeholder="הקלד תשובה">
+            <button onclick="checkAnswer()">בדיקה</button>
+            <p id="feedback"></p>
+        </div>
+
+        <div id="summary" class="hidden">
+            <h2>כל הכבוד, אלוף!</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>שאלה</th><th>תרגיל</th><th>תשובה</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
+            </div>
+            
+            <div id="leaderboard-section">
+                <h2>טבלת השיאים</h2>
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr><th>מקום</th><th>שם</th><th>ניקוד</th><th>זמן כולל (שניות)</th><th>תאריך</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+            
+            <button onclick="playAgain()">שחק שוב</button>
+        </div>
+    </div>
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let gameStartTime;
+        let times = [];
+        let score = 0;
+        let questionDetails = [];
+        let playerName = "";
+        let leaderboard = [];
+        
+        // טען את טבלת השיאים מהאחסון המקומי
+        function loadLeaderboard() {
+            const savedLeaderboard = localStorage.getItem('mathGameLeaderboard');
+            if (savedLeaderboard) {
+                leaderboard = JSON.parse(savedLeaderboard);
+            }
+        }
+        
+        // שמור את טבלת השיאים באחסון המקומי
+        function saveLeaderboard() {
+            localStorage.setItem('mathGameLeaderboard', JSON.stringify(leaderboard));
+        }
+        
+        // הוסף שחקן חדש לטבלת השיאים
+        function addToLeaderboard(name, score, totalTime) {
+            const today = new Date();
+            const dateString = today.toLocaleDateString('he-IL');
+            
+            leaderboard.push({
+                name: name,
+                score: score,
+                totalTime: totalTime,
+                date: dateString
+            });
+            
+            // מיין את הטבלה לפי ניקוד גבוה וזמן נמוך
+            leaderboard.sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score; // מיון לפי ניקוד בסדר יורד
+                }
+                return a.totalTime - b.totalTime; // אם הניקוד זהה, מיין לפי זמן בסדר עולה
+            });
+            
+            // שמור רק את 10 התוצאות הטובות ביותר
+            if (leaderboard.length > 10) {
+                leaderboard = leaderboard.slice(0, 10);
+            }
+            
+            saveLeaderboard();
+        }
+        
+        // הצג את טבלת השיאים
+        function displayLeaderboard() {
+            const leaderboardBody = document.getElementById("leaderboard-body");
+            leaderboardBody.innerHTML = "";
+            
+            leaderboard.forEach((player, index) => {
+                const row = document.createElement("tr");
+                
+                // הוסף סימון מיוחד למקומות הראשונים
+                if (index < 3) {
+                    row.classList.add("winner");
+                }
+                
+                let medal = "";
+                if (index === 0) medal = "<span class='medal-1'>🥇</span>";
+                else if (index === 1) medal = "<span class='medal-2'>🥈</span>";
+                else if (index === 2) medal = "<span class='medal-3'>🥉</span>";
+                
+                row.innerHTML = `
+                    <td>${index + 1} ${medal}</td>
+                    <td>${player.name}</td>
+                    <td>${player.score}</td>
+                    <td>${player.totalTime}</td>
+                    <td>${player.date}</td>
+                `;
+                
+                // הדגש את השחקן הנוכחי
+                if (player.name === playerName && player.date === new Date().toLocaleDateString('he-IL')) {
+                    row.style.backgroundColor = "#ffecb3";
+                    row.style.fontWeight = "bold";
+                }
+                
+                leaderboardBody.appendChild(row);
+            });
+        }
+        
+        function startGameWithName() {
+            playerName = document.getElementById("player-name").value.trim();
+            if (playerName === "") {
+                alert("אנא הכנס את שמך לפני תחילת המשחק");
+                return;
+            }
+            
+            document.getElementById("player-info").classList.add("hidden");
+            document.getElementById("game-section").classList.remove("hidden");
+            
+            // איפוס נתוני המשחק
+            questions = [];
+            currentQuestion = 0;
+            times = [];
+            score = 0;
+            questionDetails = [];
+            
+            // התחל את המשחק
+            gameStartTime = new Date();
+            startGame();
+        }
+
+        function generateQuestion() {
+            let num1 = Math.floor(Math.random() * 11);
+            let num2 = Math.floor(Math.random() * (11 - num1));
+            let questionStr = `${num1} + ${num2}`;
+            let answer = num1 + num2;
+            return { questionStr, answer };
+        }
+
+        function startGame() {
+            for (let i = 0; i < 10; i++) {
+                questions.push(generateQuestion());
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FDCB6E'],
+                    shapes: ['star', 'circle']
+                });
+            } else {
+                console.warn('Confetti library not loaded');
+            }
+        }
+
+        function createStars() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.style.position = 'absolute';
+                star.style.width = '20px';
+                star.style.height = '20px';
+                star.style.background = 'yellow';
+                star.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animation = `fall ${Math.random() * 2 + 1}s linear`;
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 2000);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById("answer").value);
+            if (isNaN(userAnswer)) {
+                document.getElementById("feedback").innerText = "אנא הכנס מספר";
+                document.getElementById("feedback").style.color = "#d81b60";
+                return;
+            }
+            
+            let correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                let endTime = new Date();
+                let timeTaken = Math.round((endTime - startTime) / 1000);
+                times.push(timeTaken);
+                
+                // עדכון ניקוד ותגמול
+                score += 10 + (timeTaken < 5 ? 5 : 0); // בונוס על מהירות
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+                questionDetails.push({
+                    question: questions[currentQuestion].questionStr,
+                    answer: correctAnswer,
+                    time: timeTaken
+                });
+
+                // אפקטים ויזואליים
+                currentQuestion % 2 === 0 ? createConfetti() : createStars();
+                document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
+                document.getElementById("feedback").style.color = "#4CAF50";
+                
+                currentQuestion++;
+                updateProgress();
+                setTimeout(nextQuestion, 1000); // עיכוב קל להנאה מהאפקט
+            } else {
+                document.getElementById("feedback").innerText = "נסה שוב, אתה יכול!";
+                document.getElementById("feedback").style.color = "#d81b60";
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) progress = 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            // חישוב הזמן הכולל שלקח לפתור את כל השאלות
+            let totalTime = 0;
+            times.forEach(time => {
+                totalTime += time;
+            });
+            
+            // הוספה לטבלת השיאים
+            loadLeaderboard();
+            addToLeaderboard(playerName, score, totalTime);
+            
+            // הצגת סיכום התרגילים
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach((detail, i) => {
+                let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            
+            // הצגת טבלת השיאים
+            displayLeaderboard();
+            
+            // הצגת סיכום המשחק
+            document.getElementById("game-section").classList.add("hidden");
+            document.getElementById("summary").classList.remove("hidden");
+            
+            // חגיגה סופית
+            createConfetti();
+            setTimeout(createStars, 500);
+            setTimeout(createConfetti, 1000);
+        }
+        
+        function playAgain() {
+            document.getElementById("summary").classList.add("hidden");
+            document.getElementById("player-info").classList.remove("hidden");
+            document.getElementById("player-name").value = playerName;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLeaderboard();
+            // הוסף האזנה למקש Enter בשדה התשובה
+            document.getElementById("answer").addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    checkAnswer();
+                }
+            });
+        });
+
+        // אנימציה לכוכבים
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes fall {
+                0% { transform: translateY(-100vh) rotate(0deg); }
+                100% { transform: translateY(100vh) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>
