@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>משחק חשבון - כיתה א</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -141,15 +140,6 @@
             pointer-events: none;
             z-index: 9999;
         }
-        #chart-container {
-            margin: 30px auto;
-            width: 90%;
-            max-width: 600px;
-            padding: 20px;
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
     </style>
 </head>
 
@@ -175,9 +165,6 @@
                 </thead>
                 <tbody id="summary-body"></tbody>
             </table>
-            <div id="chart-container">
-                <canvas id="timeChart"></canvas>
-            </div>
             <div id="summary-message">
                 אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
             </div>
@@ -261,7 +248,8 @@
                 let timeTaken = Math.round((endTime - startTime) / 1000);
                 times.push(timeTaken);
                 
-                score += 10 + (timeTaken < 5 ? 5 : 0);
+                // עדכון ניקוד ותגמול
+                score += 10 + (timeTaken < 5 ? 5 : 0); // בונוס על מהירות
                 document.getElementById("score").innerText = `ניקוד: ${score}`;
                 questionDetails.push({
                     question: questions[currentQuestion].questionStr,
@@ -269,13 +257,14 @@
                     time: timeTaken
                 });
 
+                // אפקטים ויזואליים
                 currentQuestion % 2 === 0 ? createConfetti() : createStars();
                 document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
                 document.getElementById("feedback").style.color = "#4CAF50";
                 
                 currentQuestion++;
                 updateProgress();
-                setTimeout(nextQuestion, 1000);
+                setTimeout(nextQuestion, 1000); // עיכוב קל להנאה מהאפקט
             } else {
                 document.getElementById("feedback").innerText = "נסה שוב, אתה יכול!";
             }
@@ -298,100 +287,7 @@
             document.getElementById("summary").classList.remove("hidden");
             updateProgress();
 
-            const ctx = document.getElementById('timeChart').getContext('2d');
-            const timesData = questionDetails.map(detail => detail.time);
-            const labels = questionDetails.map((_, i) => `שאלה ${i + 1}`);
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'זמן מענה (שניות)',
-                        data: timesData,
-                        backgroundColor: 'rgba(76, 175, 80, 0.7)',
-                        borderColor: 'rgba(76, 175, 80, 1)',
-                        borderWidth: 2,
-                        borderRadius: 10,
-                        barThickness: 25,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                font: {
-                                    size: 16,
-                                    family: 'Arial'
-                                },
-                                color: '#2c3e50'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'זמן מענה לכל שאלה',
-                            font: {
-                                size: 24,
-                                family: 'Arial'
-                            },
-                            color: '#0288d1',
-                            padding: 20
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'זמן (שניות)',
-                                font: {
-                                    size: 18,
-                                    family: 'Arial'
-                                },
-                                color: '#d81b60'
-                            },
-                            ticks: {
-                                font: {
-                                    size: 14
-                                },
-                                color: '#2c3e50'
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'שאלות',
-                                font: {
-                                    size: 18,
-                                    family: 'Arial'
-                                },
-                                color: '#d81b60'
-                            },
-                            ticks: {
-                                font: {
-                                    size: 14
-                                },
-                                color: '#2c3e50'
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    animation: {
-                        duration: 1500,
-                        easing: 'easeOutBounce'
-                    }
-                }
-            });
-
+            // חגיגה סופית
             createConfetti();
             setTimeout(createStars, 500);
             setTimeout(createConfetti, 1000);
@@ -399,6 +295,7 @@
 
         document.addEventListener('DOMContentLoaded', startGame);
 
+        // אנימציה לכוכבים
         const styleSheet = document.createElement('style');
         styleSheet.textContent = `
             @keyframes fall {
