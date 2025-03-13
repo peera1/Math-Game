@@ -32,7 +32,7 @@
             direction: rtl;
             color: var(--text-color);
             line-height: 1.6;
-            overflow-y: auto; /* מאפשר גלילה */
+            overflow-y: auto;
         }
 
         .background-overlay {
@@ -57,7 +57,7 @@
             margin: 30px auto;
             position: relative;
             transition: all 0.5s ease;
-            border: 3px solid rgba(254, 194, 96, 0.3); /* גבול זהוב עדין */
+            border: 3px solid rgba(254, 194, 96, 0.3);
         }
 
         h1 {
@@ -117,53 +117,57 @@
         }
 
         .button:hover {
-            background: linear-gradient(to right, var(--secondary-color), #FFD700); /* זהב אלגנטי */
+            background: linear-gradient(to right, var(--secondary-color), #FFD700);
             box-shadow: 0 0 20px rgba(254, 194, 96, 0.6);
             transform: scale(1.05);
         }
 
         .blue { 
-            background: linear-gradient(to right, #3B4F7D, #6B728E); /* כחול עמוק אלגנטי */
+            background: linear-gradient(to right, #3B4F7D, #6B728E);
         }
 
         .green { 
-            background: linear-gradient(to right, #355E3B, #7D9D72); /* ירוק מלכותי */
+            background: linear-gradient(to right, #355E3B, #7D9D72);
         }
 
         .yellow { 
-            background: linear-gradient(to right, #F4A261, #E9C46A); /* צהוב-כתום חם */
+            background: linear-gradient(to right, #F4A261, #E9C46A);
         }
 
         .red { 
-            background: linear-gradient(to right, #8B1E3F, #C84767); /* אדום עמוק */
+            background: linear-gradient(to right, #8B1E3F, #C84767);
         }
 
         .pink {
-            background: linear-gradient(to right, #A63C6D, #D47B9A); /* ורוד אלגנטי */
+            background: linear-gradient(to right, #A63C6D, #D47B9A);
         }
 
         .coral {
-            background: linear-gradient(to right, #D76A03, #F89F5B); /* קורל חם */
+            background: linear-gradient(to right, #D76A03, #F89F5B);
         }
 
         .purple {
-            background: linear-gradient(to right, #4A235A, #8E44AD); /* סגול מלכותי */
+            background: linear-gradient(to right, #4A235A, #8E44AD);
         }
 
         .radiant {
-            background: linear-gradient(to right, #2A0944, #A12568); /* התאמה לרקע */
+            background: linear-gradient(to right, #2A0944, #A12568);
         }
 
         .teal {
-            background: linear-gradient(to right, #1A535C, #4ECDC4); /* טורקיז מרענן */
+            background: linear-gradient(to right, #1A535C, #4ECDC4);
+        }
+
+        .emerald { /* צבע חדש עבור חיבור עם המרה */
+            background: linear-gradient(to right, #1B4332, #52B788);
         }
 
         .info-text {
-            background: linear-gradient(to right, #F6F4E6, #EDE4E0); /* בז' אלגנטי */
+            background: linear-gradient(to right, #F6F4E6, #EDE4E0);
             padding: 20px;
             border-radius: 15px;
             margin-top: 25px;
-            color: #4A235A; /* סגול כהה לטקסט */
+            color: #4A235A;
             font-size: 15px;
             border: 1px solid rgba(254, 194, 96, 0.4);
         }
@@ -194,6 +198,9 @@
             </button>
             <button class="button green" onclick="openLinkWithConfetti('core-2.html')">
                 <i class="fas fa-calculator"></i> כיתה ב - פעולות יסוד
+            </button>
+            <button class="button emerald" onclick="openLinkWithConfetti('core-2-adding-with-transit.html')">
+                <i class="fas fa-exchange-alt"></i> כיתה ב - חיבור עם המרה
             </button>
             <button class="button radiant" onclick="openLinkWithConfetti('core-3.html')">
                 <i class="fas fa-arrow-up-9-1"></i> כיתה ג - סדר פעולות חשבון
