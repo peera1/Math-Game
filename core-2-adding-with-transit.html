@@ -182,16 +182,25 @@
 
         function generateQuestion() {
             let num1, num2;
-            // 80% סיכוי לשאלות דו-ספרתיות או תלת-ספרתיות
-            if (Math.random() < 0.8) {
-                num1 = Math.floor(Math.random() * 900) + 100; // 100-999
-                num2 = Math.floor(Math.random() * 900) + 10;  // 10-999
+            const rand = Math.random();
+
+            if (rand < 0.4) {
+                // 40% סיכוי: דו-ספרתי + תלת-ספרתי
+                num1 = Math.floor(Math.random() * 90) + 10;  // 10-99
+                num2 = Math.floor(Math.random() * (999 - num1)) + 1; // 1 עד (999 - num1)
+            } else if (rand < 0.8) {
+                // 40% סיכוי: דו-ספרתי + דו-ספרתי
+                num1 = Math.floor(Math.random() * 90) + 10;  // 10-99
+                num2 = Math.floor(Math.random() * (999 - num1)) + 1; // 1 עד (999 - num1)
             } else {
-                // 20% סיכוי לשאלות פשוטות יותר (חד-ספרתיות או דו-ספרתיות קטנות)
-                num1 = Math.floor(Math.random() * 90) + 10;   // 10-99
-                num2 = Math.floor(Math.random() * 90) + 1;    // 1-99
+                // 20% סיכוי: שאלות פשוטות יותר (חד-ספרתי או דו-ספרתי קטן)
+                num1 = Math.floor(Math.random() * 90) + 10;  // 10-99
+                num2 = Math.floor(Math.random() * 90) + 1;   // 1-99
+                if (num1 + num2 > 999) {
+                    num2 = 999 - num1; // תיקון אם הסכום עובר 999
+                }
             }
-            
+
             let questionStr = `${num1} + ${num2}`;
             let answer = num1 + num2;
             return { questionStr, answer };
