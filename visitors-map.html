@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מפת מבקרים - לומדת חשבון</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap');
+
+        :root {
+            --primary-gradient-start: #2A0944; /* סגול כהה */
+            --primary-gradient-end: #A12568;   /* ורוד-סגול */
+            --secondary-color: #FEC260;       /* זהב */
+            --button-shadow: rgba(42, 9, 68, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rubik', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+            min-height: 100vh;
+            direction: rtl;
+            color: #333;
+            line-height: 1.6;
+            overflow-y: auto;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px var(--button-shadow);
+            padding: 40px;
+            text-align: center;
+            width: 90%;
+            max-width: 1000px;
+            margin: 30px auto;
+            border: 3px solid rgba(254, 194, 96, 0.3);
+        }
+
+        h1 {
+            color: var(--primary-gradient-start);
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 2px solid var(--secondary-color);
+        }
+
+        th {
+            background: linear-gradient(to right, var(--primary-gradient-start), var(--primary-gradient-end));
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        td {
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(254, 194, 96, 0.1);
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin-top: 20px;
+            background: linear-gradient(to right, #1B4332, #52B788); /* emerald */
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            box-shadow: 0 8px 16px var(--button-shadow);
+        }
+
+        .back-button:hover {
+            background: linear-gradient(to right, var(--secondary-color), #FFD700);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 15px auto;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            #map {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>מפת מבקרים - מאיפה מגיעים התלמידים שלנו?</h1>
+        
+        <div id="map"></div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>מדינה</th>
+                        <th>מספר מבקרים</th>
+                    </tr>
+                </thead>
+                <tbody id="visitor-table">
+                    <!-- הטבלה תתמלא על ידי JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <button class="back-button" onclick="window.location.href='index.html'">
+            <i class="fas fa-arrow-right"></i> חזור לדף הבית
+        </button>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // נתוני דוגמה (תחליף את זה בנתונים שלך)
+        const visitorData = [
+            { country: "ישראל", visitors: 1500, lat: 31.0461, lng: 34.8516 },
+            { country: "ארצות הברית", visitors: 800, lat: 37.0902, lng: -95.7129 },
+            { country: "בריטניה", visitors: 300, lat: 55.3781, lng: -3.4360 },
+            { country: "צרפת", visitors: 250, lat: 46.6031, lng: 1.7191 },
+            { country: "גרמניה", visitors: 200, lat: 51.1657, lng: 10.4515 }
+        ];
+
+        // יצירת המפה
+        const map = L.map('map').setView([20, 0], 2); // תצוגה עולמית
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        // הוספת סמנים למפה
+        visitorData.forEach(data => {
+            const marker = L.circleMarker([data.lat, data.lng], {
+                radius: Math.min(data.visitors / 50, 20), // גודל הסמן לפי מספר מבקרים
+                color: '#A12568',
+                fillColor: '#FEC260',
+                fillOpacity: 0.7
+            }).addTo(map);
+            marker.bindPopup(`<b>${data.country}</b><br>${data.visitors} מבקרים`);
+        });
+
+        // מילוי הטבלה
+        const tableBody = document.getElementById('visitor-table');
+        visitorData.forEach(data => {
+            const row = `<tr><td>${data.country}</td><td>${data.visitors}</td></tr>`;
+            tableBody.innerHTML += row;
+        });
+    </script>
+</body>
+</html>
