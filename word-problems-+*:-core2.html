@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>שאלות מילוליות בכיף - כיתה ב</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -14,7 +12,7 @@
         }
 
         body {
-            font-family: 'Rubik', Arial, sans-serif;
+            font-family: Arial, sans-serif;
             direction: rtl;
             background: linear-gradient(135deg, #6B48FF, #FF6F61);
             min-height: 100vh;
@@ -31,6 +29,7 @@
             max-width: 700px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             text-align: center;
+            position: relative;
         }
 
         h1 {
@@ -42,6 +41,31 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .progress-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, #FF6F61, #FEC260);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+
+        .stars {
+            font-size: 1.5rem;
+            color: #FEC260;
+            margin-top: 10px;
+        }
+
         .problem {
             font-size: 1.4rem;
             color: #333;
@@ -49,6 +73,7 @@
             padding: 15px;
             background: #F6F4E6;
             border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         input {
@@ -59,6 +84,11 @@
             border-radius: 10px;
             text-align: center;
             margin-bottom: 20px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #FEC260;
         }
 
         button {
@@ -69,6 +99,11 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
         }
 
         #feedback {
@@ -78,150 +113,236 @@
 
         .summary-container {
             display: none;
+            text-align: center;
+        }
+
+        .summary-container ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-container li {
+            background: #F6F4E6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+
+        .summary-container li.correct {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .summary-container li.incorrect {
+            border-left: 5px solid #FF6F61;
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
-    <div class="game-container" id="root"></div>
-
-    <!-- ספריות חיצוניות -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div class="game-container">
+        <div id="quizContainer">
+            <h1>שאלות מילוליות בכיף</h1>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="stars" id="stars"></div>
+            </div>
+            <div class="problem" id="problem"></div>
+            <input type="number" id="answer" placeholder="תשובה">
+            <br>
+            <button onclick="submitAnswer()">שלח תשובה</button>
+            <div id="feedback"></div>
+        </div>
+        <div class="summary-container" id="summaryContainer">
+            <h1>סיימת! 🎉</h1>
+            <div id="summary"></div>
+            <button onclick="restartQuiz()">שחק שוב!</button>
+        </div>
+    </div>
+    <canvas class="confetti" id="confettiCanvas"></canvas>
 
     <script>
-        const { useState, useEffect } = React;
-
         const problems = [
             { "question": "ליה קנתה 34 עפרונות ועוד 25 עפרונות. כמה עפרונות יש לה עכשיו?", "answer": 59 },
             { "question": "בכל שקית יש 5 ממתקים ויש 7 שקיות. כמה ממתקים יש?", "answer": 35 },
             { "question": "יש 24 תפוחים ו-6 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 4 },
             { "question": "בכיתה היו 45 תלמידים ו-17 הלכו הביתה. כמה תלמידים נשארו?", "answer": 28 },
             { "question": "בכל קופסה יש 8 עפרונות ויש 4 קופסאות. כמה עפרונות יש?", "answer": 32 },
+            { "question": "יש 18 בלונים ו-3 ילדים. כמה בלונים יקבל כל ילד?", "answer": 6 },
+            { "question": "בכל יום נועם קיבל 3 מדבקות במשך 9 ימים. כמה מדבקות יש לו?", "answer": 27 },
+            { "question": "יש 40 שוקולדים ו-8 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 5 },
+            { "question": "ליאור קנה 22 תפוחים ועוד 13 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 35 },
+            { "question": "בכל שורה יש 4 פרחים ויש 10 שורות. כמה פרחים יש?", "answer": 40 },
         ];
 
-        const App = () => {
-            const [shuffledProblems, setShuffledProblems] = useState([]);
-            const [currentQuestion, setCurrentQuestion] = useState(0);
-            const [answer, setAnswer] = useState('');
-            const [feedback, setFeedback] = useState('');
-            const [results, setResults] = useState([]);
-            const [isQuizDone, setIsQuizDone] = useState(false);
-            const [startTime, setStartTime] = useState(null);
+        let shuffledProblems = [];
+        let currentQuestion = 0;
+        let results = [];
+        let stars = 0;
+        let startTime;
 
-            useEffect(() => {
-                selectRandomQuestions();
-                setStartTime(new Date());
-            }, []);
-
-            const selectRandomQuestions = () => {
-                const shuffled = [...problems].sort(() => 0.5 - Math.random());
-                setShuffledProblems(shuffled.slice(0, 5)); // 5 שאלות לבדיקה
-            };
-
-            const handleSubmit = () => {
-                if (!answer) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'רגע!',
-                        text: 'אנא הכנס תשובה',
-                        confirmButtonColor: '#FF6F61',
-                    });
-                    return;
-                }
-
-                const endTime = new Date();
-                const timeTaken = Math.round((endTime - startTime) / 1000);
-                const correctAnswer = shuffledProblems[currentQuestion].answer;
-                const isCorrect = parseInt(answer) === correctAnswer;
-
-                setResults([...results, {
-                    question: shuffledProblems[currentQuestion].question,
-                    userAnswer: answer,
-                    correctAnswer,
-                    timeTaken,
-                    isCorrect,
-                }]);
-
-                if (isCorrect) {
-                    setFeedback('כל הכבוד!');
-                    confetti({ particleCount: 100, spread: 70 });
-                    setTimeout(nextQuestion, 1000);
-                } else {
-                    setFeedback('טעות! נסה שוב');
-                    setAnswer('');
-                }
-            };
-
-            const nextQuestion = () => {
-                if (currentQuestion + 1 < shuffledProblems.length) {
-                    setCurrentQuestion(currentQuestion + 1);
-                    setAnswer('');
-                    setFeedback('');
-                    setStartTime(new Date());
-                } else {
-                    setIsQuizDone(true);
-                }
-            };
-
-            const restartQuiz = () => {
-                setCurrentQuestion(0);
-                setAnswer('');
-                setFeedback('');
-                setResults([]);
-                setIsQuizDone(false);
-                selectRandomQuestions();
-                setStartTime(new Date());
-            };
-
-            return (
-                <div>
-                    {!isQuizDone ? (
-                        <div>
-                            <h1>שאלות מילוליות בכיף</h1>
-                            <div className="problem">
-                                {shuffledProblems[currentQuestion]?.question}
-                            </div>
-                            <input
-                                type="number"
-                                value={answer}
-                                onChange={(e) => setAnswer(e.target.value)}
-                                placeholder="תשובה"
-                            />
-                            <br />
-                            <button onClick={handleSubmit}>שלח תשובה</button>
-                            <div id="feedback" style={{ color: feedback.includes('כל הכבוד') ? '#4CAF50' : '#FF6F61' }}>
-                                {feedback}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="summary-container" style={{ display: 'block' }}>
-                            <h1>סיימת!</h1>
-                            <ul>
-                                {results.map((result, index) => (
-                                    <li key={index}>
-                                        <strong>שאלה {index + 1}:</strong> {result.question}<br />
-                                        <strong>תשובתך:</strong> {result.userAnswer}<br />
-                                        <strong>תשובה נכונה:</strong> {result.correctAnswer}<br />
-                                        <strong>זמן:</strong> {result.timeTaken} שניות<br />
-                                        <strong>מצב:</strong> {result.isCorrect ? 'נכון' : 'שגוי'}
-                                    </li>
-                                ))}
-                            </ul>
-                            <button onClick={restartQuiz}>שחק שוב!</button>
-                        </div>
-                    )}
-                </div>
-            );
-        };
-
-        try {
-            ReactDOM.render(<App />, document.getElementById('root'));
-        } catch (error) {
-            console.error('שגיאה ברינדור:', error);
-            document.getElementById('root').innerHTML = '<h1>אופס! משהו השתבש. אנא טען מחדש את הדף.</h1>';
+        function selectRandomQuestions() {
+            shuffledProblems = [...problems].sort(() => 0.5 - Math.random()).slice(0, 5); // 5 שאלות לבדיקה
+            currentQuestion = 0;
+            results = [];
+            stars = 0;
+            updateStars();
+            startQuestion();
         }
+
+        function startQuestion() {
+            if (currentQuestion < shuffledProblems.length) {
+                document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
+                document.getElementById('answer').value = '';
+                document.getElementById('feedback').textContent = '';
+                updateProgress();
+                startTime = new Date();
+            }
+        }
+
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const percentage = (currentQuestion / shuffledProblems.length) * 100;
+            progress.style.width = `${percentage}%`;
+        }
+
+        function updateStars() {
+            document.getElementById('stars').textContent = '★'.repeat(stars);
+        }
+
+        function submitAnswer() {
+            const userAnswer = document.getElementById('answer').value;
+            const feedbackElement = document.getElementById('feedback');
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+
+            if (userAnswer === '') {
+                feedbackElement.textContent = 'אנא הכנס תשובה';
+                feedbackElement.style.color = '#FF6F61';
+                return;
+            }
+
+            const correctAnswer = shuffledProblems[currentQuestion].answer;
+            const isCorrect = parseInt(userAnswer) === correctAnswer;
+
+            results.push({
+                question: shuffledProblems[currentQuestion].question,
+                userAnswer: userAnswer,
+                correctAnswer: correctAnswer,
+                timeTaken: timeTaken,
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
+                feedbackElement.textContent = 'כל הכבוד! ⭐';
+                feedbackElement.style.color = '#4CAF50';
+                stars++;
+                updateStars();
+                launchConfetti();
+                setTimeout(() => {
+                    currentQuestion++;
+                    if (currentQuestion < shuffledProblems.length) {
+                        startQuestion();
+                    } else {
+                        showSummary();
+                    }
+                }, 1000);
+            } else {
+                feedbackElement.textContent = 'טעות! נסה שוב 😊';
+                feedbackElement.style.color = '#FF6F61';
+            }
+        }
+
+        function showSummary() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const summaryContainer = document.getElementById('summaryContainer');
+            summaryContainer.style.display = 'block';
+
+            let summaryHTML = `<p>צברת ${stars} כוכבים מתוך ${shuffledProblems.length}!</p><ul>`;
+            results.forEach((result, index) => {
+                summaryHTML += `
+                    <li class="${result.isCorrect ? 'correct' : 'incorrect'}">
+                        <strong>שאלה ${index + 1}:</strong> ${result.question}<br>
+                        <strong>תשובתך:</strong> ${result.userAnswer}<br>
+                        <strong>תשובה נכונה:</strong> ${result.correctAnswer}<br>
+                        <strong>זמן:</strong> ${result.timeTaken} שניות<br>
+                        <strong>מצב:</strong> ${result.isCorrect ? '✅ נכון' : '❌ שגוי'}
+                    </li>`;
+            });
+            summaryHTML += '</ul>';
+            document.getElementById('summary').innerHTML = summaryHTML;
+        }
+
+        function launchConfetti() {
+            const canvas = document.getElementById('confettiCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function createParticle() {
+                return {
+                    x: random(0, canvas.width),
+                    y: canvas.height + 10,
+                    size: random(5, 10),
+                    speedX: random(-2, 2),
+                    speedY: random(-5, -2),
+                    color: `hsl(${random(0, 360)}, 100%, 50%)`,
+                    life: 100
+                };
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (Math.random() < 0.3 && particles.length < 50) {
+                    particles.push(createParticle());
+                }
+
+                particles.forEach((p, i) => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.life -= 1;
+
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.life <= 0) particles.splice(i, 1);
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateConfetti);
+                }
+            }
+
+            animateConfetti();
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('summaryContainer').style.display = 'none';
+            selectRandomQuestions();
+        }
+
+        // התחל את המשחק
+        selectRandomQuestions();
     </script>
 </body>
 </html>
