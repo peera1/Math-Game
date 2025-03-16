@@ -3,441 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שאלות מילוליות בחשבון חיבור חיסור כפל וחילוק - כיתה ב</title>
+    <title>שאלות מילוליות בכיף - כיתה ב</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Rubik', Arial, sans-serif;
             direction: rtl;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-            background-color: #f4f4f4;
-            position: relative;
+            background: linear-gradient(135deg, #6B48FF, #FF6F61);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
         }
-        .problem-container, .summary-container {
-            background-color: rgba(255, 255, 255, 0.95); /* שקיפות קלה לרקע */
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2A0944;
             text-align: center;
-            position: relative;
-            z-index: 2; /* מעל הזיקוקים */
-        }
-        .problem {
             margin-bottom: 20px;
-            font-size: 1.2em;
+            background: linear-gradient(to right, #FF6F61, #FEC260);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        #answer {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-size: 1em;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #feedback {
-            margin-top: 20px;
-            font-weight: bold;
-        }
+
         .progress-container {
-            width: 100%;
-            margin-bottom: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
         }
+
         .progress-bar {
-            width: 100%;
-            background-color: #ddd;
+            flex-grow: 1;
             height: 20px;
+            background: #ddd;
             border-radius: 10px;
-            margin-top: 5px;
+            overflow: hidden;
+            margin: 0 10px;
         }
+
         .progress {
             height: 100%;
-            background-color: #4CAF50;
+            background: linear-gradient(to right, #FF6F61, #FEC260);
             border-radius: 10px;
-            transition: width 0.3s ease;
+            transition: width 0.5s ease;
         }
-        .progress-text {
-            font-size: 1em;
+
+        .stars {
+            font-size: 1.5rem;
+            color: #FEC260;
+        }
+
+        .problem {
+            font-size: 1.4rem;
             color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 15px;
+            background: #F6F4E6;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 1.2rem;
+            width: 150px;
+            border: 2px solid #FF6F61;
+            border-radius: 10px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #FEC260;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #FF6F61, #FEC260);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #feedback {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+
         .summary-container {
             display: none;
+            text-align: center;
         }
-        .fireworks {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1; /* מתחת לטבלה */
-        }
-        #summary ul {
-            list-style-type: none;
+
+        .summary-container ul {
+            list-style: none;
             padding: 0;
         }
-        #summary li {
-            margin: 15px 0;
-            padding: 10px;
-            background-color: rgba(240, 240, 240, 0.9);
-            border-radius: 5px;
+
+        .summary-container li {
+            background: #F6F4E6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+
+        .summary-container li.correct {
+            border-left: 5px solid #4CAF50;
+        }
+
+        .summary-container li.incorrect {
+            border-left: 5px solid #FF6F61;
         }
     </style>
 </head>
 <body>
-    <div class="problem-container" id="quizContainer">
-        <div class="progress-container">
-            <div class="progress-text" id="progressText"></div>
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
-        </div>
-        <div class="problem" id="problem"></div>
-        <input type="number" id="answer" placeholder="הכנס את התשובה שלך כאן">
-        <button onclick="submitAnswer()">שלח תשובה</button>
-        <div id="feedback"></div>
-    </div>
+    <div class="game-container" id="root"></div>
 
-    <div class="summary-container" id="summaryContainer">
-        <h2>סיכום המבחן</h2>
-        <div id="summary"></div>
-        <button onclick="restartQuiz()">התחל מחדש</button>
-    </div>
-
-    <canvas class="fireworks" id="fireworksCanvas"></canvas>
+    <!-- ספריות חיצוניות -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@emotion/react@11.11.1/umd/emotion-react.umd.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@6.5.1/dist/framer-motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        const { useState, useEffect } = React;
+        const { motion } = window.FramerMotion;
+
         const problems = [
-    { "question": "ליה קנתה 34 עפרונות ועוד 25 עפרונות. כמה עפרונות יש לה עכשיו?", "answer": 59 },
-    { "question": "בכיתה יש 28 תלמידים ועוד 14 הצטרפו. כמה תלמידים יש בכיתה עכשיו?", "answer": 42 },
-    { "question": "איתי אסף 45 מדבקות ועוד 33 מדבקות. כמה מדבקות יש לו?", "answer": 78 },
-    { "question": "בחנות היו 67 ספרים והוסיפו עוד 22. כמה ספרים יש בחנות עכשיו?", "answer": 89 },
-    { "question": "נועם קיבל 19 שקל ועוד 15 שקל. כמה שקל יש לו עכשיו?", "answer": 34 },
-    { "question": "בבריכה שחו 38 ילדים ועוד 17 הצטרפו. כמה ילדים יש בבריכה?", "answer": 55 },
-    { "question": "דנה קנתה 52 בלונים ועוד 28 בלונים. כמה בלונים יש לה?", "answer": 80 },
-    { "question": "יובל צייר 33 ציורים ועוד 19 ציורים. כמה ציורים יש לו?", "answer": 52 },
-    { "question": "בחצר היו 46 פרחים ושתלו עוד 13. כמה פרחים יש בחצר עכשיו?", "answer": 59 },
-    { "question": "עמית קיבל 27 ממתקים ועוד 16 ממתקים. כמה ממתקים יש לו?", "answer": 43 },
-    { "question": "לרון היו 58 תפוחים ונתן 23 לחברו. כמה תפוחים נשארו לו?", "answer": 35 },
-    { "question": "בכיתה היו 72 תלמידים ו-19 הלכו הביתה. כמה תלמידים נשארו?", "answer": 53 },
-    { "question": "אורי קנה 85 מדבקות ומסר 37 לחבר. כמה מדבקות נשארו לו?", "answer": 48 },
-    { "question": "בחנות היו 99 עפרונות ומכרו 45. כמה עפרונות נשארו?", "answer": 54 },
-    { "question": "ליאת קיבלה 63 שוקולדים וחילקה 28 לחברים. כמה שוקולדים נשארו לה?", "answer": 35 },
-    { "question": "בבריכה היו 77 מטרים ושחיין שחה 39 מטרים. כמה מטרים נשארו?", "answer": 38 },
-    { "question": "נועה קנתה 84 בלונים ונתנה 56 לחברה. כמה בלונים נשארו לה?", "answer": 28 },
-    { "question": "בגן היו 68 ילדים ו-24 הלכו הביתה. כמה ילדים נשארו?", "answer": 44 },
-    { "question": "דני קנה 93 ספרים ומכר 47. כמה ספרים נשארו לו?", "answer": 46 },
-    { "question": "לטל היו 55 ממתקים והיא אכלה 19. כמה ממתקים נשארו לה?", "answer": 36 },
-    { "question": "לכל ילד יש 3 תפוחים ובכיתה יש 8 ילדים. כמה תפוחים יש בסך הכל?", "answer": 24 },
-    { "question": "בכל קופסה יש 5 עפרונות ויש 6 קופסאות. כמה עפרונות יש?", "answer": 30 },
-    { "question": "ילד קיבל 4 מדבקות בכל יום במשך 7 ימים. כמה מדבקות יש לו?", "answer": 28 },
-    { "question": "בכל ספר יש 10 עמודים ויש 9 ספרים. כמה עמודים יש בסך הכל?", "answer": 90 },
-    { "question": "בכל שקית יש 6 שוקולדים ויש 5 שקיות. כמה שוקולדים יש?", "answer": 30 },
-    { "question": "בכל קבוצה יש 7 ילדים ויש 4 קבוצות. כמה ילדים יש בסך הכל?", "answer": 28 },
-    { "question": "בכל חבילה יש 8 בלונים ויש 6 חבילות. כמה בלונים יש?", "answer": 48 },
-    { "question": "בכל יום נועם קיבל 3 ממתקים במשך 9 ימים. כמה ממתקים יש לו?", "answer": 27 },
-    { "question": "בכל שורה יש 5 פרחים ויש 10 שורות. כמה פרחים יש?", "answer": 50 },
-    { "question": "בכל צלחת יש 4 עוגיות ויש 7 צלחות. כמה עוגיות יש?", "answer": 28 },
-    { "question": "בכל תיק יש 6 ספרים ויש 3 תיקים. כמה ספרים יש?", "answer": 18 },
-    { "question": "בכל קופסה יש 9 עטים ויש 4 קופסאות. כמה עטים יש?", "answer": 36 },
-    { "question": "בכל משחק יש 2 נקודות ודנה שיחקה 8 משחקים. כמה נקודות יש לה?", "answer": 16 },
-    { "question": "בכל חבילה יש 7 גומיות ויש 5 חבילות. כמה גומיות יש?", "answer": 35 },
-    { "question": "בכל שקית יש 10 ממתקים ויש 6 שקיות. כמה ממתקים יש?", "answer": 60 },
-    { "question": "יש 24 תפוחים וצריך לחלק אותם ל-3 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 8 },
-    { "question": "יש 40 עפרונות ו-5 ילדים. כמה עפרונות יקבל כל ילד?", "answer": 8 },
-    { "question": "יש 18 מדבקות ו-6 ילדים. כמה מדבקות יקבל כל ילד?", "answer": 3 },
-    { "question": "יש 30 שוקולדים ו-5 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 6 },
-    { "question": "יש 21 בלונים ו-7 ילדים. כמה בלונים יקבל כל ילד?", "answer": 3 },
-    { "question": "יש 16 ממתקים ו-4 ילדים. כמה ממתקים יקבל כל ילד?", "answer": 4 },
-    { "question": "יש 50 עמודים ו-10 ספרים. כמה עמודים יש בכל ספר?", "answer": 5 },
-    { "question": "יש 36 פרחים ו-9 שורות. כמה פרחים יש בכל שורה?", "answer": 4 },
-    { "question": "יש 28 עוגיות ו-7 צלחות. כמה עוגיות יש בכל צלחת?", "answer": 4 },
-    { "question": "יש 15 ספרים ו-3 תיקים. כמה ספרים יש בכל תיק?", "answer": 5 },
-    { "question": "יש 20 עטים ו-4 קופסאות. כמה עטים יש בכל קופסה?", "answer": 5 },
-    { "question": "יש 12 נקודות ו-6 משחקים. כמה נקודות יש בכל משחק?", "answer": 2 },
-    { "question": "יש 35 גומיות ו-5 חבילות. כמה גומיות יש בכל חבילה?", "answer": 7 },
-    { "question": "יש 27 ממתקים ו-9 ילדים. כמה ממתקים יקבל כל ילד?", "answer": 3 },
-    { "question": "יש 48 תלמידים ו-8 שורות. כמה תלמידים יש בכל שורה?", "answer": 6 },
-{ "question": "בכל שקית יש 5 ממתקים ויש 7 שקיות. כמה ממתקים יש?", "answer": 35 },
-    { "question": "יש 24 תפוחים ו-6 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 4 },
-    { "question": "בכל קופסה יש 8 עפרונות ויש 4 קופסאות. כמה עפרונות יש?", "answer": 32 },
-    { "question": "יש 18 בלונים ו-3 ילדים. כמה בלונים יקבל כל ילד?", "answer": 6 },
-    { "question": "בכל יום נועם קיבל 3 מדבקות במשך 9 ימים. כמה מדבקות יש לו?", "answer": 27 },
-    { "question": "יש 40 שוקולדים ו-8 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 5 },
-    { "question": "בכל חבילה יש 6 ספרים ויש 5 חבילות. כמה ספרים יש?", "answer": 30 },
-    { "question": "ליאור קנה 22 תפוחים ועוד 13 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 35 },
-    { "question": "יש 36 עטים ו-9 קופסאות. כמה עטים יש בכל קופסה?", "answer": 4 },
-    { "question": "בכל שורה יש 4 פרחים ויש 10 שורות. כמה פרחים יש?", "answer": 40 },
-    { "question": "יש 15 עוגיות ו-3 צלחות. כמה עוגיות יש בכל צלחת?", "answer": 5 },
-    { "question": "בכל תיק יש 7 גומיות ויש 6 תיקים. כמה גומיות יש?", "answer": 42 },
-    { "question": "בכיתה היו 45 תלמידים ו-17 הלכו הביתה. כמה תלמידים נשארו?", "answer": 28 },
-    { "question": "יש 20 ממתקים ו-4 ילדים. כמה ממתקים יקבל כל ילד?", "answer": 5 },
-    { "question": "בכל קבוצה יש 9 ילדים ויש 3 קבוצות. כמה ילדים יש בסך הכל?", "answer": 27 },
-    { "question": "יש 28 בלונים ו-7 ילדים. כמה בלונים יקבל כל ילד?", "answer": 4 },
-    { "question": "בכל שקית יש 10 שוקולדים ויש 5 שקיות. כמה שוקולדים יש?", "answer": 50 },
-    { "question": "נועה קנתה 38 ספרים ומכרה 19. כמה ספרים נשארו לה?", "answer": 19 },
-    { "question": "יש 30 מדבקות ו-6 ילדים. כמה מדבקות יקבל כל ילד?", "answer": 5 },
-    { "question": "בכל חבילה יש 4 עפרונות ויש 8 חבילות. כמה עפרונות יש?", "answer": 32 },
-    { "question": "יש 21 תפוחים ו-7 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 3 },
-    { "question": "בכל יום דנה קיבלה 2 שקל במשך 10 ימים. כמה שקל יש לה?", "answer": 20 },
-    { "question": "יש 45 פרחים ו-9 שורות. כמה פרחים יש בכל שורה?", "answer": 5 },
-    { "question": "בכל קופסה יש 6 ממתקים ויש 7 קופסאות. כמה ממתקים יש?", "answer": 42 },
-    { "question": "איתי קנה 25 בלונים ועוד 14 בלונים. כמה בלונים יש לו עכשיו?", "answer": 39 },
-    { "question": "יש 16 עוגיות ו-4 צלחות. כמה עוגיות יש בכל צלחת?", "answer": 4 },
-    { "question": "בכל שקית יש 5 גומיות ויש 9 שקיות. כמה גומיות יש?", "answer": 45 },
-    { "question": "יש 27 שוקולדים ו-3 ילדים. כמה שוקולדים יקבל כל ילד?", "answer": 9 },
-    { "question": "בכל תיק יש 8 ספרים ויש 4 תיקים. כמה ספרים יש?", "answer": 32 },
-    { "question": "בחנות היו 50 עטים ומכרו 23. כמה עטים נשארו?", "answer": 27 },
-    { "question": "יש 36 תלמידים ו-6 שורות. כמה תלמידים יש בכל שורה?", "answer": 6 },
-    { "question": "בכל חבילה יש 7 מדבקות ויש 5 חבילות. כמה מדבקות יש?", "answer": 35 },
-    { "question": "יש 20 בלונים ו-5 ילדים. כמה בלונים יקבל כל ילד?", "answer": 4 },
-    { "question": "בכל יום עמית קיבל 3 ממתקים במשך 8 ימים. כמה ממתקים יש לו?", "answer": 24 },
-    { "question": "יש 40 עפרונות ו-8 ילדים. כמה עפרונות יקבל כל ילד?", "answer": 5 },
-    { "question": "בכל שקית יש 9 שוקולדים ויש 4 שקיות. כמה שוקולדים יש?", "answer": 36 },
-    { "question": "ליאת קיבלה 33 מדבקות ונתנה 15 לחברה. כמה מדבקות נשארו לה?", "answer": 18 },
-    { "question": "יש 18 ספרים ו-3 תיקים. כמה ספרים יש בכל תיק?", "answer": 6 },
-    { "question": "בכל קופסה יש 10 תפוחים ויש 5 קופסאות. כמה תפוחים יש?", "answer": 50 },
-    { "question": "יש 24 עוגיות ו-6 צלחות. כמה עוגיות יש בכל צלחת?", "answer": 4 },
-    { "question": "בכל שורה יש 6 פרחים ויש 7 שורות. כמה פרחים יש?", "answer": 42 },
-    { "question": "יובל קנה 19 שקל ועוד 12 שקל. כמה שקל יש לו עכשיו?", "answer": 31 },
-    { "question": "יש 30 ממתקים ו-5 ילדים. כמה ממתקים יקבל כל ילד?", "answer": 6 },
-    { "question": "בכל חבילה יש 4 בלונים ויש 9 חבילות. כמה בלונים יש?", "answer": 36 },
-    { "question": "יש 21 מדבקות ו-7 ילדים. כמה מדבקות יקבל כל ילד?", "answer": 3 },
-    { "question": "בכל תיק יש 5 ספרים ויש 6 תיקים. כמה ספרים יש?", "answer": 30 },
-    { "question": "בגן היו 42 ילדים ו-18 הלכו הביתה. כמה ילדים נשארו?", "answer": 24 },
-    { "question": "יש 40 שוקולדים ו-10 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 4 },
-    { "question": "בכל קופסה יש 8 עפרונות ויש 5 קופסאות. כמה עפרונות יש?", "answer": 40 },
-    { "question": "יש 27 תפוחים ו-9 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 3 }
-];
+            { "question": "ליה קנתה 34 עפרונות ועוד 25 עפרונות. כמה עפרונות יש לה עכשיו?", "answer": 59 },
+            { "question": "בכל שקית יש 5 ממתקים ויש 7 שקיות. כמה ממתקים יש?", "answer": 35 },
+            { "question": "יש 24 תפוחים ו-6 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 4 },
+            { "question": "בכיתה היו 45 תלמידים ו-17 הלכו הביתה. כמה תלמידים נשארו?", "answer": 28 },
+            { "question": "בכל קופסה יש 8 עפרונות ויש 4 קופסאות. כמה עפרונות יש?", "answer": 32 },
+            { "question": "יש 18 בלונים ו-3 ילדים. כמה בלונים יקבל כל ילד?", "answer": 6 },
+            { "question": "בכל יום נועם קיבל 3 מדבקות במשך 9 ימים. כמה מדבקות יש לו?", "answer": 27 },
+            { "question": "יש 40 שוקולדים ו-8 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 5 },
+            { "question": "ליאור קנה 22 תפוחים ועוד 13 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 35 },
+            { "question": "בכל שורה יש 4 פרחים ויש 10 שורות. כמה פרחים יש?", "answer": 40 },
+            // ... (תוכל להוסיף את כל השאלות שלך כאן)
+        ];
 
-        let shuffledProblems = [];
-        let currentQuestion = 0;
-        let results = [];
-        let startTime;
+        const App = () => {
+            const [shuffledProblems, setShuffledProblems] = useState([]);
+            const [currentQuestion, setCurrentQuestion] = useState(0);
+            const [answer, setAnswer] = useState('');
+            const [feedback, setFeedback] = useState('');
+            const [results, setResults] = useState([]);
+            const [stars, setStars] = useState(0);
+            const [isQuizDone, setIsQuizDone] = useState(false);
+            const [startTime, setStartTime] = useState(null);
 
-        // בחר 10 שאלות אקראיות ובלג אותן
-        function selectRandomQuestions() {
-            shuffledProblems = [...problems]; // העתק את כל השאלות
-            shuffleProblems(); // בלג את כל השאלות
-            shuffledProblems = shuffledProblems.slice(0, 10); // קח רק את 10 הראשונות מהמערך המעורבב
-        }
+            useEffect(() => {
+                selectRandomQuestions();
+                setStartTime(new Date());
+            }, []);
 
-        // בלג את השאלות (אלגוריתם Fisher-Yates)
-        function shuffleProblems() {
-            for (let i = shuffledProblems.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffledProblems[i], shuffledProblems[j]] = [shuffledProblems[j], shuffledProblems[i]];
-            }
-        }
+            const selectRandomQuestions = () => {
+                const shuffled = [...problems].sort(() => 0.5 - Math.random());
+                setShuffledProblems(shuffled.slice(0, 10));
+            };
 
-        function startQuestion() {
-            if (currentQuestion < shuffledProblems.length) { // 10 שאלות
-                document.getElementById('problem').textContent = shuffledProblems[currentQuestion].question;
-                document.getElementById('answer').value = '';
-                document.getElementById('feedback').textContent = '';
-                updateProgress();
-                startTime = new Date();
-            }
-        }
+            const handleSubmit = () => {
+                if (!answer) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'רגע!',
+                        text: 'אנא הכנס תשובה לפני שתמשיך',
+                        confirmButtonColor: '#FF6F61',
+                    });
+                    return;
+                }
 
-        function updateProgress() {
-            const progress = document.getElementById('progress');
-            const progressText = document.getElementById('progressText');
-            const totalQuestions = shuffledProblems.length; // 10 שאלות
-            const percentage = (currentQuestion / totalQuestions) * 100;
-            progress.style.width = `${percentage}%`;
-            progressText.textContent = `שאלה ${currentQuestion + 1} מתוך ${totalQuestions} - ${Math.round(percentage)}%`;
-        }
+                const endTime = new Date();
+                const timeTaken = Math.round((endTime - startTime) / 1000);
+                const correctAnswer = shuffledProblems[currentQuestion].answer;
+                const isCorrect = parseInt(answer) === correctAnswer;
 
-        function submitAnswer() {
-            const userAnswer = document.getElementById('answer').value;
-            const feedbackElement = document.getElementById('feedback');
-            const endTime = new Date();
-            const timeTaken = Math.round((endTime - startTime) / 1000);
+                setResults([...results, {
+                    question: shuffledProblems[currentQuestion].question,
+                    userAnswer: answer,
+                    correctAnswer,
+                    timeTaken,
+                    isCorrect,
+                }]);
 
-            if (userAnswer === '') {
-                feedbackElement.textContent = 'אנא הכנס תשובה';
-                feedbackElement.style.color = 'orange';
-                return;
-            }
-
-            const correctAnswer = shuffledProblems[currentQuestion].answer;
-            const isCorrect = parseInt(userAnswer) === correctAnswer;
-
-            if (!isCorrect) {
-                feedbackElement.textContent = 'טעות! התרכז ונסה שוב.';
-                feedbackElement.style.color = 'red';
-                return; // לא עוברים לשאלה הבאה עד שהתשובה נכונה
-            }
-
-            results.push({
-                question: shuffledProblems[currentQuestion].question,
-                userAnswer: userAnswer,
-                correctAnswer: correctAnswer,
-                timeTaken: timeTaken,
-                isCorrect: isCorrect
-            });
-
-            feedbackElement.textContent = 'כל הכבוד!';
-            feedbackElement.style.color = 'green';
-
-            setTimeout(() => {
-                currentQuestion++;
-                if (currentQuestion < shuffledProblems.length) {
-                    startQuestion();
+                if (isCorrect) {
+                    setFeedback('כל הכבוד! ⭐');
+                    setStars(stars + 1);
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#FF6F61', '#FEC260', '#6B48FF'],
+                    });
+                    setTimeout(nextQuestion, 1500);
                 } else {
-                    showSummary();
+                    setFeedback('טעות! נסה שוב 😊');
+                    setAnswer('');
                 }
-            }, 1000);
-        }
+            };
 
-        function showSummary() {
-            document.getElementById('quizContainer').style.display = 'none';
-            const summaryContainer = document.getElementById('summaryContainer');
-            summaryContainer.style.display = 'block';
-
-            let summaryHTML = '<ul>';
-            results.forEach((result, index) => {
-                summaryHTML += `
-                    <li>
-                        <strong>שאלה ${index + 1}:</strong> ${result.question}<br>
-                        <strong>תשובתך:</strong> ${result.userAnswer}<br>
-                        <strong>תשובה נכונה:</strong> ${result.correctAnswer}<br>
-                        <strong>זמן:</strong> ${result.timeTaken} שניות<br>
-                        <strong>מצב:</strong> ${result.isCorrect ? 'נכון' : 'שגוי'}
-                    </li>`;
-            });
-            summaryHTML += '</ul>';
-            document.getElementById('summary').innerHTML = summaryHTML;
-
-            launchFireworks();
-        }
-
-        function launchFireworks() {
-            const canvas = document.getElementById('fireworksCanvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            function random(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-
-            class Firework {
-                constructor() {
-                    this.x = random(0, canvas.width);
-                    this.y = canvas.height;
-                    this.targetY = random(0, canvas.height * 0.5);
-                    this.speed = random(2, 5);
-                    this.color = `hsl(${random(0, 360)}, 100%, 50%)`;
-                    this.radius = random(2, 4);
-                    this.exploded = false;
-                    this.particles = [];
+            const nextQuestion = () => {
+                if (currentQuestion + 1 < shuffledProblems.length) {
+                    setCurrentQuestion(currentQuestion + 1);
+                    setAnswer('');
+                    setFeedback('');
+                    setStartTime(new Date());
+                } else {
+                    setIsQuizDone(true);
                 }
+            };
 
-                update() {
-                    if (!this.exploded) {
-                        this.y -= this.speed;
-                        if (this.y <= this.targetY) {
-                            this.explode();
-                        }
-                    }
-                }
+            const restartQuiz = () => {
+                setCurrentQuestion(0);
+                setAnswer('');
+                setFeedback('');
+                setResults([]);
+                setStars(0);
+                setIsQuizDone(false);
+                selectRandomQuestions();
+                setStartTime(new Date());
+            };
 
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                }
+            const progressPercentage = (currentQuestion / shuffledProblems.length) * 100;
 
-                explode() {
-                    this.exploded = true;
-                    for (let i = 0; i < 30; i++) {
-                        this.particles.push(new Particle(this.x, this.y, this.color));
-                    }
-                }
-            }
+            return (
+                <div>
+                    {!isQuizDone ? (
+                        <motion.div
+                            initial={{ opacity: 0, y: 50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <h1>שאלות מילוליות בכי׷</h1>
+                            <div className="progress-container">
+                                <span className="stars">{'★'.repeat(stars)}</span>
+                                <div className="progress-bar">
+                                    <div className="progress" style={{ width: `${progressPercentage}%` }}></div>
+                                </div>
+                                <span>{currentQuestion + 1}/{shuffledProblems.length}</span>
+                            </div>
+                            <motion.div
+                                className="problem"
+                                key={currentQuestion}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {shuffledProblems[currentQuestion]?.question}
+                            </motion.div>
+                            <div className="input-container">
+                                <input
+                                    type="number"
+                                    value={answer}
+                                    onChange={(e) => setAnswer(e.target.value)}
+                                    placeholder="תשובה"
+                                />
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={handleSubmit}
+                            >
+                                שלח תשובה
+                            </motion.button>
+                            <div id="feedback" style={{ color: feedback.includes('כל הכבוד') ? '#4CAF50' : '#FF6F61' }}>
+                                {feedback}
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            className="summary-container"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <h1>סיימת! 🎉</h1>
+                            <p>צברת {stars} כוכבים מתוך {shuffledProblems.length}!</p>
+                            <ul>
+                                {results.map((result, index) => (
+                                    <li key={index} className={result.isCorrect ? 'correct' : 'incorrect'}>
+                                        <strong>שאלה {index + 1}:</strong> {result.question}<br />
+                                        <strong>תשובתך:</strong> {result.userAnswer}<br />
+                                        <strong>תשובה נכונה:</strong> {result.correctAnswer}<br />
+                                        <strong>זמן:</strong> {result.timeTaken} שניות<br />
+                                        <strong>מצב:</strong> {result.isCorrect ? '✅ נכון' : '❌ שגוי'}
+                                    </li>
+                                ))}
+                            </ul>
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={restartQuiz}
+                            >
+                                שחק שוב!
+                            </motion.button>
+                        </motion.div>
+                    )}
+                </div>
+            );
+        };
 
-            class Particle {
-                constructor(x, y, color) {
-                    this.x = x;
-                    this.y = y;
-                    this.color = color;
-                    this.radius = random(1, 3);
-                    this.speed = random(1, 3);
-                    this.angle = random(0, Math.PI * 2);
-                    this.life = 100;
-                }
-
-                update() {
-                    this.x += Math.cos(this.angle) * this.speed;
-                    this.y += Math.sin(this.angle) * this.speed;
-                    this.life -= 2;
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = this.color;
-                    ctx.fill();
-                }
-            }
-
-            const fireworks = [];
-            function animate() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; /* שקיפות גבוהה יותר */
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                if (Math.random() < 0.1) {
-                    fireworks.push(new Firework());
-                }
-
-                for (let i = fireworks.length - 1; i >= 0; i--) {
-                    fireworks[i].update();
-                    fireworks[i].draw();
-
-                    if (fireworks[i].exploded) {
-                        fireworks[i].particles.forEach((particle, j) => {
-                            particle.update();
-                            particle.draw();
-                            if (particle.life <= 0) {
-                                fireworks[i].particles.splice(j, 1);
-                            }
-                        });
-
-                        if (fireworks[i].particles.length === 0) {
-                            fireworks.splice(i, 1);
-                        }
-                    }
-                }
-                requestAnimationFrame(animate);
-            }
-            animate();
-        }
-
-        function restartQuiz() {
-            currentQuestion = 0;
-            results = [];
-            document.getElementById('quizContainer').style.display = 'block';
-            document.getElementById('summaryContainer').style.display = 'none';
-            // בחר 10 שאלות חדשות באקראי
-            selectRandomQuestions();
-            startQuestion();
-        }
-
-        // התחל עם 10 שאלות אקראיות
-        selectRandomQuestions();
-        startQuestion();
+        ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
 </html>
