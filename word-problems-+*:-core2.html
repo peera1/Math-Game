@@ -21,7 +21,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
         }
 
         .game-container {
@@ -31,63 +30,25 @@
             width: 90%;
             max-width: 700px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 2;
+            text-align: center;
         }
 
         h1 {
             font-size: 2.5rem;
             color: #2A0944;
-            text-align: center;
             margin-bottom: 20px;
             background: linear-gradient(to right, #FF6F61, #FEC260);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .progress-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .progress-bar {
-            flex-grow: 1;
-            height: 20px;
-            background: #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 0 10px;
-        }
-
-        .progress {
-            height: 100%;
-            background: linear-gradient(to right, #FF6F61, #FEC260);
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-
-        .stars {
-            font-size: 1.5rem;
-            color: #FEC260;
-        }
-
         .problem {
             font-size: 1.4rem;
             color: #333;
             margin-bottom: 20px;
-            text-align: center;
             padding: 15px;
             background: #F6F4E6;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
         }
 
         input {
@@ -97,12 +58,7 @@
             border: 2px solid #FF6F61;
             border-radius: 10px;
             text-align: center;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        input:focus {
-            border-color: #FEC260;
+            margin-bottom: 20px;
         }
 
         button {
@@ -113,46 +69,15 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
         #feedback {
             font-size: 1.2rem;
-            text-align: center;
             margin-top: 20px;
         }
 
         .summary-container {
             display: none;
-            text-align: center;
-        }
-
-        .summary-container ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .summary-container li {
-            background: #F6F4E6;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: right;
-        }
-
-        .summary-container li.correct {
-            border-left: 5px solid #4CAF50;
-        }
-
-        .summary-container li.incorrect {
-            border-left: 5px solid #FF6F61;
         }
     </style>
 </head>
@@ -162,14 +87,11 @@
     <!-- ספריות חיצוניות -->
     <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@emotion/react@11.11.1/umd/emotion-react.umd.min.js"></script>
-    <script src="https://unpkg.com/framer-motion@6.5.1/dist/framer-motion.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         const { useState, useEffect } = React;
-        const { motion } = window.FramerMotion;
 
         const problems = [
             { "question": "ליה קנתה 34 עפרונות ועוד 25 עפרונות. כמה עפרונות יש לה עכשיו?", "answer": 59 },
@@ -177,12 +99,6 @@
             { "question": "יש 24 תפוחים ו-6 ילדים. כמה תפוחים יקבל כל ילד?", "answer": 4 },
             { "question": "בכיתה היו 45 תלמידים ו-17 הלכו הביתה. כמה תלמידים נשארו?", "answer": 28 },
             { "question": "בכל קופסה יש 8 עפרונות ויש 4 קופסאות. כמה עפרונות יש?", "answer": 32 },
-            { "question": "יש 18 בלונים ו-3 ילדים. כמה בלונים יקבל כל ילד?", "answer": 6 },
-            { "question": "בכל יום נועם קיבל 3 מדבקות במשך 9 ימים. כמה מדבקות יש לו?", "answer": 27 },
-            { "question": "יש 40 שוקולדים ו-8 חברים. כמה שוקולדים יקבל כל חבר?", "answer": 5 },
-            { "question": "ליאור קנה 22 תפוחים ועוד 13 תפוחים. כמה תפוחים יש לו עכשיו?", "answer": 35 },
-            { "question": "בכל שורה יש 4 פרחים ויש 10 שורות. כמה פרחים יש?", "answer": 40 },
-            // ... (תוכל להוסיף את כל השאלות שלך כאן)
         ];
 
         const App = () => {
@@ -191,7 +107,6 @@
             const [answer, setAnswer] = useState('');
             const [feedback, setFeedback] = useState('');
             const [results, setResults] = useState([]);
-            const [stars, setStars] = useState(0);
             const [isQuizDone, setIsQuizDone] = useState(false);
             const [startTime, setStartTime] = useState(null);
 
@@ -202,7 +117,7 @@
 
             const selectRandomQuestions = () => {
                 const shuffled = [...problems].sort(() => 0.5 - Math.random());
-                setShuffledProblems(shuffled.slice(0, 10));
+                setShuffledProblems(shuffled.slice(0, 5)); // 5 שאלות לבדיקה
             };
 
             const handleSubmit = () => {
@@ -210,7 +125,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'רגע!',
-                        text: 'אנא הכנס תשובה לפני שתמשיך',
+                        text: 'אנא הכנס תשובה',
                         confirmButtonColor: '#FF6F61',
                     });
                     return;
@@ -230,17 +145,11 @@
                 }]);
 
                 if (isCorrect) {
-                    setFeedback('כל הכבוד! ⭐');
-                    setStars(stars + 1);
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 },
-                        colors: ['#FF6F61', '#FEC260', '#6B48FF'],
-                    });
-                    setTimeout(nextQuestion, 1500);
+                    setFeedback('כל הכבוד!');
+                    confetti({ particleCount: 100, spread: 70 });
+                    setTimeout(nextQuestion, 1000);
                 } else {
-                    setFeedback('טעות! נסה שוב 😊');
+                    setFeedback('טעות! נסה שוב');
                     setAnswer('');
                 }
             };
@@ -261,92 +170,58 @@
                 setAnswer('');
                 setFeedback('');
                 setResults([]);
-                setStars(0);
                 setIsQuizDone(false);
                 selectRandomQuestions();
                 setStartTime(new Date());
             };
 
-            const progressPercentage = (currentQuestion / shuffledProblems.length) * 100;
-
             return (
                 <div>
                     {!isQuizDone ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 50 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            <h1>שאלות מילוליות בכי׷</h1>
-                            <div className="progress-container">
-                                <span className="stars">{'★'.repeat(stars)}</span>
-                                <div className="progress-bar">
-                                    <div className="progress" style={{ width: `${progressPercentage}%` }}></div>
-                                </div>
-                                <span>{currentQuestion + 1}/{shuffledProblems.length}</span>
-                            </div>
-                            <motion.div
-                                className="problem"
-                                key={currentQuestion}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ duration: 0.3 }}
-                            >
+                        <div>
+                            <h1>שאלות מילוליות בכיף</h1>
+                            <div className="problem">
                                 {shuffledProblems[currentQuestion]?.question}
-                            </motion.div>
-                            <div className="input-container">
-                                <input
-                                    type="number"
-                                    value={answer}
-                                    onChange={(e) => setAnswer(e.target.value)}
-                                    placeholder="תשובה"
-                                />
                             </div>
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={handleSubmit}
-                            >
-                                שלח תשובה
-                            </motion.button>
+                            <input
+                                type="number"
+                                value={answer}
+                                onChange={(e) => setAnswer(e.target.value)}
+                                placeholder="תשובה"
+                            />
+                            <br />
+                            <button onClick={handleSubmit}>שלח תשובה</button>
                             <div id="feedback" style={{ color: feedback.includes('כל הכבוד') ? '#4CAF50' : '#FF6F61' }}>
                                 {feedback}
                             </div>
-                        </motion.div>
+                        </div>
                     ) : (
-                        <motion.div
-                            className="summary-container"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            <h1>סיימת! 🎉</h1>
-                            <p>צברת {stars} כוכבים מתוך {shuffledProblems.length}!</p>
+                        <div className="summary-container" style={{ display: 'block' }}>
+                            <h1>סיימת!</h1>
                             <ul>
                                 {results.map((result, index) => (
-                                    <li key={index} className={result.isCorrect ? 'correct' : 'incorrect'}>
+                                    <li key={index}>
                                         <strong>שאלה {index + 1}:</strong> {result.question}<br />
                                         <strong>תשובתך:</strong> {result.userAnswer}<br />
                                         <strong>תשובה נכונה:</strong> {result.correctAnswer}<br />
                                         <strong>זמן:</strong> {result.timeTaken} שניות<br />
-                                        <strong>מצב:</strong> {result.isCorrect ? '✅ נכון' : '❌ שגוי'}
+                                        <strong>מצב:</strong> {result.isCorrect ? 'נכון' : 'שגוי'}
                                     </li>
                                 ))}
                             </ul>
-                            <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={restartQuiz}
-                            >
-                                שחק שוב!
-                            </motion.button>
-                        </motion.div>
+                            <button onClick={restartQuiz}>שחק שוב!</button>
+                        </div>
                     )}
                 </div>
             );
         };
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        try {
+            ReactDOM.render(<App />, document.getElementById('root'));
+        } catch (error) {
+            console.error('שגיאה ברינדור:', error);
+            document.getElementById('root').innerHTML = '<h1>אופס! משהו השתבש. אנא טען מחדש את הדף.</h1>';
+        }
     </script>
 </body>
 </html>
