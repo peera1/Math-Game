@@ -203,6 +203,7 @@
         }
 
         function startGame() {
+            console.log("Starting game..."); // הוספת לוג לבדיקה
             for (let i = 0; i < 10; i++) {
                 questions.push(generateQuestion());
             }
@@ -308,6 +309,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', startGame);
+
+        // גיבוי למקרה ש-DOMContentLoaded לא עובד
+        window.onload = function() {
+            console.log("Window loaded, starting game as fallback...");
+            startGame();
+        };
 
         // אנימציה לכוכבים
         const styleSheet = document.createElement('style');
