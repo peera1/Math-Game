@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>משחק חשבון - חיסור עם המרה - כיתה ב</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -186,15 +185,41 @@
             // num1: מספר דו-ספרתי (10-99)
             num1 = Math.floor(Math.random() * 90) + 10; // 10 עד 99
 
-            // num2: מספר דו-ספרתי או חד-ספרתי (1-99), תמיד קטן מ-num1 כדי להבטיח תוצאה חיובית
-            num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1 עד (num1 - 1)
+            // יחידות של num1
+            let units1 = num1 % 10; // יחידות של num1 (0-9)
 
-            // וידוא שיש המרה: היחידות של num1 צריכות להיות קטנות מהיחידות של num2
-            let units1 = num1 % 10; // יחידות של num1
-            let units2 = num2 % 10; // יחידות של num2
-            while (units1 >= units2) {
-                num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+            // בחירת יחידות של num2 כך שיהיו גדולות מ-units1 (להבטיח המרה)
+            let units2;
+            if (units1 === 9) {
+                // אם היחידות של num1 הן 9, אין אפשרות שיהיו יחידות גדולות יותר, אז נבחר מחדש num1
+                num1 = Math.floor(Math.random() * 89) + 10; // 10 עד 98
+                units1 = num1 % 10; // עדכון יחידות
+            }
+            units2 = Math.floor(Math.random() * (9 - units1)) + units1 + 1; // units2 בין (units1 + 1) ל-9
+
+            // בחירת עשרות של num2 כך ש-num2 יהיה קטן מ-num1
+            let tens1 = Math.floor(num1 / 10); // עשרות של num1 (1-9)
+            let tens2;
+            if (tens1 === 1) {
+                // אם num1 הוא בין 10 ל-19, העשרות של num2 חייבות להיות 0
+                tens2 = 0;
+            } else {
+                // אחרת, העשרות של num2 יכולות להיות בין 0 ל-(tens1 - 1)
+                tens2 = Math.floor(Math.random() * tens1); // 0 עד (tens1 - 1)
+            }
+
+            // הרכבת num2
+            num2 = tens2 * 10 + units2;
+
+            // וידוא ש-num2 קטן מ-num1 (לתוצאה חיובית)
+            if (num2 >= num1) {
+                num2 = num1 - 1; // במקרה קיצוני, נוודא ש-num2 קטן מ-num1
                 units2 = num2 % 10;
+                if (units1 >= units2) {
+                    // אם עדיין אין המרה, נשנה את num1 שוב
+                    num1 = Math.floor(Math.random() * 89) + 10;
+                    return generateQuestion(); // נריץ מחדש
+                }
             }
 
             let questionStr = `${num1} - ${num2}`;
@@ -203,26 +228,15 @@
         }
 
         function startGame() {
-            console.log("Starting game..."); // הוספת לוג לבדיקה
+            console.log("Starting game...");
             for (let i = 0; i < 10; i++) {
+                console.log(`Generating question ${i + 1}...`);
                 questions.push(generateQuestion());
             }
+            console.log("Finished generating questions, updating progress...");
             updateProgress();
+            console.log("Calling nextQuestion...");
             nextQuestion();
-        }
-
-        function createConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#4CAF50', '#81C784', '#A5D6A7', '#FF6B6B'],
-                    shapes: ['star', 'circle']
-                });
-            } else {
-                console.warn('Confetti library not loaded');
-            }
         }
 
         function createStars() {
@@ -273,7 +287,7 @@
                 });
 
                 // אפקטים ויזואליים
-                currentQuestion % 2 === 0 ? createConfetti() : createStars();
+                createStars(); // השתמש רק בכוכבים
                 document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
                 document.getElementById("feedback").style.color = "#4CAF50";
                 
@@ -303,9 +317,9 @@
             updateProgress();
 
             // חגיגה סופית
-            createConfetti();
+            createStars();
             setTimeout(createStars, 500);
-            setTimeout(createConfetti, 1000);
+            setTimeout(createStars, 1000);
         }
 
         document.addEventListener('DOMContentLoaded', startGame);
