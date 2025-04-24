@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חשבון - חיסור עם המרה - כיתה ב</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #c8e6c9, #81c784);
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        #game-container {
+            margin: 40px auto;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        h1 {
+            font-size: 40px;
+            color: #2e7d32;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #b0bec5;
+            border-radius: 15px;
+            margin: 20px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        #score {
+            font-size: 24px;
+            color: #f57c00;
+            margin: 15px 0;
+        }
+        #question-number {
+            font-size: 22px;
+            color: #2e7d32;
+        }
+        #question {
+            font-size: 28px;
+            color: #d81b60;
+            margin: 20px 0;
+        }
+        #answer {
+            width: 120px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        #feedback {
+            font-size: 20px;
+            margin-top: 15px;
+            color: #d81b60;
+        }
+        #summary-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 90%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #summary-table th, #summary-table td {
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            text-align: center;
+        }
+        #summary-table th {
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            color: white;
+            font-size: 20px;
+        }
+        #summary-table td {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #f1f8e9;
+        }
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.6;
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #4CAF50;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>שאלון חיסור עם המרה לאלופים - כיתה ב</h1>
+        
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+        <p id="score">ניקוד: 0</p>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה">
+        <button onclick="checkAnswer()">בדיקה</button>
+        <p id="feedback"></p>
+
+        <div id="summary" class="hidden">
+            <h2>כל הכבוד, אלוף!</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>שאלה</th><th>תרגיל</th><th>תשובה</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
+            </div>
+        </div>
+    </div>
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let times = [];
+        let score = 0;
+        let questionDetails = [];
+
+        function generateQuestion() {
+            let num1, num2;
+
+            // num1: מספר דו-ספרתי (10-99)
+            num1 = Math.floor(Math.random() * 90) + 10; // 10 עד 99
+
+            // num2: מספר דו-ספרתי או חד-ספרתי (1-99), תמיד קטן מ-num1 כדי להבטיח תוצאה חיובית
+            num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1 עד (num1 - 1)
+
+            // וידוא שיש המרה: היחידות של num1 צריכות להיות קטנות מהיחידות של num2
+            let units1 = num1 % 10; // יחידות של num1
+            let units2 = num2 % 10; // יחידות של num2
+            while (units1 >= units2) {
+                num2 = Math.floor(Math.random() * (num1 - 1)) + 1;
+                units2 = num2 % 10;
+            }
+
+            let questionStr = `${num1} - ${num2}`;
+            let answer = num1 - num2;
+            return { questionStr, answer };
+        }
+
+        function startGame() {
+            for (let i = 0; i < 10; i++) {
+                questions.push(generateQuestion());
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#4CAF50', '#81C784', '#A5D6A7', '#FF6B6B'],
+                    shapes: ['star', 'circle']
+                });
+            } else {
+                console.warn('Confetti library not loaded');
+            }
+        }
+
+        function createStars() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.style.position = 'absolute';
+                star.style.width = '20px';
+                star.style.height = '20px';
+                star.style.background = 'yellow';
+                star.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animation = `fall ${Math.random() * 2 + 1}s linear`;
+                container.appendChild(star);
+                setTimeout(() => star.remove(), 2000);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById("answer").value);
+            let correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                let endTime = new Date();
+                let timeTaken = Math.round((endTime - startTime) / 1000);
+                times.push(timeTaken);
+                
+                // עדכון ניקוד ותגמול
+                score += 10 + (timeTaken < 5 ? 5 : 0); // בונוס על מהירות
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+                questionDetails.push({
+                    question: questions[currentQuestion].questionStr,
+                    answer: correctAnswer,
+                    time: timeTaken
+                });
+
+                // אפקטים ויזואליים
+                currentQuestion % 2 === 0 ? createConfetti() : createStars();
+                document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
+                document.getElementById("feedback").style.color = "#4CAF50";
+                
+                currentQuestion++;
+                updateProgress();
+                setTimeout(nextQuestion, 1000); // עיכוב קל להנאה מהאפקט
+            } else {
+                document.getElementById("feedback").innerText = "נסה שוב, לא למהר, תתרכז!";
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) progress = 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach((detail, i) => {
+                let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+            updateProgress();
+
+            // חגיגה סופית
+            createConfetti();
+            setTimeout(createStars, 500);
+            setTimeout(createConfetti, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', startGame);
+
+        // אנימציה לכוכבים
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes fall {
+                0% { transform: translateY(-100vh) rotate(0deg); }
+                100% { transform: translateY(100vh) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>
