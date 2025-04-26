@@ -43,6 +43,7 @@
             color: var(--text-color);
             line-height: 1.6;
             overflow-y: auto;
+            position: relative;
         }
 
         .background-overlay {
@@ -63,11 +64,12 @@
             padding: 50px;
             text-align: center;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             margin: 30px auto;
             position: relative;
             transition: all 0.5s ease;
             border: 3px solid rgba(254, 194, 96, 0.3);
+            z-index: 2;
         }
 
         h1 {
@@ -76,6 +78,16 @@
             font-size: 2.8rem;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
             background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 20px 0 15px;
+            color: #ff5722;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #ff5722, var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -132,6 +144,16 @@
             transform: scale(1.05);
         }
 
+        .button i {
+            margin-left: 10px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
         .blue { 
             background: linear-gradient(to right, #3B4F7D, #6B728E);
         }
@@ -176,8 +198,27 @@
             background: linear-gradient(to right, #2C3E50, #5D8AA8);
         }
 
-        .lime { /* צבע חדש עבור חיסור עם המרה */
+        .lime { 
             background: linear-gradient(to right, #6A994E, #A3BFFA);
+        }
+
+        .orange { 
+            background: linear-gradient(to right, #ff9800, #ffeb3b);
+        }
+
+        .grade-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .grade-section:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
         .info-text {
@@ -195,6 +236,19 @@
                 padding: 30px;
                 margin: 15px auto;
             }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .button {
+                font-size: 16px;
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -208,42 +262,64 @@
         <h1>ברוכים הבאים ללומדת חשבון</h1>
         
         <div class="buttons-container">
-            <button class="button blue" onclick="openLinkWithConfetti('core-1.html')">
-                <i class="fas fa-plus"></i> כיתה א - חיבור
-            </button>
-            <button class="button teal" onclick="openLinkWithConfetti('core-1-minus.html')">
-                <i class="fas fa-minus"></i> כיתה א - חיסור
-            </button>
-            <button class="button green" onclick="openLinkWithConfetti('core-2.html')">
-                <i class="fas fa-calculator"></i> כיתה ב - פעולות יסוד
-            </button>
-            <button class="button emerald" onclick="openLinkWithConfetti('core-2-adding-with-transit.html')">
-                <i class="fas fa-exchange-alt"></i> כיתה ב - חיבור עם המרה
-            </button>
-            <button class="button lime" onclick="openLinkWithConfetti('core-2-decrease-with-transit.html')">
-                <i class="fas fa-minus"></i> כיתה ב - חיסור עם המרה
-            </button>
-            <button class="button radiant" onclick="openLinkWithConfetti('core-3.html')">
-                <i class="fas fa-arrow-up-9-1"></i> כיתה ג - סדר פעולות חשבון
-            </button>
-            <button class="button yellow" onclick="openLinkWithConfetti('core-4.html')">
-                <i class="fas fa-chart-line"></i> כיתה ד - חשבון מתקדם
-            </button>
-            <button class="button red" onclick="openLinkWithConfetti('frictions.html')">
-                <i class="fas fa-divide"></i> כיתה ד - שברים
-            </button>
-            <button class="button purple" onclick="openLinkWithConfetti('frictions_simple.html')">
-                <i class="fas fa-umbrella"></i> כיתה ד - שבר פשוט
-            </button>
-            <button class="button pink" onclick="openLinkWithConfetti('Word-Problems.html')">
-                <i class="fas fa-question"></i> בעיות מילוליות - חיבור וחיסור
-            </button>
-            <button class="button coral" onclick="openLinkWithConfetti('Word-Problems-Advanced.html')">
-                <i class="fas fa-wand-magic-sparkles"></i> בעיות מילוליות - שברים
-            </button>
-            <button class="button indigo" onclick="openLinkWithConfetti('word-problems-+*:-core2.html')">
-                <i class="fas fa-brain"></i> בעיות מילוליות - חיבור, חיסור, כפל, חילוק
-            </button>
+            <!-- כיתה א -->
+            <div class="grade-section">
+                <h2>כיתה א</h2>
+                <button class="button blue" onclick="openLinkWithConfetti('core-1.html')">
+                    <i class="fas fa-plus"></i> חיבור
+                </button>
+                <button class="button teal" onclick="openLinkWithConfetti('core-1-minus.html')">
+                    <i class="fas fa-minus"></i> חיסור
+                </button>
+            </div>
+
+            <!-- כיתה ב -->
+            <div class="grade-section">
+                <h2>כיתה ב</h2>
+                <button class="button green" onclick="openLinkWithConfetti('core-2.html')">
+                    <i class="fas fa-calculator"></i> פעולות יסוד
+                </button>
+                <button class="button emerald" onclick="openLinkWithConfetti('core-2-adding-with-transit.html')">
+                    <i class="fas fa-exchange-alt"></i> חיבור עם המרה
+                </button>
+                <button class="button lime" onclick="openLinkWithConfetti('core-2-decrease-with-transit.html')">
+                    <i class="fas fa-minus"></i> חיסור עם המרה
+                </button>
+                <button class="button pink" onclick="openLinkWithConfetti('Word-Problems.html')">
+                    <i class="fas fa-question"></i> בעיות מילוליות - חיבור וחיסור
+                </button>
+                <button class="button indigo" onclick="openLinkWithConfetti('word-problems-+*:-core2.html')">
+                    <i class="fas fa-brain"></i> בעיות מילוליות - חיבור, חיסור, כפל, חילוק
+                </button>
+            </div>
+
+            <!-- כיתה ג -->
+            <div class="grade-section">
+                <h2>כיתה ג</h2>
+                <button class="button radiant" onclick="openLinkWithConfetti('core-3.html')">
+                    <i class="fas fa-arrow-up-9-1"></i> סדר פעולות חשבון
+                </button>
+            </div>
+
+            <!-- כיתה ד -->
+            <div class="grade-section">
+                <h2>כיתה ד</h2>
+                <button class="button yellow" onclick="openLinkWithConfetti('core-4.html')">
+                    <i class="fas fa-chart-line"></i> חשבון מתקדם
+                </button>
+                <button class="button red" onclick="openLinkWithConfetti('frictions.html')">
+                    <i class="fas fa-divide"></i> שברים
+                </button>
+                <button class="button purple" onclick="openLinkWithConfetti('frictions_simple.html')">
+                    <i class="fas fa-umbrella"></i> שבר פשוט
+                </button>
+                <button class="button coral" onclick="openLinkWithConfetti('Word-Problems-Advanced.html')">
+                    <i class="fas fa-wand-magic-sparkles"></i> בעיות מילוליות - שברים
+                </button>
+                <button class="button orange" onclick="openLinkWithConfetti('connect_words_4.html')">
+                    <i class="fas fa-book-open"></i> התאמת מילים
+                </button>
+            </div>
         </div>
 
         <div class="info-text">
