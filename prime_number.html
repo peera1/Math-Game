@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון מספרים ראשוניים</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Rubik', Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #e0f7fa, #80deea); /* Scientific blue theme */
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-y: auto;
+            direction: rtl;
+        }
+        #game-container {
+            margin: 40px auto;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        h1 {
+            font-size: 40px;
+            color: #0077b6; /* Deep blue */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #b2ebf2;
+            border-radius: 15px;
+            margin: 20px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #00b4d8, #90e0ef);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        #score {
+            font-size: 24px;
+            color: #f57c00;
+            margin: 15px 0;
+        }
+        #question-number {
+            font-size: 22px;
+            color: #0077b6;
+        }
+        #question {
+            font-size: 48px;
+            font-weight: bold;
+            color: #d81b60;
+            margin: 30px 0;
+        }
+        #answer-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .choice-button {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-grow: 1;
+            max-width: 200px;
+        }
+        .choice-button.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 180, 216, 0.5);
+            border-color: #03045e;
+        }
+        #prime-btn {
+            background: linear-gradient(to right, #2a9d8f, #4cc9f0);
+        }
+        #not-prime-btn {
+            background: linear-gradient(to right, #e76f51, #f4a261);
+        }
+        #check-btn {
+            padding: 15px 50px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(to right, #6a1b9a, #ab47bc);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+        #check-btn:disabled {
+            background: #c7c7c7;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+        #check-btn:not(:disabled):hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        #feedback {
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+            min-height: 50px; /* Increased height for more text */
+            line-height: 1.5;
+        }
+        #summary-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #summary-table th, #summary-table td {
+            border: 2px solid #00b4d8;
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        #summary-table th {
+            background: linear-gradient(to right, #0077b6, #00b4d8);
+            color: white;
+            font-size: 18px;
+        }
+        #summary-table td {
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #e0f7fa;
+        }
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.6;
+            background: #e0f7fa;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #0077b6;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>שאלון מספרים ראשוניים</h1>
+        
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+        <p id="score">ניקוד: 0</p>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        
+        <div id="answer-buttons-container">
+            <button id="prime-btn" class="choice-button" onclick="selectAnswer(true)">ראשוני</button>
+            <button id="not-prime-btn" class="choice-button" onclick="selectAnswer(false)">לא ראשוני</button>
+        </div>
+        <button id="check-btn" onclick="checkAnswer()">בדיקה</button>
+
+        <p id="feedback"></p>
+
+        <div id="summary" class="hidden">
+            <h2>כל הכבוד, סיימת! הנה הסיכום שלך:</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>מספר</th><th>התשובה שלך</th><th>התשובה הנכונה</th><th>פירוט</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NUM_OF_QUESTIONS = 5;
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let score = 0;
+        let questionDetails = [];
+        let userSelection = null;
+        
+        const choiceButtons = document.querySelectorAll('.choice-button');
+        const checkButton = document.getElementById('check-btn');
+
+        function isPrime(num) {
+            if (num <= 1) return false;
+            if (num <= 3) return true;
+            if (num % 2 === 0 || num % 3 === 0) return false;
+            for (let i = 5; i * i <= num; i = i + 6) {
+                if (num % i === 0 || num % (i + 2) === 0) return false;
+            }
+            return true;
+        }
+
+        // **NEW** Function to get all factors of a number
+        function getFactors(num) {
+            const factors = [];
+            for (let i = 2; i * i <= num; i++) {
+                if (num % i === 0) {
+                    factors.push(i);
+                    if (num / i !== i) {
+                        factors.push(num / i);
+                    }
+                }
+            }
+            return factors.sort((a, b) => a - b);
+        }
+        
+        function generateQuestion() {
+            const number = Math.floor(Math.random() * 998) + 2;
+            const isCorrectlyPrime = isPrime(number);
+            return { number, isCorrectlyPrime };
+        }
+
+        function startGame() {
+            for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
+                let newQuestion;
+                do {
+                    newQuestion = generateQuestion();
+                } while (questions.some(q => q.number === newQuestion.number));
+                questions.push(newQuestion);
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#00b4d8', '#90e0ef', '#f4a261', '#e76f51'],
+                });
+            }
+        }
+
+        function selectAnswer(isItPrime) {
+            userSelection = isItPrime;
+            choiceButtons.forEach(btn => btn.classList.remove('selected'));
+            if (isItPrime) {
+                document.getElementById('prime-btn').classList.add('selected');
+            } else {
+                document.getElementById('not-prime-btn').classList.add('selected');
+            }
+            checkButton.disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            userSelection = null;
+            choiceButtons.forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = false;
+            });
+            checkButton.disabled = true;
+
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${NUM_OF_QUESTIONS}`;
+            document.getElementById("question").innerText = questions[currentQuestion].number;
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            if (userSelection === null) return;
+            choiceButtons.forEach(btn => btn.disabled = true);
+            checkButton.disabled = true;
+
+            let endTime = new Date();
+            let timeTaken = Math.round((endTime - startTime) / 1000);
+            
+            let correctAnswerIsPrime = questions[currentQuestion].isCorrectlyPrime;
+            let isUserCorrect = (userSelection === correctAnswerIsPrime);
+
+            // **NEW** Get factors and create detailed feedback string
+            let factors = getFactors(questions[currentQuestion].number);
+            let factorString = "";
+            let feedbackText = "";
+            
+            if (correctAnswerIsPrime) {
+                factorString = "מתחלק רק ב-1 ובעצמו.";
+                feedbackText = `המספר ${questions[currentQuestion].number} הוא ראשוני. ${factorString}`;
+            } else {
+                factorString = `מתחלק גם ב: ${factors.join(', ')}.`;
+                feedbackText = `המספר ${questions[currentQuestion].number} אינו ראשוני. ${factorString}`;
+            }
+
+            if (isUserCorrect) {
+                score += 10 + (timeTaken < 5 ? 5 : 0);
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+                createConfetti();
+                document.getElementById("feedback").innerText = "נכון מאוד! " + feedbackText;
+                document.getElementById("feedback").style.color = "#2a9d8f";
+            } else {
+                document.getElementById("feedback").innerText = "תשובה לא נכונה. " + feedbackText;
+                document.getElementById("feedback").style.color = "#e76f51";
+            }
+            
+            questionDetails.push({
+                number: questions[currentQuestion].number,
+                userAnswer: userSelection ? "ראשוני" : "לא ראשוני",
+                correctAnswer: correctAnswerIsPrime ? "ראשוני" : "לא ראשוני",
+                time: timeTaken,
+                factors: factorString // Save the factor details for the summary
+            });
+            
+            currentQuestion++;
+            updateProgress();
+            setTimeout(nextQuestion, 5000); // **UPDATED** Increased delay to 5 seconds
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            document.getElementById("question").style.display = 'none';
+            document.getElementById("answer-buttons-container").style.display = 'none';
+            document.getElementById("check-btn").style.display = 'none';
+            document.getElementById("question-number").style.display = 'none';
+            document.getElementById("feedback").style.display = 'none';
+            
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach(detail => {
+                // **UPDATED** Add the new 'factors' detail to the table row
+                let row = `<tr><td>${detail.number}</td><td>${detail.userAnswer}</td><td>${detail.correctAnswer}</td><td>${detail.factors}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+
+            const end = Date.now() + (3 * 1000);
+            const colors = ['#0077b6', '#00b4d8', '#ffffff'];
+
+            (function frame() {
+              confetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 }, colors });
+              confetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 }, colors });
+              if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        document.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
