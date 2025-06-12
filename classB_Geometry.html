@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק שטח והיקף</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', Arial, 'Noto Sans Hebrew', sans-serif;
+            background: linear-gradient(to bottom, #81c784, #4caf50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.5s;
+        }
+
+        h1 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden; /* Ensures the inner bar has rounded corners */
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background: linear-gradient(90deg, #ffd54f, #ffca28);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        #shape-canvas {
+            background-color: #f1f8e9;
+            border-radius: 10px;
+            margin: 0 auto 20px auto;
+            display: block;
+            border: 2px dashed #a5d6a7;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1.2em;
+            color: #43a047;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 150px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #66bb6a;
+            box-shadow: 0 0 8px rgba(102, 187, 106, 0.5);
+            outline: none;
+        }
+
+        #check-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            color: #fff;
+            background: #ff7043;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: block;
+            width: 50%;
+            margin: 20px auto 0 auto;
+        }
+        
+        #check-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        #check-button:hover:not(:disabled) {
+            background: #f4511e;
+            transform: scale(1.05);
+        }
+
+        #feedback {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 15px;
+            height: 30px;
+        }
+
+        #feedback.correct {
+            color: #388e3c;
+        }
+
+        #feedback.incorrect {
+            color: #d32f2f;
+        }
+
+        #result {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #a5d6a7, #e1f5fe);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 100;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        #result h2 {
+            color: #2e7d32;
+        }
+        
+        #result table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        
+        #result th, #result td {
+            padding: 10px;
+            border: 1px solid #9ccc65;
+        }
+
+        #result th {
+            background-color: #689f38;
+            color: white;
+        }
+        
+        #result tr:nth-child(even) {
+            background-color: #f1f8e9;
+        }
+
+        #result .correct-answer {
+             color: #388e3c;
+             font-weight: bold;
+        }
+
+        #result .wrong-answer {
+            color: #d32f2f;
+            text-decoration: line-through;
+        }
+
+        #play-again {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            color: #fff;
+            background: #ff7043;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.7;
+            animation: fall 2s linear forwards;
+            border-radius: 50%;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game-container">
+        <h1>משחק שטח והיקף</h1>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <canvas id="shape-canvas" width="400" height="250"></canvas>
+        <div class="input-group">
+            <label for="perimeter-input">מה ההיקף?</label>
+            <input type="number" id="perimeter-input" placeholder="היקף">
+        </div>
+        <div class="input-group">
+            <label for="area-input">מה השטח?</label>
+            <input type="number" id="area-input" placeholder="שטח">
+        </div>
+        <button id="check-button">בדיקה</button>
+        <div id="feedback"></div>
+    </div>
+
+    <div id="result">
+        <h2>כל הכבוד, סיימת! 🎉</h2>
+        <p>הניקוד שלך: <strong id="final-score"></strong></p>
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>תרגיל</th>
+                    <th>הצורה</th>
+                    <th>ההיקף שהזנת</th>
+                    <th>ההיקף הנכון</th>
+                    <th>השטח שהזנת</th>
+                    <th>השטח הנכון</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button id="play-again">שחק שוב</button>
+    </div>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const progressBar = document.getElementById('progress-bar');
+        const canvas = document.getElementById('shape-canvas');
+        const ctx = canvas.getContext('2d');
+        const perimeterInput = document.getElementById('perimeter-input');
+        const areaInput = document.getElementById('area-input');
+        const checkButton = document.getElementById('check-button');
+        const feedbackDiv = document.getElementById('feedback');
+        const resultDiv = document.getElementById('result');
+        const finalScoreSpan = document.getElementById('final-score');
+        const resultTableBody = document.querySelector('#result-table tbody');
+        const playAgainButton = document.getElementById('play-again');
+
+        const TOTAL_QUESTIONS = 5;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        let resultsData = [];
+
+        function generateRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                const isSquare = Math.random() > 0.5;
+                let width, height;
+                if (isSquare) {
+                    width = generateRandomInt(2, 12);
+                    height = width;
+                } else {
+                    width = generateRandomInt(3, 15);
+                    do {
+                        height = generateRandomInt(3, 15);
+                    } while (height === width);
+                }
+                const perimeter = 2 * (width + height);
+                const area = width * height;
+                questions.push({ width, height, perimeter, area, type: isSquare ? 'ריבוע' : 'מלבן' });
+            }
+        }
+        
+        // --- THIS IS THE CORRECTED FUNCTION ---
+        function drawShape(q) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const scale = 15;
+            const PADDING = 30; // Min space from canvas edge
+            const labelSpace = 25; // Space for labels
+
+            // Adjust scale if shape is too big for the canvas with padding
+            const maxAllowedWidth = canvas.width - (2 * PADDING) - labelSpace;
+            const maxAllowedHeight = canvas.height - (2 * PADDING) - labelSpace;
+            const effectiveScale = Math.min(scale, maxAllowedWidth / q.width, maxAllowedHeight / q.height);
+
+            const shapeWidth = q.width * effectiveScale;
+            const shapeHeight = q.height * effectiveScale;
+
+            const x = (canvas.width - shapeWidth) / 2;
+            const y = (canvas.height - shapeHeight) / 2;
+            
+            // Draw grid
+            ctx.strokeStyle = '#e8f5e9';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 15) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke(); }
+            for (let j = 0; j < canvas.height; j += 15) { ctx.beginPath(); ctx.moveTo(0, j); ctx.lineTo(canvas.width, j); ctx.stroke(); }
+
+            // Draw shape
+            ctx.fillStyle = 'rgba(255, 236, 179, 0.7)';
+            ctx.fillRect(x, y, shapeWidth, shapeHeight);
+            
+            ctx.strokeStyle = '#388e3c';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(x, y, shapeWidth, shapeHeight);
+
+            // --- FIX: Correctly align and position the dimension labels ---
+            ctx.fillStyle = '#1b5e20';
+            ctx.font = 'bold 18px "Comic Sans MS"';
+            
+            // Width label (below shape)
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.fillText(q.width, x + shapeWidth / 2, y + shapeHeight + 5);
+            
+            // Height label (left of shape)
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(q.height, x - 5, y + shapeHeight / 2);
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+                endGame();
+                return;
+            }
+
+            const progress = ((currentQuestionIndex) / TOTAL_QUESTIONS) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `תרגיל ${currentQuestionIndex + 1} מתוך ${TOTAL_QUESTIONS}`;
+
+            const currentQuestion = questions[currentQuestionIndex];
+            drawShape(currentQuestion);
+            
+            perimeterInput.value = '';
+            areaInput.value = '';
+            feedbackDiv.textContent = '';
+            feedbackDiv.className = '';
+            perimeterInput.focus();
+        }
+
+        function checkAnswer() {
+            const userPerimeter = parseInt(perimeterInput.value, 10);
+            const userArea = parseInt(areaInput.value, 10);
+            const currentQuestion = questions[currentQuestionIndex];
+
+            const isPerimeterCorrect = userPerimeter === currentQuestion.perimeter;
+            const isAreaCorrect = userArea === currentQuestion.area;
+
+            resultsData.push({
+                ...currentQuestion,
+                userPerimeter: isNaN(userPerimeter) ? '-' : userPerimeter,
+                userArea: isNaN(userArea) ? '-' : userArea,
+                isPerimeterCorrect,
+                isAreaCorrect
+            });
+
+            if (isPerimeterCorrect && isAreaCorrect) {
+                score += 10;
+                feedbackDiv.textContent = 'מעולה! תשובה נכונה!';
+                feedbackDiv.className = 'correct';
+                addConfetti();
+                checkButton.disabled = true;
+
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    displayQuestion();
+                    checkButton.disabled = false;
+                }, 1500);
+
+            } else {
+                let errorMsg = 'אופס, נסה שוב. ';
+                if (!isPerimeterCorrect && !isAreaCorrect) {
+                    errorMsg += 'גם ההיקף וגם השטח לא נכונים.';
+                } else if (!isPerimeterCorrect) {
+                    errorMsg += 'ההיקף לא נכון.';
+                } else {
+                    errorMsg += 'השטח לא נכון.';
+                }
+                feedbackDiv.textContent = errorMsg;
+                feedbackDiv.className = 'incorrect';
+            }
+        }
+
+        function endGame() {
+            progressBar.style.width = `100%`;
+            progressBar.textContent = `המשחק הסתיים!`;
+            gameContainer.style.opacity = '0';
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                resultDiv.style.display = 'block';
+                finalScoreSpan.textContent = score;
+
+                resultTableBody.innerHTML = '';
+                resultsData.forEach((res, index) => {
+                    const row = document.createElement('tr');
+
+                    const formatCell = (user, correct, isCorrect) => {
+                        return isCorrect 
+                            ? `<td class="correct-answer">${user} ✔</td>`
+                            : `<td class="wrong-answer">${user}</td>`;
+                    };
+
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${res.type} (${res.width}x${res.height})</td>
+                        ${formatCell(res.userPerimeter, res.perimeter, res.isPerimeterCorrect)}
+                        <td>${res.perimeter}</td>
+                        ${formatCell(res.userArea, res.area, res.isAreaCorrect)}
+                        <td>${res.area}</td>
+                    `;
+                    resultTableBody.appendChild(row);
+                });
+            }, 500);
+        }
+
+        function addConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                const x = Math.random() * gameContainer.offsetWidth;
+                const y = -20; // Start above the container
+                confetti.style.left = `${x}px`;
+                confetti.style.top = `${y}px`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.transform = `scale(${Math.random() + 0.5})`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                gameContainer.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 2000);
+            }
+        }
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultsData = [];
+            gameContainer.style.display = 'block';
+            gameContainer.style.opacity = '1';
+            resultDiv.style.display = 'none';
+            checkButton.disabled = false;
+            
+            generateQuestions();
+            displayQuestion();
+        }
+
+        checkButton.addEventListener('click', checkAnswer);
+        perimeterInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') areaInput.focus();
+        });
+        areaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') checkButton.click();
+        });
+        playAgainButton.addEventListener('click', startGame);
+
+        startGame();
+    </script>
+</body>
+</html>
