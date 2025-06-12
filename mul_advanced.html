@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון כפל למתקדמים</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
+            font-size: 18px;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        #game-container {
+            margin: 40px auto;
+            width: 80%;
+            max-width: 600px;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        h1 {
+            font-size: 40px;
+            color: #0288d1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #b0bec5;
+            border-radius: 15px;
+            margin: 20px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        #score {
+            font-size: 24px;
+            color: #f57c00;
+            margin: 15px 0;
+        }
+        #question-number {
+            font-size: 22px;
+            color: #0288d1;
+        }
+        #question {
+            font-size: 28px;
+            color: #d81b60;
+            margin: 20px 0;
+        }
+        #answer {
+            width: 120px;
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #0288d1;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 18px;
+            background: linear-gradient(to right, #0288d1, #4fc3f7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        #feedback {
+            font-size: 20px;
+            margin-top: 15px;
+            color: #d81b60;
+            min-height: 24px; /* To prevent layout shift */
+        }
+        #summary-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 90%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #summary-table th, #summary-table td {
+            border: 2px solid #4CAF50;
+            padding: 15px;
+            text-align: center;
+        }
+        #summary-table th {
+            background: linear-gradient(to right, #4CAF50, #81C784);
+            color: white;
+            font-size: 20px;
+        }
+        #summary-table td {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #f1f8e9;
+        }
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.6;
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #4CAF50;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>שאלון כפל למתקדמים</h1>
+        
+        <div id="progress-container">
+            <div id="progress-bar">0%</div>
+        </div>
+        <p id="score">ניקוד: 0</p>
+        <p id="question-number"></p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="הקלד תשובה" onkeyup="if(event.keyCode === 13) checkAnswer()">
+        <button onclick="checkAnswer()">בדיקה</button>
+        <p id="feedback"></p>
+
+        <div id="summary" class="hidden">
+            <h2>כל הכבוד, אלוף!</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>שאלה</th><th>תרגיל</th><th>תשובה</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
+            </div>
+        </div>
+    </div>
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <script>
+        const NUM_OF_QUESTIONS = 4;
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let times = [];
+        let score = 0;
+        let questionDetails = [];
+
+        // פונקציה לבחירת מספר רנדומלי (דו-ספרתי או תלת-ספרתי)
+        function getRandomNumber() {
+            // 50% סיכוי למספר דו-ספרתי
+            if (Math.random() < 0.5) {
+                // מחזיר מספר בין 10 ל-99
+                return Math.floor(Math.random() * 90) + 10;
+            } else {
+                // מחזיר מספר בין 100 ל-999
+                return Math.floor(Math.random() * 900) + 100;
+            }
+        }
+        
+        // פונקציה ליצירת שאלת כפל
+        function generateQuestion() {
+            const num1 = getRandomNumber();
+            const num2 = getRandomNumber();
+            
+            const questionStr = `${num1} × ${num2}`;
+            const answer = num1 * num2;
+            return { questionStr, answer };
+        }
+
+        function startGame() {
+            for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
+                questions.push(generateQuestion());
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FDCB6E'],
+                    shapes: ['star', 'circle']
+                });
+            } else {
+                console.warn('Confetti library not loaded');
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${NUM_OF_QUESTIONS}`;
+            document.getElementById("question").innerText = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("answer").focus();
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById("answer").value);
+            if (isNaN(userAnswer)) {
+                document.getElementById("feedback").innerText = "יש להקליד תשובה מספרית";
+                document.getElementById("feedback").style.color = "#d81b60";
+                return;
+            }
+
+            let correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                let endTime = new Date();
+                let timeTaken = Math.round((endTime - startTime) / 1000);
+                times.push(timeTaken);
+                
+                // עדכון ניקוד ותגמול
+                score += 10 + (timeTaken < 10 ? 5 : 0); // בונוס על מהירות (פחות מ-10 שניות)
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+                questionDetails.push({
+                    question: questions[currentQuestion].questionStr,
+                    answer: correctAnswer,
+                    time: timeTaken
+                });
+
+                // אפקטים ויזואליים
+                createConfetti();
+                document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
+                document.getElementById("feedback").style.color = "#4CAF50";
+                
+                currentQuestion++;
+                updateProgress();
+                setTimeout(nextQuestion, 1200); // עיכוב קל להנאה מהאפקט
+            } else {
+                document.getElementById("feedback").innerText = "תשובה לא נכונה. נסה שוב, לא למהר, נסה להתרכז";
+                document.getElementById("feedback").style.color = "#d81b60";
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            if (currentQuestion === questions.length) progress = 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            document.getElementById("question").style.display = 'none';
+            document.getElementById("answer").style.display = 'none';
+            document.querySelector('button').style.display = 'none';
+            document.getElementById("question-number").style.display = 'none';
+            document.getElementById("feedback").style.display = 'none';
+            
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach((detail, i) => {
+                let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+            updateProgress();
+
+            // חגיגה סופית
+            const end = Date.now() + (3 * 1000);
+            const colors = ['#bb0000', '#ffffff', '#0000ff'];
+
+            (function frame() {
+              confetti({
+                particleCount: 3,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0 },
+                colors: colors
+              });
+              confetti({
+                particleCount: 3,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1 },
+                colors: colors
+              });
+
+              if (Date.now() < end) {
+                requestAnimationFrame(frame);
+              }
+            }());
+        }
+
+        document.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
