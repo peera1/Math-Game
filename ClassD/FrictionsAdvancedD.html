@@ -68,12 +68,11 @@
             color: #0d47a1;
         }
         
-        /* --- CSS CORRECTION --- */
         .mixed-number {
             display: inline-flex;
             align-items: center;
             margin: 0 15px;
-            gap: 8px; /* Using gap for spacing is better */
+            gap: 8px; 
         }
 
         .fraction {
@@ -206,12 +205,15 @@
         <div id="question-container"></div>
         <div id="answer-area">
             <label for="whole-input">מה התשובה?</label>
+            <!-- --- HTML CORRECTION FOR INPUTS IS HERE --- -->
             <div id="answer-inputs">
-                <input type="number" id="whole-input" placeholder="שלם" min="0">
+                <!-- The fraction part comes FIRST in the code to appear on the RIGHT -->
                 <div class="fraction-input-container">
-                   <input type="number" id="numerator-input" placeholder="מונה" min="0">
-                   <input type="number" id="denominator-input" placeholder="מכנה" min="1">
+                   <input type="number" id="numerator-input" placeholder="מונה" min="0" tabindex="2">
+                   <input type="number" id="denominator-input" placeholder="מכנה" min="1" tabindex="3">
                 </div>
+                <!-- The whole number part comes SECOND in the code to appear on the LEFT -->
+                <input type="number" id="whole-input" placeholder="שלם" min="0" tabindex="1">
             </div>
         </div>
         <button id="check-button">בדיקה</button>
@@ -291,12 +293,11 @@
                 let num1 = generateMixedNumber();
                 let num2 = generateMixedNumber();
                 
-                // For subtraction, ensure num1 is bigger than num2
-                if (!isBigger(num1, num2)) {
-                    [num1, num2] = [num2, num1]; // Swap them
+                if (i % 2 !== 0 && !isBigger(num1, num2)) {
+                    [num1, num2] = [num2, num1]; // For subtraction, ensure num1 is bigger
                 }
 
-                const operator = (i % 2 === 0) ? '+' : '-'; // Alternate between + and -
+                const operator = (i % 2 === 0) ? '+' : '-';
                 
                 const imp1 = toImproper(num1);
                 const imp2 = toImproper(num2);
@@ -305,12 +306,7 @@
                 let num1_scaled_n = imp1.n * num2.d;
                 let num2_scaled_n = imp2.n * num1.d;
                 
-                let resultNumerator;
-                if (operator === '+') {
-                    resultNumerator = num1_scaled_n + num2_scaled_n;
-                } else {
-                    resultNumerator = num1_scaled_n - num2_scaled_n;
-                }
+                let resultNumerator = operator === '+' ? num1_scaled_n + num2_scaled_n : num1_scaled_n - num2_scaled_n;
 
                 const commonDivisor = gcd(resultNumerator, commonDenominator);
                 const simplifiedN = resultNumerator / commonDivisor;
@@ -330,35 +326,16 @@
         }
         
         // --- Display Functions ---
-        // --- JAVASCRIPT CORRECTION IS HERE ---
         function createNumberHTML(mn) {
             let html = '<div class="mixed-number">';
-            // In an RTL layout, the first element added to the string is displayed on the RIGHT,
-            // and the last element is displayed on the LEFT.
-            // We want the WHOLE number on the LEFT and the FRACTION on the RIGHT.
-            
-            // Add the whole number part first (it will be the rightmost part of this block).
-            if (mn.w > 0) {
-                html += `<span class="whole">${mn.w}</span>`;
-            }
-            // Add the fraction part second (it will appear to the left of the whole number).
-            // This order is visually correct now.
             if (mn.n > 0) {
               html += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
             }
-            
-            // Let's swap the order in the string concatenation to fix the visual layout.
-            // Whole number (on the left) should be added to the string AFTER the fraction (on the right).
-            let reversedHtml = '<div class="mixed-number">';
-            if (mn.n > 0) {
-              reversedHtml += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
-            }
             if (mn.w > 0) {
-                reversedHtml += `<span class="whole">${mn.w}</span>`;
+                html += `<span class="whole">${mn.w}</span>`;
             }
-            reversedHtml += '</div>';
-
-            return reversedHtml;
+            html += '</div>';
+            return html;
         }
 
         function formatQuestionString(num1, num2, operator) {
@@ -502,7 +479,6 @@
         denominatorInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') checkButton.click();
         });
-
 
         // Initial Start
         startGame();
