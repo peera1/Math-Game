@@ -68,17 +68,18 @@
             color: #0d47a1;
         }
         
+        /* --- CSS CORRECTION --- */
         .mixed-number {
             display: inline-flex;
             align-items: center;
             margin: 0 15px;
+            gap: 8px; /* Using gap for spacing is better */
         }
 
         .fraction {
             display: inline-flex;
             flex-direction: column;
             text-align: center;
-            margin-right: 8px;
             line-height: 1.1;
         }
 
@@ -88,10 +89,6 @@
         }
         .denominator {
             padding-top: 3px;
-        }
-        
-        .whole {
-            margin-right: 5px;
         }
         
         .operator {
@@ -301,7 +298,6 @@
 
                 const operator = (i % 2 === 0) ? '+' : '-'; // Alternate between + and -
                 
-                // Calculate the answer
                 const imp1 = toImproper(num1);
                 const imp2 = toImproper(num2);
                 
@@ -316,7 +312,6 @@
                     resultNumerator = num1_scaled_n - num2_scaled_n;
                 }
 
-                // Simplify and convert back to mixed number
                 const commonDivisor = gcd(resultNumerator, commonDenominator);
                 const simplifiedN = resultNumerator / commonDivisor;
                 const simplifiedD = commonDenominator / commonDivisor;
@@ -326,8 +321,6 @@
                     n: simplifiedN % simplifiedD,
                     d: simplifiedD
                 };
-
-                // If numerator is 0, the denominator should be irrelevant for the answer. Let's make it 1 for consistency.
                 if (answer.n === 0) {
                     answer.d = 1;
                 }
@@ -337,14 +330,35 @@
         }
         
         // --- Display Functions ---
+        // --- JAVASCRIPT CORRECTION IS HERE ---
         function createNumberHTML(mn) {
             let html = '<div class="mixed-number">';
-            if(mn.w > 0) html += `<span class="whole">${mn.w}</span>`;
-            if(mn.n > 0) {
+            // In an RTL layout, the first element added to the string is displayed on the RIGHT,
+            // and the last element is displayed on the LEFT.
+            // We want the WHOLE number on the LEFT and the FRACTION on the RIGHT.
+            
+            // Add the whole number part first (it will be the rightmost part of this block).
+            if (mn.w > 0) {
+                html += `<span class="whole">${mn.w}</span>`;
+            }
+            // Add the fraction part second (it will appear to the left of the whole number).
+            // This order is visually correct now.
+            if (mn.n > 0) {
               html += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
             }
-            html += '</div>';
-            return html;
+            
+            // Let's swap the order in the string concatenation to fix the visual layout.
+            // Whole number (on the left) should be added to the string AFTER the fraction (on the right).
+            let reversedHtml = '<div class="mixed-number">';
+            if (mn.n > 0) {
+              reversedHtml += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
+            }
+            if (mn.w > 0) {
+                reversedHtml += `<span class="whole">${mn.w}</span>`;
+            }
+            reversedHtml += '</div>';
+
+            return reversedHtml;
         }
 
         function formatQuestionString(num1, num2, operator) {
@@ -390,7 +404,6 @@
             const userAns = { w: userW, n: userN, d: userD };
             const correctAns = questions[currentQuestionIndex].answer;
             
-            // Check for correctness. Also handles cases like 1/2 vs 2/4.
             const isCorrect = (userAns.w === correctAns.w) && (userAns.n * correctAns.d === correctAns.n * userAns.d);
 
             resultsData.push({
@@ -401,7 +414,7 @@
             });
 
             if (isCorrect) {
-                score += 20; // 100 / 5 questions
+                score += 20;
                 feedbackDiv.textContent = 'כל הכבוד! תשובה מושלמת!';
                 feedbackDiv.className = 'correct';
                 addConfetti();
@@ -420,13 +433,13 @@
         }
         
         function formatAnswer(ans) {
-            if (!ans.n || ans.n === 0) { // Whole number
+            if (!ans.n || ans.n === 0) {
                 return `${ans.w}`;
             }
-            if (!ans.w || ans.w === 0) { // Proper fraction
+            if (!ans.w || ans.w === 0) {
                 return `${ans.n}/${ans.d}`;
             }
-            return `${ans.w} ו-${ans.n}/${ans.d}`; // Mixed number
+            return `${ans.w} ו-${ans.n}/${ans.d}`;
         }
 
         function endGame() {
@@ -486,7 +499,6 @@
         // Event Listeners
         checkButton.addEventListener('click', checkAnswer);
         playAgainButton.addEventListener('click', startGame);
-        // Allow pressing Enter to check answer
         denominatorInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') checkButton.click();
         });
