@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חיבור וחיסור שברים</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', Arial, 'Noto Sans Hebrew', sans-serif;
+            background: linear-gradient(to top, #64b5f6, #1976d2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.5s;
+        }
+
+        h1 {
+            color: #1565c0;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 20px;
+            background: linear-gradient(90deg, #ffd54f, #ffca28);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        #question-container {
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #0d47a1;
+        }
+        
+        .mixed-number {
+            display: inline-flex;
+            align-items: center;
+            margin: 0 15px;
+        }
+
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            text-align: center;
+            margin-right: 8px;
+            line-height: 1.1;
+        }
+
+        .numerator {
+            padding-bottom: 3px;
+            border-bottom: 3px solid #1565c0;
+        }
+        .denominator {
+            padding-top: 3px;
+        }
+        
+        .whole {
+            margin-right: 5px;
+        }
+        
+        .operator {
+            font-weight: bold;
+        }
+
+        #answer-area label {
+            display: block;
+            font-size: 1.2em;
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        #answer-inputs {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #answer-inputs input {
+            width: 70px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.5em;
+            font-family: inherit;
+        }
+        
+        .fraction-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #numerator-input {
+            border-bottom: 2px solid black;
+            border-radius: 8px 8px 0 0;
+        }
+        #denominator-input {
+            border-radius: 0 0 8px 8px;
+        }
+
+        #check-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            color: #fff;
+            background: #ff7043;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: block;
+            width: 50%;
+            margin: 25px auto 0 auto;
+        }
+        
+        #check-button:disabled {
+            background-color: #bdbdbd;
+            cursor: not-allowed;
+        }
+
+        #check-button:hover:not(:disabled) {
+            background: #f4511e;
+            transform: scale(1.05);
+        }
+
+        #feedback {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 15px;
+            height: 30px;
+        }
+
+        #feedback.correct { color: #388e3c; }
+        #feedback.incorrect { color: #d32f2f; }
+
+        #result {
+            display: none;
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #a5d6a7, #e1f5fe);
+            padding: 20px; border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+            text-align: center; width: 90%; max-width: 800px;
+            max-height: 90vh; overflow-y: auto; z-index: 100;
+            animation: popIn 0.5s ease-out;
+        }
+        
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        #result h2 { color: #2e7d32; }
+        #result table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        #result th, #result td { padding: 12px; border: 1px solid #9ccc65; }
+        #result th { background-color: #689f38; color: white; }
+        #result tr:nth-child(even) { background-color: #f1f8e9; }
+        #result .correct-answer { color: #388e3c; font-weight: bold; }
+        #result .wrong-answer { color: #d32f2f; text-decoration: line-through; }
+        #play-again { padding: 12px 25px; font-size: 1.2em; color: #fff; background: #ff7043; border: none; border-radius: 10px; cursor: pointer; margin-top: 20px; }
+        
+        .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0.7; animation: fall 2s linear forwards; border-radius: 50%; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="game-container">
+        <h1>משחק חיבור וחיסור שברים</h1>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="question-container"></div>
+        <div id="answer-area">
+            <label for="whole-input">מה התשובה?</label>
+            <div id="answer-inputs">
+                <input type="number" id="whole-input" placeholder="שלם" min="0">
+                <div class="fraction-input-container">
+                   <input type="number" id="numerator-input" placeholder="מונה" min="0">
+                   <input type="number" id="denominator-input" placeholder="מכנה" min="1">
+                </div>
+            </div>
+        </div>
+        <button id="check-button">בדיקה</button>
+        <div id="feedback"></div>
+    </div>
+
+    <div id="result">
+        <h2>כל הכבוד, סיימת! 🎉</h2>
+        <p>הניקוד הסופי שלך: <strong id="final-score"></strong></p>
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>תרגיל</th>
+                    <th>התשובה שלך</th>
+                    <th>התשובה הנכונה</th>
+                    <th>ניקוד</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button id="play-again">שחק/י שוב!</button>
+    </div>
+
+    <script>
+        // DOM Elements
+        const gameContainer = document.getElementById('game-container');
+        const progressBar = document.getElementById('progress-bar');
+        const questionContainer = document.getElementById('question-container');
+        const wholeInput = document.getElementById('whole-input');
+        const numeratorInput = document.getElementById('numerator-input');
+        const denominatorInput = document.getElementById('denominator-input');
+        const checkButton = document.getElementById('check-button');
+        const feedbackDiv = document.getElementById('feedback');
+        const resultDiv = document.getElementById('result');
+        const finalScoreSpan = document.getElementById('final-score');
+        const resultTableBody = document.querySelector('#result-table tbody');
+        const playAgainButton = document.getElementById('play-again');
+
+        // Game State
+        const TOTAL_QUESTIONS = 5;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        let resultsData = [];
+
+        // --- Helper Functions ---
+        function generateRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+        
+        // --- Question Generation ---
+        function generateMixedNumber(minWhole = 1, maxWhole = 5) {
+            const denominators = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const d = denominators[generateRandomInt(0, denominators.length - 1)];
+            return {
+                w: generateRandomInt(minWhole, maxWhole),
+                n: generateRandomInt(1, d - 1),
+                d: d
+            };
+        }
+        
+        function toImproper(mn) {
+            return { n: mn.w * mn.d + mn.n, d: mn.d };
+        }
+        
+        function isBigger(mn1, mn2) {
+            return (mn1.w * mn1.d + mn1.n) * mn2.d > (mn2.w * mn2.d + mn2.n) * mn1.d;
+        }
+
+        function generateQuestions() {
+            questions = [];
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+                let num1 = generateMixedNumber();
+                let num2 = generateMixedNumber();
+                
+                // For subtraction, ensure num1 is bigger than num2
+                if (!isBigger(num1, num2)) {
+                    [num1, num2] = [num2, num1]; // Swap them
+                }
+
+                const operator = (i % 2 === 0) ? '+' : '-'; // Alternate between + and -
+                
+                // Calculate the answer
+                const imp1 = toImproper(num1);
+                const imp2 = toImproper(num2);
+                
+                const commonDenominator = num1.d * num2.d;
+                let num1_scaled_n = imp1.n * num2.d;
+                let num2_scaled_n = imp2.n * num1.d;
+                
+                let resultNumerator;
+                if (operator === '+') {
+                    resultNumerator = num1_scaled_n + num2_scaled_n;
+                } else {
+                    resultNumerator = num1_scaled_n - num2_scaled_n;
+                }
+
+                // Simplify and convert back to mixed number
+                const commonDivisor = gcd(resultNumerator, commonDenominator);
+                const simplifiedN = resultNumerator / commonDivisor;
+                const simplifiedD = commonDenominator / commonDivisor;
+                
+                const answer = {
+                    w: Math.floor(simplifiedN / simplifiedD),
+                    n: simplifiedN % simplifiedD,
+                    d: simplifiedD
+                };
+
+                // If numerator is 0, the denominator should be irrelevant for the answer. Let's make it 1 for consistency.
+                if (answer.n === 0) {
+                    answer.d = 1;
+                }
+
+                questions.push({ num1, num2, operator, answer, questionString: formatQuestionString(num1, num2, operator) });
+            }
+        }
+        
+        // --- Display Functions ---
+        function createNumberHTML(mn) {
+            let html = '<div class="mixed-number">';
+            if(mn.w > 0) html += `<span class="whole">${mn.w}</span>`;
+            if(mn.n > 0) {
+              html += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function formatQuestionString(num1, num2, operator) {
+            return `${formatAnswer(num1)} ${operator} ${formatAnswer(num2)}`;
+        }
+        
+        function displayQuestion() {
+            if (currentQuestionIndex >= TOTAL_QUESTIONS) {
+                endGame();
+                return;
+            }
+
+            const progress = (currentQuestionIndex / TOTAL_QUESTIONS) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `תרגיל ${currentQuestionIndex + 1} מתוך ${TOTAL_QUESTIONS}`;
+
+            const q = questions[currentQuestionIndex];
+            questionContainer.innerHTML = `
+                ${createNumberHTML(q.num1)}
+                <span class="operator">${q.operator}</span>
+                ${createNumberHTML(q.num2)}
+                <span class="operator">=</span>
+            `;
+            
+            clearInputs();
+            feedbackDiv.textContent = '';
+            feedbackDiv.className = '';
+            wholeInput.focus();
+        }
+
+        function clearInputs() {
+            wholeInput.value = '';
+            numeratorInput.value = '';
+            denominatorInput.value = '';
+        }
+
+        // --- Game Logic ---
+        function checkAnswer() {
+            const userW = parseInt(wholeInput.value) || 0;
+            const userN = parseInt(numeratorInput.value) || 0;
+            const userD = parseInt(denominatorInput.value) || 1;
+            
+            const userAns = { w: userW, n: userN, d: userD };
+            const correctAns = questions[currentQuestionIndex].answer;
+            
+            // Check for correctness. Also handles cases like 1/2 vs 2/4.
+            const isCorrect = (userAns.w === correctAns.w) && (userAns.n * correctAns.d === correctAns.n * userAns.d);
+
+            resultsData.push({
+                questionString: questions[currentQuestionIndex].questionString,
+                userAnswer: userAns,
+                correctAnswer: correctAns,
+                isCorrect: isCorrect
+            });
+
+            if (isCorrect) {
+                score += 20; // 100 / 5 questions
+                feedbackDiv.textContent = 'כל הכבוד! תשובה מושלמת!';
+                feedbackDiv.className = 'correct';
+                addConfetti();
+                checkButton.disabled = true;
+
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    displayQuestion();
+                    checkButton.disabled = false;
+                }, 2000);
+
+            } else {
+                feedbackDiv.textContent = 'אוי, זו לא התשובה הנכונה. נסה/י לחשב שוב!';
+                feedbackDiv.className = 'incorrect';
+            }
+        }
+        
+        function formatAnswer(ans) {
+            if (!ans.n || ans.n === 0) { // Whole number
+                return `${ans.w}`;
+            }
+            if (!ans.w || ans.w === 0) { // Proper fraction
+                return `${ans.n}/${ans.d}`;
+            }
+            return `${ans.w} ו-${ans.n}/${ans.d}`; // Mixed number
+        }
+
+        function endGame() {
+            progressBar.style.width = '100%';
+            progressBar.textContent = 'המשחק הסתיים!';
+            gameContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                gameContainer.style.display = 'none';
+                resultDiv.style.display = 'block';
+                finalScoreSpan.textContent = score;
+
+                resultTableBody.innerHTML = '';
+                resultsData.forEach(res => {
+                    const row = document.createElement('tr');
+                    const userFormatted = formatAnswer(res.userAnswer);
+                    const correctFormatted = formatAnswer(res.correctAnswer);
+                    
+                    row.innerHTML = `
+                        <td>${res.questionString}</td>
+                        <td class="${res.isCorrect ? 'correct-answer' : 'wrong-answer'}">${userFormatted}</td>
+                        <td class="correct-answer">${correctFormatted}</td>
+                        <td>${res.isCorrect ? '✔ (+20)' : '❌ (0)'}</td>
+                    `;
+                    resultTableBody.appendChild(row);
+                });
+            }, 500);
+        }
+
+        function addConfetti() {
+            for (let i = 0; i < 60; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `-20px`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.transform = `scale(${Math.random() + 0.5})`;
+                confetti.style.animationDelay = `${Math.random() * 0.8}s`;
+                gameContainer.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 2500);
+            }
+        }
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultsData = [];
+            gameContainer.style.display = 'block';
+            gameContainer.style.opacity = '1';
+            resultDiv.style.display = 'none';
+            checkButton.disabled = false;
+            
+            generateQuestions();
+            displayQuestion();
+        }
+
+        // Event Listeners
+        checkButton.addEventListener('click', checkAnswer);
+        playAgainButton.addEventListener('click', startGame);
+        // Allow pressing Enter to check answer
+        denominatorInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') checkButton.click();
+        });
+
+
+        // Initial Start
+        startGame();
+    </script>
+</body>
+</html>
