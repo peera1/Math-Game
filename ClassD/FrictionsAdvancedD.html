@@ -23,7 +23,7 @@
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             width: 100%;
-            max-width: 700px;
+            max-width: 750px; /* Increased width slightly for the new layout */
             text-align: center;
             position: relative;
             z-index: 1;
@@ -58,20 +58,28 @@
             font-size: 0.9em;
         }
 
-        #question-container {
+        /* --- CSS CORRECTION FOR LAYOUT --- */
+        #equation-wrapper {
             min-height: 100px;
             display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
             justify-content: center;
             align-items: center;
+            gap: 20px;
             font-size: 2.5em;
             margin-bottom: 20px;
             color: #0d47a1;
+        }
+
+        #problem-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
         
         .mixed-number {
             display: inline-flex;
             align-items: center;
-            margin: 0 15px;
             gap: 8px; 
         }
 
@@ -94,27 +102,19 @@
             font-weight: bold;
         }
 
-        #answer-area label {
-            display: block;
-            font-size: 1.2em;
-            color: #1976d2;
-            margin-bottom: 10px;
-        }
-        
         #answer-inputs {
             display: flex;
-            justify-content: center;
             align-items: center;
             gap: 10px;
         }
 
         #answer-inputs input {
-            width: 70px;
-            padding: 10px;
+            width: 60px; /* Slightly smaller to fit layout */
+            padding: 8px;
             border: 2px solid #ddd;
             border-radius: 8px;
             text-align: center;
-            font-size: 1.5em;
+            font-size: 0.8em; /* Relative to the large font size */
             font-family: inherit;
         }
         
@@ -146,36 +146,19 @@
             margin: 25px auto 0 auto;
         }
         
-        #check-button:disabled {
-            background-color: #bdbdbd;
-            cursor: not-allowed;
-        }
+        #check-button:disabled { background-color: #bdbdbd; cursor: not-allowed; }
+        #check-button:hover:not(:disabled) { background: #f4511e; transform: scale(1.05); }
 
-        #check-button:hover:not(:disabled) {
-            background: #f4511e;
-            transform: scale(1.05);
-        }
-
-        #feedback {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-top: 15px;
-            height: 30px;
-        }
-
+        #feedback { font-size: 1.3em; font-weight: bold; margin-top: 15px; height: 30px; }
         #feedback.correct { color: #388e3c; }
         #feedback.incorrect { color: #d32f2f; }
 
         #result {
-            display: none;
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #a5d6a7, #e1f5fe);
-            padding: 20px; border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-            text-align: center; width: 90%; max-width: 800px;
-            max-height: 90vh; overflow-y: auto; z-index: 100;
-            animation: popIn 0.5s ease-out;
+            display: none; position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); background: linear-gradient(135deg, #a5d6a7, #e1f5fe);
+            padding: 20px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+            text-align: center; width: 90%; max-width: 800px; max-height: 90vh;
+            overflow-y: auto; z-index: 100; animation: popIn 0.5s ease-out;
         }
         
         @keyframes popIn {
@@ -202,20 +185,23 @@
         <div id="progress-container">
             <div id="progress-bar"></div>
         </div>
-        <div id="question-container"></div>
-        <div id="answer-area">
-            <label for="whole-input">מה התשובה?</label>
-            <!-- --- HTML CORRECTION FOR INPUTS IS HERE --- -->
+
+        <!-- --- HTML LAYOUT CORRECTION IS HERE --- -->
+        <p>פתרו את התרגיל:</p>
+        <div id="equation-wrapper">
+            <div id="problem-container">
+                <!-- JavaScript will populate this -->
+            </div>
+            <span class="operator">=</span>
             <div id="answer-inputs">
-                <!-- The fraction part comes FIRST in the code to appear on the RIGHT -->
                 <div class="fraction-input-container">
                    <input type="number" id="numerator-input" placeholder="מונה" min="0" tabindex="2">
                    <input type="number" id="denominator-input" placeholder="מכנה" min="1" tabindex="3">
                 </div>
-                <!-- The whole number part comes SECOND in the code to appear on the LEFT -->
                 <input type="number" id="whole-input" placeholder="שלם" min="0" tabindex="1">
             </div>
         </div>
+
         <button id="check-button">בדיקה</button>
         <div id="feedback"></div>
     </div>
@@ -241,7 +227,7 @@
         // DOM Elements
         const gameContainer = document.getElementById('game-container');
         const progressBar = document.getElementById('progress-bar');
-        const questionContainer = document.getElementById('question-container');
+        const problemContainer = document.getElementById('problem-container');
         const wholeInput = document.getElementById('whole-input');
         const numeratorInput = document.getElementById('numerator-input');
         const denominatorInput = document.getElementById('denominator-input');
@@ -263,29 +249,16 @@
         function generateRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
-
-        function gcd(a, b) {
-            return b === 0 ? a : gcd(b, a % b);
-        }
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
         
         // --- Question Generation ---
         function generateMixedNumber(minWhole = 1, maxWhole = 5) {
             const denominators = [2, 3, 4, 5, 6, 7, 8, 9, 10];
             const d = denominators[generateRandomInt(0, denominators.length - 1)];
-            return {
-                w: generateRandomInt(minWhole, maxWhole),
-                n: generateRandomInt(1, d - 1),
-                d: d
-            };
+            return { w: generateRandomInt(minWhole, maxWhole), n: generateRandomInt(1, d - 1), d: d };
         }
-        
-        function toImproper(mn) {
-            return { n: mn.w * mn.d + mn.n, d: mn.d };
-        }
-        
-        function isBigger(mn1, mn2) {
-            return (mn1.w * mn1.d + mn1.n) * mn2.d > (mn2.w * mn2.d + mn2.n) * mn1.d;
-        }
+        function toImproper(mn) { return { n: mn.w * mn.d + mn.n, d: mn.d }; }
+        function isBigger(mn1, mn2) { return (mn1.w * mn1.d + mn1.n) * mn2.d > (mn2.w * mn2.d + mn2.n) * mn1.d; }
 
         function generateQuestions() {
             questions = [];
@@ -293,33 +266,26 @@
                 let num1 = generateMixedNumber();
                 let num2 = generateMixedNumber();
                 
-                if (i % 2 !== 0 && !isBigger(num1, num2)) {
-                    [num1, num2] = [num2, num1]; // For subtraction, ensure num1 is bigger
+                const operator = (i % 2 === 0) ? '+' : '-';
+                if (operator === '-' && !isBigger(num1, num2)) {
+                    [num1, num2] = [num2, num1];
                 }
 
-                const operator = (i % 2 === 0) ? '+' : '-';
-                
                 const imp1 = toImproper(num1);
                 const imp2 = toImproper(num2);
-                
                 const commonDenominator = num1.d * num2.d;
                 let num1_scaled_n = imp1.n * num2.d;
                 let num2_scaled_n = imp2.n * num1.d;
-                
                 let resultNumerator = operator === '+' ? num1_scaled_n + num2_scaled_n : num1_scaled_n - num2_scaled_n;
-
                 const commonDivisor = gcd(resultNumerator, commonDenominator);
                 const simplifiedN = resultNumerator / commonDivisor;
                 const simplifiedD = commonDenominator / commonDivisor;
-                
                 const answer = {
                     w: Math.floor(simplifiedN / simplifiedD),
                     n: simplifiedN % simplifiedD,
                     d: simplifiedD
                 };
-                if (answer.n === 0) {
-                    answer.d = 1;
-                }
+                if (answer.n === 0) answer.d = 1;
 
                 questions.push({ num1, num2, operator, answer, questionString: formatQuestionString(num1, num2, operator) });
             }
@@ -337,11 +303,9 @@
             html += '</div>';
             return html;
         }
-
-        function formatQuestionString(num1, num2, operator) {
-            return `${formatAnswer(num1)} ${operator} ${formatAnswer(num2)}`;
-        }
+        function formatQuestionString(num1, num2, operator) { return `${formatAnswer(num1)} ${operator} ${formatAnswer(num2)}`; }
         
+        // --- JAVASCRIPT CORRECTION IS HERE ---
         function displayQuestion() {
             if (currentQuestionIndex >= TOTAL_QUESTIONS) {
                 endGame();
@@ -353,11 +317,11 @@
             progressBar.textContent = `תרגיל ${currentQuestionIndex + 1} מתוך ${TOTAL_QUESTIONS}`;
 
             const q = questions[currentQuestionIndex];
-            questionContainer.innerHTML = `
+            // Populate only the problem part of the equation
+            problemContainer.innerHTML = `
                 ${createNumberHTML(q.num1)}
                 <span class="operator">${q.operator}</span>
                 ${createNumberHTML(q.num2)}
-                <span class="operator">=</span>
             `;
             
             clearInputs();
@@ -380,7 +344,6 @@
             
             const userAns = { w: userW, n: userN, d: userD };
             const correctAns = questions[currentQuestionIndex].answer;
-            
             const isCorrect = (userAns.w === correctAns.w) && (userAns.n * correctAns.d === correctAns.n * userAns.d);
 
             resultsData.push({
@@ -410,12 +373,8 @@
         }
         
         function formatAnswer(ans) {
-            if (!ans.n || ans.n === 0) {
-                return `${ans.w}`;
-            }
-            if (!ans.w || ans.w === 0) {
-                return `${ans.n}/${ans.d}`;
-            }
+            if (!ans.n || ans.n === 0) return `${ans.w}`;
+            if (!ans.w || ans.w === 0) return `${ans.n}/${ans.d}`;
             return `${ans.w} ו-${ans.n}/${ans.d}`;
         }
 
