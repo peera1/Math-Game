@@ -66,6 +66,7 @@
             font-size: 2.5em;
             margin-bottom: 20px;
             color: #0d47a1;
+            direction: ltr; 
         }
         
         .mixed-number {
@@ -106,6 +107,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            direction: ltr;
         }
 
         #answer-inputs input {
@@ -205,15 +207,12 @@
         <div id="question-container"></div>
         <div id="answer-area">
             <label for="whole-input">מה התשובה?</label>
-            <!-- --- HTML CORRECTION FOR INPUTS IS HERE --- -->
             <div id="answer-inputs">
-                <!-- The fraction part comes FIRST in the code to appear on the RIGHT -->
+                <input type="number" id="whole-input" placeholder="שלם" min="0" tabindex="1">
                 <div class="fraction-input-container">
                    <input type="number" id="numerator-input" placeholder="מונה" min="0" tabindex="2">
                    <input type="number" id="denominator-input" placeholder="מכנה" min="1" tabindex="3">
                 </div>
-                <!-- The whole number part comes SECOND in the code to appear on the LEFT -->
-                <input type="number" id="whole-input" placeholder="שלם" min="0" tabindex="1">
             </div>
         </div>
         <button id="check-button">בדיקה</button>
@@ -293,11 +292,14 @@
                 let num1 = generateMixedNumber();
                 let num2 = generateMixedNumber();
                 
-                if (i % 2 !== 0 && !isBigger(num1, num2)) {
+                // --- התיקון כאן ---
+                // קובעים פעולה אקראית במקום לפי זוגי/אי-זוגי
+                const operator = Math.random() < 0.5 ? '+' : '-';
+
+                // אם נבחר חיסור, נוודא שהמספר הראשון גדול מהשני
+                if (operator === '-' && !isBigger(num1, num2)) {
                     [num1, num2] = [num2, num1]; // For subtraction, ensure num1 is bigger
                 }
-
-                const operator = (i % 2 === 0) ? '+' : '-';
                 
                 const imp1 = toImproper(num1);
                 const imp2 = toImproper(num2);
@@ -328,11 +330,11 @@
         // --- Display Functions ---
         function createNumberHTML(mn) {
             let html = '<div class="mixed-number">';
-            if (mn.n > 0) {
-              html += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
-            }
             if (mn.w > 0) {
                 html += `<span class="whole">${mn.w}</span>`;
+            }
+            if (mn.n > 0) {
+              html += `<span class="fraction"><span class="numerator">${mn.n}</span><span class="denominator">${mn.d}</span></span>`;
             }
             html += '</div>';
             return html;
