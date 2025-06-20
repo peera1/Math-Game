@@ -1,164 +1,252 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק חשבון - כיתה א</title>
+    <title>משחק חשבון לאלופים!</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #00b894;
+            --secondary-color: #fdcb6e;
+            --wrong-color: #d63031;
+            --text-color: #2d3436;
+            --light-bg: #dfe6e9;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Varela Round', sans-serif;
             text-align: center;
-            background: linear-gradient(135deg, #e0f7fa, #80deea);
-            font-size: 18px;
+            background: linear-gradient(to bottom, #87CEEB, #a2d2ff);
+            font-size: 20px;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             overflow-y: auto;
         }
-        #game-container {
-            margin: 40px auto;
-            width: 80%;
-            max-width: 600px;
-            padding: 30px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            position: relative;
-        }
-        h1 {
-            font-size: 40px;
-            color: #0288d1;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        .hidden { display: none; }
         
-        #progress-container {
-            width: 100%;
-            background-color: #b0bec5;
-            border-radius: 15px;
-            margin: 20px auto;
-            height: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(to right, #4CAF50, #81C784);
-            border-radius: 15px;
-            text-align: center;
-            line-height: 30px;
-            color: white;
-            font-weight: bold;
-            transition: width 0.5s ease;
-        }
-        #score {
-            font-size: 24px;
-            color: #f57c00;
-            margin: 15px 0;
-        }
-        #question-number {
-            font-size: 22px;
-            color: #0288d1;
-        }
-        #question {
-            font-size: 28px;
-            color: #d81b60;
-            margin: 20px 0;
-        }
-        #answer {
-            width: 120px;
-            padding: 10px;
-            font-size: 18px;
-            border: 2px solid #0288d1;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        button {
-            padding: 12px 30px;
-            font-size: 18px;
-            background: linear-gradient(to right, #0288d1, #4fc3f7);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        button:hover {
-            transform: scale(1.05);
-        }
-        #feedback {
-            font-size: 20px;
-            margin-top: 15px;
-            color: #d81b60;
-        }
-        #summary-table {
-            margin: 30px auto;
-            border-collapse: collapse;
-            width: 90%;
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        #summary-table th, #summary-table td {
-            border: 2px solid #4CAF50;
-            padding: 15px;
-            text-align: center;
-        }
-        #summary-table th {
-            background: linear-gradient(to right, #4CAF50, #81C784);
-            color: white;
-            font-size: 20px;
-        }
-        #summary-table td {
-            font-size: 18px;
-            color: #2c3e50;
-        }
-        #summary-table tr:nth-child(even) {
-            background-color: #f1f8e9;
-        }
-        #summary-message {
-            font-size: 22px;
-            color: #2c3e50;
-            margin: 30px 0;
-            line-height: 1.6;
-            background: #e8f5e9;
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px dashed #4CAF50;
-        }
-        .confetti-container {
+        #background-animation {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: -1;
             pointer-events: none;
-            z-index: 9999;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(2px);
+            animation: move-clouds 80s linear infinite;
+        }
+        
+        .cloud.c1 { width: 200px; height: 60px; top: 10%; left: -250px; }
+        .cloud.c2 { width: 250px; height: 80px; top: 30%; left: -300px; animation-delay: -20s; }
+        .cloud.c3 { width: 180px; height: 50px; top: 70%; left: -200px; animation-delay: -40s; }
+        .cloud.c4 { width: 300px; height: 90px; top: 50%; left: -350px; animation-delay: -60s; }
+
+        @keyframes move-clouds {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 400px)); }
+        }
+
+        #game-wrapper {
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            margin: 40px 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        h1 {
+            font-size: 48px;
+            color: #ff6347;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 span {
+            font-size: 36px;
+            vertical-align: middle;
+        }
+
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: var(--light-bg);
+            border-radius: 20px;
+            margin: 20px auto;
+            height: 30px;
+            overflow: hidden;
+            border: 3px solid white;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #fdcb6e, #fab1a0);
+            border-radius: 15px;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            transition: width 0.5s ease-in-out;
+        }
+        #score {
+            font-size: 28px;
+            color: #e84393;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        #question-container {
+            padding: 20px;
+            margin: 15px 0;
+            background: #f5f6fa;
+            border-radius: 20px;
+            animation: pop-in 0.5s ease-out;
+        }
+        
+        @keyframes pop-in {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #question-number {
+            font-size: 24px;
+            color: var(--primary-color);
+        }
+        #question {
+            font-size: 60px;
+            color: var(--text-color);
+            margin: 10px 0;
+            font-weight: bold;
+            direction: ltr;
+        }
+        #answer {
+            width: 150px;
+            padding: 12px;
+            font-size: 34px;
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Varela Round', sans-serif;
+        }
+        #answer:focus {
+            outline: none;
+            box-shadow: 0 0 0 5px rgba(0, 184, 148, 0.3);
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 26px;
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            border-bottom: 5px solid #b71540;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        button:active {
+            transform: translateY(1px);
+            border-bottom-width: 3px;
+        }
+        #feedback {
+            font-size: 28px;
+            margin-top: 15px;
+            font-weight: bold;
+            height: 35px;
+        }
+        
+        #summary-table {
+            margin: 25px auto;
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        #summary-table th, #summary-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+            font-size: 20px;
+        }
+        #summary-table th {
+            background: var(--primary-color);
+            color: white;
+        }
+        #summary-table tr:nth-child(even) {
+            background-color: #f7f1e3;
+        }
+        #summary-message {
+            font-size: 22px;
+            color: var(--text-color);
+            margin: 25px 0;
+            line-height: 1.7;
+            background: #fffae5;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px dashed var(--secondary-color);
+        }
+        #summary h2 {
+            font-size: 42px;
+            color: var(--primary-color);
         }
     </style>
 </head>
 
 <body>
-    <div id="game-container">
-        <h1>שאלון חשבון לאלופים - כיתה א</h1>
-        
-        <div id="progress-container">
-            <div id="progress-bar">0%</div>
+    <div id="background-animation">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+        <div class="cloud c4"></div>
+    </div>
+
+    <div id="game-wrapper">
+        <h1><span>⭐</span> משחק חשבון לאלופים <span>⭐</span></h1>
+
+        <div id="game-container">
+            <div id="progress-container">
+                <div id="progress-bar">0%</div>
+            </div>
+            <p id="score">❤️ ניקוד: 0</p>
+            
+            <div id="question-container">
+                <p id="question-number"></p>
+                <p id="question"></p>
+            </div>
+            
+            <input type="number" id="answer" placeholder="תשובה">
+            <br>
+            <button onclick="checkAnswer()">בדיקה</button>
+            <p id="feedback"></p>
         </div>
-        <p id="score">ניקוד: 0</p>
-        <p id="question-number"></p>
-        <p id="question"></p>
-        <input type="number" id="answer" placeholder="הקלד תשובה">
-        <button onclick="checkAnswer()">בדיקה</button>
-        <p id="feedback"></p>
 
         <div id="summary" class="hidden">
-            <h2>כל הכבוד, אלוף!</h2>
+            <h2>כל הכבוד, סיימת! אתה אלוף העולם!</h2>
             <table id="summary-table">
                 <thead>
                     <tr><th>שאלה</th><th>תרגיל</th><th>תשובה</th><th>זמן (שניות)</th></tr>
@@ -166,144 +254,172 @@
                 <tbody id="summary-body"></tbody>
             </table>
             <div id="summary-message">
-                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית בפתרון התרגילים! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
+                אנא קרא לאבא או אמא לקבל חיבוק גדול ונשיקה על המאמץ המקסים שעשית! מי שמזיע ומשקיע יגיע למקומות יפים בחיים. זה לא תמיד קל, אבל בסופו של דבר אבא מבטיח לך שזה ישתלם מאוד. אבא מעריך מאוד את מי שעובד קשה ולא מתבטל כל היום מול המסכים.
             </div>
+            <button onclick="location.reload()">שחק שוב!</button>
         </div>
     </div>
-    <div class="confetti-container" id="confetti-container"></div>
 
     <script>
+        const TOTAL_QUESTIONS = 10;
         let questions = [];
         let currentQuestion = 0;
         let startTime;
-        let times = [];
         let score = 0;
         let questionDetails = [];
+        
+        const positiveFeedback = ["כל הכבוד!", "אתה גאון!", "פשוט תותח!", "איזה אלוף!", "מעולה!", "בדיוק!"];
+        const answerInput = document.getElementById("answer");
+        const feedbackEl = document.getElementById("feedback");
 
+        // *** שינוי: הפונקציה יוצרת רק תרגילי חיבור ***
         function generateQuestion() {
             let num1 = Math.floor(Math.random() * 11);
             let num2 = Math.floor(Math.random() * (11 - num1));
-            let questionStr = `${num1} + ${num2}`;
+            let questionStr = `${num1} + ${num2} =`;
             let answer = num1 + num2;
             return { questionStr, answer };
         }
 
+        // *** שינוי: הפונקציה הזו מפעילה את המשחק ***
         function startGame() {
-            for (let i = 0; i < 10; i++) {
+            questions = [];
+            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
                 questions.push(generateQuestion());
             }
+            currentQuestion = 0;
+            score = 0;
+            questionDetails = [];
+            document.getElementById("score").innerText = `❤️ ניקוד: ${score}`;
             updateProgress();
             nextQuestion();
         }
 
-        function createConfetti() {
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 },
-                    colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FDCB6E'],
-                    shapes: ['star', 'circle']
-                });
-            } else {
-                console.warn('Confetti library not loaded');
-            }
-        }
-
-        function createStars() {
-            const container = document.getElementById('confetti-container');
-            container.innerHTML = '';
-            for (let i = 0; i < 20; i++) {
-                const star = document.createElement('div');
-                star.style.position = 'absolute';
-                star.style.width = '20px';
-                star.style.height = '20px';
-                star.style.background = 'yellow';
-                star.style.clipPath = 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)';
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                star.style.animation = `fall ${Math.random() * 2 + 1}s linear`;
-                container.appendChild(star);
-                setTimeout(() => star.remove(), 2000);
-            }
-        }
-
         function nextQuestion() {
-            if (currentQuestion >= questions.length) {
+            if (currentQuestion >= TOTAL_QUESTIONS) {
                 showSummary();
                 return;
             }
-            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך 10`;
+            const questionContainer = document.getElementById("question-container");
+            questionContainer.style.animation = 'none';
+            void questionContainer.offsetWidth;
+            questionContainer.style.animation = 'pop-in 0.5s ease-out';
+
+            document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${TOTAL_QUESTIONS}`;
             document.getElementById("question").innerText = questions[currentQuestion].questionStr;
-            document.getElementById("answer").value = "";
-            document.getElementById("feedback").innerText = "";
+            answerInput.value = "";
+            feedbackEl.innerText = "";
+            answerInput.focus();
             startTime = new Date();
         }
 
         function checkAnswer() {
-            let userAnswer = parseFloat(document.getElementById("answer").value);
+            if (answerInput.value === "") return;
+            
+            let userAnswer = parseInt(answerInput.value, 10);
             let correctAnswer = questions[currentQuestion].answer;
-            if (userAnswer === correctAnswer) {
-                let endTime = new Date();
-                let timeTaken = Math.round((endTime - startTime) / 1000);
-                times.push(timeTaken);
-                
-                // עדכון ניקוד ותגמול
-                score += 10 + (timeTaken < 5 ? 5 : 0); // בונוס על מהירות
-                document.getElementById("score").innerText = `ניקוד: ${score}`;
-                questionDetails.push({
-                    question: questions[currentQuestion].questionStr,
-                    answer: correctAnswer,
-                    time: timeTaken
-                });
 
-                // אפקטים ויזואליים
-                currentQuestion % 2 === 0 ? createConfetti() : createStars();
-                document.getElementById("feedback").innerText = "כל הכבוד, אתה אלוף!";
-                document.getElementById("feedback").style.color = "#4CAF50";
-                
-                currentQuestion++;
-                updateProgress();
-                setTimeout(nextQuestion, 1000); // עיכוב קל להנאה מהאפקט
+            if (userAnswer === correctAnswer) {
+                handleCorrectAnswer(correctAnswer);
             } else {
-                document.getElementById("feedback").innerText = "נסה שוב, אתה יכול!";
+                handleWrongAnswer();
             }
         }
 
+        function handleCorrectAnswer(correctAnswer) {
+            let endTime = new Date();
+            let timeTaken = Math.round((endTime - startTime) / 1000);
+            
+            score += 10;
+            if (timeTaken < 5) score += 5;
+            
+            document.getElementById("score").innerText = `❤️ ניקוד: ${score}`;
+            
+            questionDetails.push({
+                question: questions[currentQuestion].questionStr,
+                answer: correctAnswer,
+                time: timeTaken
+            });
+            
+            const randomFeedback = positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)];
+            feedbackEl.innerText = `✅ ${randomFeedback}`;
+            feedbackEl.style.color = "var(--primary-color)";
+
+            fireConfetti();
+            
+            currentQuestion++;
+            updateProgress();
+            
+            setTimeout(nextQuestion, 1200);
+        }
+
+        function handleWrongAnswer() {
+            feedbackEl.innerText = "🤔 נסה שוב, אתה יכול!";
+            feedbackEl.style.color = "var(--wrong-color)";
+            answerInput.style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                answerInput.style.animation = '';
+            }, 500);
+            answerInput.value = "";
+            answerInput.focus();
+        }
+
         function updateProgress() {
-            let progress = (currentQuestion / questions.length) * 100;
-            if (currentQuestion === questions.length) progress = 100;
+            let progress = (currentQuestion / TOTAL_QUESTIONS) * 100;
             document.getElementById("progress-bar").style.width = progress + "%";
             document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
         }
 
         function showSummary() {
+            document.getElementById("game-container").classList.add("hidden");
+            document.getElementById("summary").classList.remove("hidden");
+            
             let summaryBody = document.getElementById("summary-body");
             summaryBody.innerHTML = "";
             questionDetails.forEach((detail, i) => {
                 let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
                 summaryBody.innerHTML += row;
             });
-            document.getElementById("summary").classList.remove("hidden");
-            updateProgress();
-
-            // חגיגה סופית
-            createConfetti();
-            setTimeout(createStars, 500);
-            setTimeout(createConfetti, 1000);
+            
+            finalCelebration();
+        }
+        
+        function fireConfetti() {
+             if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#636e72', '#fdcb6e', '#e17055', '#00b894', '#0984e3']
+                });
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', startGame);
+        function finalCelebration() {
+            if (typeof confetti !== 'function') return;
+            setTimeout(() => confetti({ particleCount: 100, angle: 60, spread: 55, origin: { x: 0 } }), 100);
+            setTimeout(() => confetti({ particleCount: 100, angle: 120, spread: 55, origin: { x: 1 } }), 300);
+            setTimeout(() => confetti({ particleCount: 200, spread: 360, startVelocity: 30, origin: { x: 0.5, y: 0.3 } }), 500);
+        }
 
-        // אנימציה לכוכבים
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = `
-            @keyframes fall {
-                0% { transform: translateY(-100vh) rotate(0deg); }
-                100% { transform: translateY(100vh) rotate(360deg); }
+        answerInput.addEventListener("keyup", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.querySelector("#game-container button").click();
             }
-        `;
+        });
+
+        const styleSheet = document.createElement("style");
+        styleSheet.textContent = `@keyframes shake {
+                10%, 90% { transform: translateX(-3px); }
+                20%, 80% { transform: translateX(3px); }
+                30%, 50%, 70% { transform: translateX(-5px); }
+                40%, 60% { transform: translateX(5px); }
+            }`;
         document.head.appendChild(styleSheet);
+        
+        // *** שינוי: מפעיל את המשחק אוטומטית כשהדף נטען ***
+        document.addEventListener('DOMContentLoaded', startGame);
     </script>
 </body>
 </html>
