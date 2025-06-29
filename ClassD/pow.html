@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>גיבורי החזקות</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ecf0f1;
+            font-size: 18px;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #game-container {
+            width: 90%;
+            max-width: 650px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border: 5px solid #FFD700;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1::before, h1::after {
+            content: '⚡';
+            color: #f1c40f;
+            margin: 0 15px;
+        }
+
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #bdc3c7;
+            border-radius: 15px;
+            margin: 25px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #95a5a6;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #f1c40f, #f39c12);
+            border-radius: 13px;
+            text-align: center;
+            line-height: 30px;
+            color: #2c3e50;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #score {
+            font-size: 26px;
+            color: #2980b9;
+            margin: 15px 0;
+            font-weight: 700;
+        }
+
+        #question-number {
+            font-size: 22px;
+            color: #8e44ad;
+        }
+
+        #question {
+            font-size: 60px;
+            color: #c0392b;
+            margin: 30px 0;
+            font-weight: 700;
+            animation: newQuestionPop 0.5s ease;
+        }
+
+        @keyframes newQuestionPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        #question sup {
+            font-size: 0.6em;
+            vertical-align: super;
+        }
+
+        #answer {
+            width: 150px;
+            padding: 12px;
+            font-size: 20px;
+            border: 3px solid #3498db;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        #answer:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+            outline: none;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 4px solid #96281b;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            border-bottom-width: 2px;
+        }
+
+        #feedback {
+            font-size: 22px;
+            margin-top: 20px;
+            font-weight: 700;
+            min-height: 28px;
+        }
+
+        #summary {
+            animation: summaryAppear 1s ease-out;
+        }
+
+        @keyframes summaryAppear {
+             from { opacity: 0; transform: translateY(30px); }
+             to { opacity: 1; transform: translateY(0); }
+        }
+
+        #summary h2 {
+            font-size: 40px;
+            color: #27ae60;
+        }
+        
+        #summary-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #summary-table th, #summary-table td {
+            border: 2px solid #2980b9;
+            padding: 15px;
+            text-align: center;
+        }
+
+        #summary-table th {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            font-size: 20px;
+        }
+
+        #summary-table td {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        #summary-table tr:nth-child(even) {
+            background-color: #ecf0f1;
+        }
+        
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.7;
+            background: #e8f8f5;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px dashed #1abc9c;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>גיבורי החזקות</h1>
+        
+        <div id="game-area">
+            <div id="progress-container">
+                <div id="progress-bar">0%</div>
+            </div>
+            <p id="score">ניקוד: 0</p>
+            <p id="question-number"></p>
+            <p id="question"></p>
+            <input type="number" id="answer" placeholder="התשובה שלך" onkeyup="if(event.keyCode === 13) checkAnswer()">
+            <br>
+            <button onclick="checkAnswer()">שחרר את הכוח!</button>
+            <p id="feedback"></p>
+        </div>
+
+        <div id="summary" class="hidden">
+            <h2>משימה הושלמה, את/ה גיבור/ת על!</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>שאלה</th><th>האתגר</th><th>התוצאה</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                כל הכבוד על המאמץ וההשקעה! השלמת את משימת החזקות כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את "שריר המוח" והופך את כוח העל שלך במתמטיקה לחזק עוד יותר! אבא ואמא גאים בך מאוד על הנחישות והרצון להצליח!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NUM_OF_QUESTIONS = 10;
+        let questions = [];
+        let currentQuestion = 0;
+        let startTime;
+        let score = 0;
+        let questionDetails = [];
+
+        function generateQuestion() {
+            // בסיס בין 2 ל-10
+            const base = Math.floor(Math.random() * 9) + 2; 
+            // חזקה 2 או 3 - מתאים לכיתה ד'
+            const exponent = Math.floor(Math.random() * 2) + 2; 
+            
+            const questionStr = `${base}<sup>${exponent}</sup>`;
+            const answer = Math.pow(base, exponent);
+            return { questionStr, answer };
+        }
+
+        function startGame() {
+            for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
+                let newQ;
+                // לוודא שאין שאלות כפולות
+                do {
+                    newQ = generateQuestion();
+                } while (questions.some(q => q.questionStr === newQ.questionStr));
+                questions.push(newQ);
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#e74c3c', '#f1c40f', '#3498db', '#ffffff'],
+                    shapes: ['star', 'circle']
+                });
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary();
+                return;
+            }
+            document.getElementById("game-area").style.animation = 'none';
+            void document.getElementById("game-area").offsetWidth; // Trigger reflow
+            document.getElementById("game-area").style.animation = 'newQuestionPop 0.5s ease';
+
+            document.getElementById("question-number").innerText = `משימה ${currentQuestion + 1} מתוך ${NUM_OF_QUESTIONS}`;
+            document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("answer").focus();
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        function checkAnswer() {
+            const answerInput = document.getElementById("answer");
+            let userAnswer = parseInt(answerInput.value);
+
+            if (isNaN(userAnswer)) {
+                document.getElementById("feedback").innerText = "יש להקליד תשובה מספרית, גיבור/ה!";
+                document.getElementById("feedback").style.color = "#e74c3c";
+                return;
+            }
+
+            let correctAnswer = questions[currentQuestion].answer;
+            if (userAnswer === correctAnswer) {
+                const endTime = new Date();
+                const timeTaken = Math.round((endTime - startTime) / 1000);
+                
+                // עדכון ניקוד ותגמול
+                score += 10 + (timeTaken < 10 ? 5 : 0); // בונוס על מהירות
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+                questionDetails.push({
+                    question: questions[currentQuestion].questionStr,
+                    answer: correctAnswer,
+                    time: timeTaken
+                });
+
+                // אפקטים ומשוב חיובי
+                createConfetti();
+                document.getElementById("feedback").innerText = "כוח אדיר! תשובה נכונה!";
+                document.getElementById("feedback").style.color = "#27ae60";
+                
+                currentQuestion++;
+                updateProgress();
+                setTimeout(nextQuestion, 1500); // עיכוב להנאה מההצלחה
+            } else {
+                document.getElementById("feedback").innerText = "אוי... כמעט! נסה/י לרכז את הכוח שוב!";
+                document.getElementById("feedback").style.color = "#c0392b";
+                answerInput.style.animation = 'shake 0.5s';
+                setTimeout(() => answerInput.style.animation = '', 500);
+            }
+        }
+
+        function updateProgress() {
+            let progress = (currentQuestion / questions.length) * 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        function showSummary() {
+            document.getElementById("game-area").classList.add("hidden");
+            
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach((detail, i) => {
+                let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+            updateProgress();
+
+            // חגיגת סיום מפוארת
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+              const timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              const particleCount = 50 * (timeLeft / duration);
+              // since particles fall down, start a bit higher than random
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#e74c3c', '#f1c40f'] }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#3498db', '#ffffff'] }));
+            }, 250);
+        }
+
+        document.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
