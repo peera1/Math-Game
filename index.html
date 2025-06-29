@@ -327,6 +327,10 @@
                 <button class="button deep-purple" onclick="openLinkWithConfetti('ClassD/div_advanced.html')">
                     <i class="fas fa-divide"></i> חילוק מתקדם
                 </button>
+                 <!-- כפתור חדש לחזקות -->
+                <button class="button radiant" onclick="openLinkWithConfetti('ClassD/pow.html')">
+                    <i class="fas fa-bolt"></i> חזקות
+                </button>
                 <button class="button science-blue" onclick="openLinkWithConfetti('ClassD/prime_number.html')">
                     <i class="fas fa-atom"></i> מספרים ראשוניים
                 </button>
@@ -360,7 +364,8 @@
             });
 
             setTimeout(() => {
-                window.open(url, '_blank');
+                // שינוי לפתיחה באותו חלון במקום חלון חדש
+                window.location.href = url;
             }, 500);
         }
 
