@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק פאזל קל | 5 חלקים לכיתה א'</title>
+    <style>
+        /* --- General Styles --- */
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #ff6b81; 
+            --success-color: #70a1ff; 
+            --error-color: #ff4757;
+            --background-color: #f8f9fa;
+            --tile-color: #ffda79; 
+            --text-color: #343a40;
+            --puzzle-image-url: url(''); 
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 450px; /* קטן יותר, מתאים לפאזל קטן */
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: opacity 0.5s, transform 0.5s;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        /* --- Puzzle Grid for 5 Pieces --- */
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* יוצר 3 עמודות */
+            gap: 8px;
+            margin-bottom: 25px;
+            border: 5px solid var(--tile-color);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .puzzle-piece {
+            aspect-ratio: 1 / 1;
+            background-color: var(--tile-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            color: white;
+            font-weight: bold;
+            background-image: linear-gradient(135deg, #ffda79, #ffb142);
+            cursor: default;
+            transition: all 0.6s ease-in-out;
+            transform-style: preserve-3d;
+            background-size: 300% 300%; /* גודל רקע שמתאים לרשת 3x3 */
+        }
+
+        .puzzle-piece::before { content: '?'; }
+        
+        .puzzle-piece.revealed {
+            transform: rotateY(180deg);
+            background-image: var(--puzzle-image-url);
+            background-color: transparent;
+        }
+
+        .puzzle-piece.revealed::before { content: ''; }
+        
+        /* מיקום חלקי הפאזל החדש */
+        #piece-0.revealed { background-position: 0% 0%; }    /* שמאל למעלה */
+        #piece-1.revealed { background-position: 50% 0%; }    /* אמצע למעלה */
+        #piece-2.revealed { background-position: 100% 0%; }   /* ימין למעלה */
+        
+        /* מיקום החלק הרביעי (מתחת לאמצעי) */
+        #piece-3 { grid-column: 2; grid-row: 2; }
+        #piece-3.revealed { background-position: 50% 50%; } /* מרכז התמונה */
+
+        /* מיקום החלק החמישי (מתחת לרביעי) */
+        #piece-4 { grid-column: 2; grid-row: 3; }
+        #piece-4.revealed { background-position: 50% 100%; } /* תחתית התמונה */
+
+        /* --- Question Area (Same as before) --- */
+        .question-area { padding: 20px; background: #fff0f5; border-radius: 12px; }
+        #question-text { font-size: 2.2em; font-weight: bold; margin-bottom: 20px; min-height: 50px; letter-spacing: 5px; }
+        .answer-wrapper { display: flex; justify-content: center; gap: 10px; }
+        #answer-input { padding: 10px 15px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5em; text-align: center; width: 120px; transition: transform 0.2s; }
+        #submit-btn { padding: 10px 25px; border: none; background-color: var(--primary-color); color: white; font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+        #submit-btn:hover { background-color: #ff4757; transform: translateY(-2px); }
+
+        /* --- Feedback & Final Screen Styles (Same as before) --- */
+        .correct-flash { animation: flash-green 0.7s ease; }
+        @keyframes flash-green { 0%, 100% { background-color: var(--background-color); } 50% { background-color: #e6f7ff; } }
+        .incorrect-shake { animation: shake 0.5s ease; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        #feedback-text { margin-top: 10px; font-size: 1.1em; font-weight: bold; height: 25px; }
+        #feedback-text.correct { color: var(--success-color); }
+        #feedback-text.incorrect { color: var(--error-color); }
+
+        .final-screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 100; padding: 20px; box-sizing: border-box; }
+        .final-screen.visible { display: flex; animation: fadeIn 1s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .final-content { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); max-width: 700px; max-height: 90vh; overflow-y: auto; }
+        .final-content h2 { font-size: 3em; color: transparent; background: linear-gradient(45deg, #ff6b81, #70a1ff, #ffda79); background-clip: text; -webkit-background-clip: text; }
+        .final-image { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
+        .final-letter { font-size: 1.2em; line-height: 1.8; text-align: center; }
+        
+        .confetti { position: absolute; width: 10px; height: 20px; background-color: #f00; top: -20px; opacity: 0.8; animation: fall 5s linear infinite; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="game-container" class="game-container">
+        <h1>פאזל קל ומהנה! 🧩</h1>
+        <p>פתרו 5 תרגילים וגלו איזו חיה מסתתרת.</p>
+        
+        <div class="puzzle-grid" id="puzzle-grid">
+             <!-- 5 חלקי הפאזל ייווצרו כאן -->
+        </div>
+
+        <div class="question-area">
+            <div id="question-text">טוען שאלה...</div>
+            <div class="answer-wrapper">
+                <input type="number" id="answer-input" placeholder="כתבו כאן">
+                <button id="submit-btn">בדיקה</button>
+            </div>
+            <div id="feedback-text"></div>
+        </div>
+    </div>
+
+    <div id="final-screen" class="final-screen">
+        <div id="confetti-container"></div>
+        <div class="final-content">
+            <h2>🎉 כל הכבוד, אלופים! 🎉</h2>
+            <img src="" alt="התמונה שהרכבתם" class="final-image" id="final-puzzle-image">
+            
+            <h3>איזה יופי של עבודה!</h3>
+            <p class="final-letter">
+                הצלחתם לפתור את כל התרגילים והרכבתם פאזל נהדר!
+                <br>
+                ראיתם? כל תשובה נכונה גילתה עוד חתיכה מהתמונה.
+                <br>
+                ככה זה גם בלימודים - כל דבר חדש שלומדים
+                <br>
+                הוא עוד חלק שעוזר לנו להבין את העולם.
+                <br><br>
+                <strong>אתם תותחים! המשיכו ככה!</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+    // מאגר תמונות חמודות לכיתה א'
+    const imagePool = [ 'https://i.imgur.com/uStmG8k.jpg', 'https://i.imgur.com/3Z3SoLg.jpg', 'https://i.imgur.com/4l3n2IS.jpg', 'https://i.imgur.com/7gK7kE5.jpg', 'https://i.imgur.com/v1nFN0c.jpg', 'https://i.imgur.com/L4uA428.jpg', 'https://i.imgur.com/qE1mYNC.jpg', 'https://i.imgur.com/a9ME9gW.jpg', 'https://i.imgur.com/5J3t3j2.jpg' ];
+
+    // פונקציית עזר למספר אקראי
+    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    // יצירת שאלת חיבור עד 10
+    function generateAdditionQuestion() {
+        const answer = randomInt(2, 10);
+        const num1 = randomInt(1, answer - 1);
+        const num2 = answer - num1;
+        return { question: `${num1} + ${num2}`, answer: answer };
+    }
+
+    // לוגיקת המשחק
+    const NUM_OF_PIECES = 5; // הגדרת מספר החלקים
+    let currentQuestionIndex = 0;
+    let gameQuestions = [];
+    let selectedImageUrl = '';
+
+    const questionTextEl = document.getElementById('question-text');
+    const answerInputEl = document.getElementById('answer-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const puzzleGrid = document.getElementById('puzzle-grid');
+    const feedbackTextEl = document.getElementById('feedback-text');
+    const bodyEl = document.querySelector('body');
+    const gameContainerEl = document.getElementById('game-container');
+    const finalScreenEl = document.getElementById('final-screen');
+    const finalImageEl = document.getElementById('final-puzzle-image');
+
+    function initGame() {
+        selectedImageUrl = imagePool[randomInt(0, imagePool.length - 1)];
+        document.documentElement.style.setProperty('--puzzle-image-url', `url(${selectedImageUrl})`);
+        finalImageEl.src = selectedImageUrl;
+
+        puzzleGrid.innerHTML = '';
+        for (let i = 0; i < NUM_OF_PIECES; i++) { // לולאה עד 5
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.id = `piece-${i}`;
+            puzzleGrid.appendChild(piece);
+        }
+        
+        gameQuestions = [];
+        for (let i = 0; i < NUM_OF_PIECES; i++) { // יצירת 5 שאלות
+            gameQuestions.push(generateAdditionQuestion());
+        }
+
+        currentQuestionIndex = 0;
+        displayQuestion();
+    }
+
+    function displayQuestion() {
+        if (currentQuestionIndex < gameQuestions.length) {
+            const questionData = gameQuestions[currentQuestionIndex];
+            questionTextEl.innerHTML = `? = ${questionData.question}`;
+            answerInputEl.value = '';
+            answerInputEl.focus();
+            feedbackTextEl.textContent = '';
+            feedbackTextEl.className = '';
+        } else {
+            endGame();
+        }
+    }
+
+    function checkAnswer() {
+        const userAnswer = parseInt(answerInputEl.value);
+        if (isNaN(userAnswer)) {
+            feedbackTextEl.textContent = 'צריך לכתוב מספר!';
+            feedbackTextEl.className = 'incorrect';
+            answerInputEl.classList.add('incorrect-shake');
+            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
+            return;
+        }
+
+        if (userAnswer === gameQuestions[currentQuestionIndex].answer) {
+            feedbackTextEl.textContent = 'כל הכבוד! תשובה נכונה! ✨';
+            feedbackTextEl.className = 'correct';
+            bodyEl.classList.add('correct-flash');
+            document.getElementById(`piece-${currentQuestionIndex}`).classList.add('revealed');
+            
+            currentQuestionIndex++;
+            
+            setTimeout(() => {
+                bodyEl.classList.remove('correct-flash');
+                displayQuestion();
+            }, 1500);
+        } else {
+            feedbackTextEl.textContent = 'אוי, זו לא התשובה. נסו שוב!';
+            feedbackTextEl.className = 'incorrect';
+            answerInputEl.classList.add('incorrect-shake');
+            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
+        }
+    }
+
+    function endGame() {
+         gameContainerEl.style.opacity = '0';
+         gameContainerEl.style.transform = 'scale(0.8)';
+         setTimeout(() => {
+            gameContainerEl.style.display = 'none';
+            finalScreenEl.classList.add('visible');
+            launchConfetti();
+         }, 500);
+    }
+    
+    function launchConfetti() {
+        const confettiContainer = document.getElementById('confetti-container');
+        const colors = ['#ff6b81', '#70a1ff', '#ffda79', '#ff4757', '#5352ed'];
+        if(confettiContainer.children.length > 0) return;
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 5 + 's';
+            confetti.style.width = (Math.random() * 8 + 5) + 'px';
+            confetti.style.height = (Math.random() * 15 + 10) + 'px';
+            confettiContainer.appendChild(confetti);
+        }
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    answerInputEl.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            checkAnswer();
+        }
+    });
+
+    // התחלת המשחק
+    initGame();
+    </script>
+</body>
+</html>
