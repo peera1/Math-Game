@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>משחק פאזל קל | 5 חלקים לכיתה א'</title>
+    <title>הרפתקת פאזל בחשבון | כיתה א'</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
     <style>
-        /* --- General Styles --- */
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap');
 
         :root {
             --primary-color: #ff6b81; 
+            --secondary-color: #ffc312;
             --success-color: #70a1ff; 
-            --error-color: #ff4757;
-            --background-color: #f8f9fa;
-            --tile-color: #ffda79; 
+            --background-color: #fef8f0;
             --text-color: #343a40;
             --puzzle-image-url: url(''); 
         }
@@ -31,40 +30,97 @@
             text-align: center;
         }
 
-        .game-container {
+        .container-box {
             width: 100%;
-            max-width: 450px; /* קטן יותר, מתאים לפאזל קטן */
+            max-width: 550px;
             background: white;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(255, 107, 129, 0.2);
+            border: 3px solid var(--secondary-color);
             transition: opacity 0.5s, transform 0.5s;
         }
 
         h1 {
             color: var(--primary-color);
-            margin-bottom: 5px;
+            font-weight: 900;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        h1 i {
+            color: var(--secondary-color);
         }
 
         p {
-            font-size: 1.1em;
-            margin-bottom: 20px;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            color: #6c757d;
         }
 
-        /* --- Puzzle Grid for 5 Pieces --- */
+        /* --- Start Screen Styles --- */
+        #start-screen .intro-text {
+            margin-bottom: 30px;
+        }
+        #difficulty-selector {
+            margin-bottom: 30px;
+        }
+        #difficulty-selector label {
+            font-size: 1.3em;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 15px;
+        }
+        #max-sum-input {
+            width: 120px;
+            padding: 15px;
+            font-size: 2em;
+            text-align: center;
+            border: 3px solid var(--primary-color);
+            border-radius: 15px;
+            font-weight: 700;
+        }
+        #start-game-btn {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(45deg, var(--primary-color), #ff8b9a);
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 0 #d63031;
+        }
+        #start-game-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(255, 107, 129, 0.4);
+        }
+        #start-game-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #d63031;
+        }
+
+        /* --- Game Screen --- */
+        #game-container {
+            display: none; /* Hidden by default */
+        }
+        
+        /* --- Puzzle Grid for 6 Pieces (2x3) --- */
         .puzzle-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* יוצר 3 עמודות */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
             gap: 8px;
             margin-bottom: 25px;
-            border: 5px solid var(--tile-color);
+            border: 5px solid var(--secondary-color);
             padding: 8px;
             border-radius: 12px;
         }
 
         .puzzle-piece {
             aspect-ratio: 1 / 1;
-            background-color: var(--tile-color);
+            background-color: var(--secondary-color);
             border-radius: 8px;
             display: flex;
             justify-content: center;
@@ -76,7 +132,7 @@
             cursor: default;
             transition: all 0.6s ease-in-out;
             transform-style: preserve-3d;
-            background-size: 300% 300%; /* גודל רקע שמתאים לרשת 3x3 */
+            background-size: 300% 200%; /* 3 columns, 2 rows */
         }
 
         .puzzle-piece::before { content: '?'; }
@@ -84,45 +140,32 @@
         .puzzle-piece.revealed {
             transform: rotateY(180deg);
             background-image: var(--puzzle-image-url);
-            background-color: transparent;
         }
 
         .puzzle-piece.revealed::before { content: ''; }
         
-        /* מיקום חלקי הפאזל החדש */
-        #piece-0.revealed { background-position: 0% 0%; }    /* שמאל למעלה */
-        #piece-1.revealed { background-position: 50% 0%; }    /* אמצע למעלה */
-        #piece-2.revealed { background-position: 100% 0%; }   /* ימין למעלה */
-        
-        /* מיקום החלק הרביעי (מתחת לאמצעי) */
-        #piece-3 { grid-column: 2; grid-row: 2; }
-        #piece-3.revealed { background-position: 50% 50%; } /* מרכז התמונה */
+        /* Positioning for 6 pieces */
+        #piece-0.revealed { background-position: 0% 0%; }
+        #piece-1.revealed { background-position: 50% 0%; }
+        #piece-2.revealed { background-position: 100% 0%; }
+        #piece-3.revealed { background-position: 0% 100%; }
+        #piece-4.revealed { background-position: 50% 100%; }
+        #piece-5.revealed { background-position: 100% 100%; }
 
-        /* מיקום החלק החמישי (מתחת לרביעי) */
-        #piece-4 { grid-column: 2; grid-row: 3; }
-        #piece-4.revealed { background-position: 50% 100%; } /* תחתית התמונה */
-
-        /* --- Question Area (Same as before) --- */
+        /* --- Question Area --- */
         .question-area { padding: 20px; background: #fff0f5; border-radius: 12px; }
         #question-text { font-size: 2.2em; font-weight: bold; margin-bottom: 20px; min-height: 50px; letter-spacing: 5px; }
         .answer-wrapper { display: flex; justify-content: center; gap: 10px; }
-        #answer-input { padding: 10px 15px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5em; text-align: center; width: 120px; transition: transform 0.2s; }
-        #submit-btn { padding: 10px 25px; border: none; background-color: var(--primary-color); color: white; font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
-        #submit-btn:hover { background-color: #ff4757; transform: translateY(-2px); }
+        #answer-input { padding: 10px 15px; border: 2px solid var(--primary-color); border-radius: 8px; font-size: 1.5em; text-align: center; width: 120px; }
+        #submit-btn { padding: 10px 25px; border: none; background-color: var(--primary-color); color: white; font-size: 1.2em; font-weight: bold; border-radius: 8px; cursor: pointer; }
 
-        /* --- Feedback & Final Screen Styles (Same as before) --- */
-        .correct-flash { animation: flash-green 0.7s ease; }
-        @keyframes flash-green { 0%, 100% { background-color: var(--background-color); } 50% { background-color: #e6f7ff; } }
-        .incorrect-shake { animation: shake 0.5s ease; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+        /* --- Feedback & Final Screen Styles --- */
         #feedback-text { margin-top: 10px; font-size: 1.1em; font-weight: bold; height: 25px; }
         #feedback-text.correct { color: var(--success-color); }
-        #feedback-text.incorrect { color: var(--error-color); }
-
         .final-screen { display: none; flex-direction: column; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.95); z-index: 100; padding: 20px; box-sizing: border-box; }
         .final-screen.visible { display: flex; animation: fadeIn 1s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .final-content { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); max-width: 700px; max-height: 90vh; overflow-y: auto; }
+        .final-content { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .final-content h2 { font-size: 3em; color: transparent; background: linear-gradient(45deg, #ff6b81, #70a1ff, #ffda79); background-clip: text; -webkit-background-clip: text; }
         .final-image { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
         .final-letter { font-size: 1.2em; line-height: 1.8; text-align: center; }
@@ -132,13 +175,25 @@
     </style>
 </head>
 <body>
+    
+    <!-- מסך התחלה לבחירת רמה -->
+    <div id="start-screen" class="container-box">
+        <h1><i class="fas fa-puzzle-piece"></i> הרפתקת הפאזל</h1>
+        <p class="intro-text">בואו נצא למסע קסום של חשבון ונגלה תמונות מדהימות!</p>
+        <div id="difficulty-selector">
+            <label for="max-sum-input">רוצים תרגילים עד איזה מספר?</label>
+            <input type="number" id="max-sum-input" value="10" min="2">
+        </div>
+        <button id="start-game-btn">מתחילים! <i class="fas fa-star"></i></button>
+    </div>
 
-    <div id="game-container" class="game-container">
-        <h1>פאזל קל ומהנה! 🧩</h1>
-        <p>פתרו 5 תרגילים וגלו איזו חיה מסתתרת.</p>
+    <!-- מסך המשחק הראשי (מוסתר) -->
+    <div id="game-container" class="container-box">
+        <h1><i class="fas fa-magic-wand-sparkles"></i> פאזל קסום</h1>
+        <p>פתרו 6 תרגילים וגלו איזו חיה מסתתרת.</p>
         
         <div class="puzzle-grid" id="puzzle-grid">
-             <!-- 5 חלקי הפאזל ייווצרו כאן -->
+             <!-- 6 חלקי הפאזל ייווצרו כאן -->
         </div>
 
         <div class="question-area">
@@ -151,6 +206,7 @@
         </div>
     </div>
 
+    <!-- מסך הסיום -->
     <div id="final-screen" class="final-screen">
         <div id="confetti-container"></div>
         <div class="final-content">
@@ -172,44 +228,47 @@
         </div>
     </div>
 
+
     <script>
-    // מאגר תמונות חמודות לכיתה א'
-    const imagePool = [ 'https://i.imgur.com/uStmG8k.jpg', 'https://i.imgur.com/3Z3SoLg.jpg', 'https://i.imgur.com/4l3n2IS.jpg', 'https://i.imgur.com/7gK7kE5.jpg', 'https://i.imgur.com/v1nFN0c.jpg', 'https://i.imgur.com/L4uA428.jpg', 'https://i.imgur.com/qE1mYNC.jpg', 'https://i.imgur.com/a9ME9gW.jpg', 'https://i.imgur.com/5J3t3j2.jpg' ];
+    // מאגר התמונות שסיפקת
+    const imagePool = [ 'https://static.wixstatic.com/media/c7aa4ede3378f0cec372a83b2bf88204.jpg/v1/fill/w_1000,h_819,al_c,q_85/c7aa4ede3378f0cec372a83b2bf88204.jpg', 'https://www.safari.co.il/Images/_croppedImage201961710_5625695.png', 'https://chowchow.co.il/wp-content/uploads/2022/01/aswathy-n-srMHHWCTvcU-unsplash.jpg', 'https://dalicanvas.co.il/wp-content/uploads/2022/10/%D7%9E%D7%A9%D7%A4%D7%97%D7%AA-%D7%90%D7%A8%D7%A0%D7%91%D7%95%D7%A0%D7%99%D7%9D1.jpg', 'https://media-cdn.tripadvisor.com/media/photo-s/0b/b5/b1/dc/avec-l-etang.jpg', 'https://davidson.org.il/read-experience/wp-content/uploads/sites/3/2013/07/shutterstock_107619971.jpg' ];
 
     // פונקציית עזר למספר אקראי
     function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-    // יצירת שאלת חיבור עד 10
-    function generateAdditionQuestion() {
-        const answer = randomInt(2, 10);
+    // יצירת שאלת חיבור עד למספר שהוגדר
+    function generateAdditionQuestion(maxSum) {
+        const answer = randomInt(2, maxSum);
         const num1 = randomInt(1, answer - 1);
         const num2 = answer - num1;
         return { question: `${num1} + ${num2}`, answer: answer };
     }
 
     // לוגיקת המשחק
-    const NUM_OF_PIECES = 5; // הגדרת מספר החלקים
+    const NUM_OF_PIECES = 6;
     let currentQuestionIndex = 0;
     let gameQuestions = [];
     let selectedImageUrl = '';
 
+    const startScreen = document.getElementById('start-screen');
+    const maxSumInput = document.getElementById('max-sum-input');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const gameContainer = document.getElementById('game-container');
     const questionTextEl = document.getElementById('question-text');
     const answerInputEl = document.getElementById('answer-input');
     const submitBtn = document.getElementById('submit-btn');
     const puzzleGrid = document.getElementById('puzzle-grid');
     const feedbackTextEl = document.getElementById('feedback-text');
-    const bodyEl = document.querySelector('body');
-    const gameContainerEl = document.getElementById('game-container');
     const finalScreenEl = document.getElementById('final-screen');
     const finalImageEl = document.getElementById('final-puzzle-image');
 
-    function initGame() {
+    function initGame(maxSum) {
         selectedImageUrl = imagePool[randomInt(0, imagePool.length - 1)];
         document.documentElement.style.setProperty('--puzzle-image-url', `url(${selectedImageUrl})`);
         finalImageEl.src = selectedImageUrl;
 
         puzzleGrid.innerHTML = '';
-        for (let i = 0; i < NUM_OF_PIECES; i++) { // לולאה עד 5
+        for (let i = 0; i < NUM_OF_PIECES; i++) {
             const piece = document.createElement('div');
             piece.className = 'puzzle-piece';
             piece.id = `piece-${i}`;
@@ -217,8 +276,8 @@
         }
         
         gameQuestions = [];
-        for (let i = 0; i < NUM_OF_PIECES; i++) { // יצירת 5 שאלות
-            gameQuestions.push(generateAdditionQuestion());
+        for (let i = 0; i < NUM_OF_PIECES; i++) {
+            gameQuestions.push(generateAdditionQuestion(maxSum));
         }
 
         currentQuestionIndex = 0;
@@ -232,7 +291,6 @@
             answerInputEl.value = '';
             answerInputEl.focus();
             feedbackTextEl.textContent = '';
-            feedbackTextEl.className = '';
         } else {
             endGame();
         }
@@ -242,40 +300,23 @@
         const userAnswer = parseInt(answerInputEl.value);
         if (isNaN(userAnswer)) {
             feedbackTextEl.textContent = 'צריך לכתוב מספר!';
-            feedbackTextEl.className = 'incorrect';
-            answerInputEl.classList.add('incorrect-shake');
-            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
             return;
         }
 
         if (userAnswer === gameQuestions[currentQuestionIndex].answer) {
-            feedbackTextEl.textContent = 'כל הכבוד! תשובה נכונה! ✨';
-            feedbackTextEl.className = 'correct';
-            bodyEl.classList.add('correct-flash');
+            feedbackTextEl.textContent = 'מעולה! תשובה נכונה! ✨';
             document.getElementById(`piece-${currentQuestionIndex}`).classList.add('revealed');
-            
             currentQuestionIndex++;
-            
-            setTimeout(() => {
-                bodyEl.classList.remove('correct-flash');
-                displayQuestion();
-            }, 1500);
+            setTimeout(displayQuestion, 1500);
         } else {
             feedbackTextEl.textContent = 'אוי, זו לא התשובה. נסו שוב!';
-            feedbackTextEl.className = 'incorrect';
-            answerInputEl.classList.add('incorrect-shake');
-            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
         }
     }
 
     function endGame() {
-         gameContainerEl.style.opacity = '0';
-         gameContainerEl.style.transform = 'scale(0.8)';
-         setTimeout(() => {
-            gameContainerEl.style.display = 'none';
-            finalScreenEl.classList.add('visible');
-            launchConfetti();
-         }, 500);
+         gameContainer.style.display = 'none';
+         finalScreenEl.classList.add('visible');
+         launchConfetti();
     }
     
     function launchConfetti() {
@@ -294,6 +335,18 @@
         }
     }
 
+    // --- Event Listeners ---
+    startGameBtn.addEventListener('click', () => {
+        let maxSum = parseInt(maxSumInput.value);
+        if (isNaN(maxSum) || maxSum < 2) {
+            maxSum = 10; // ברירת מחדל אם הקלט לא תקין
+        }
+        
+        startScreen.style.display = 'none';
+        gameContainer.style.display = 'block';
+        initGame(maxSum);
+    });
+
     submitBtn.addEventListener('click', checkAnswer);
     answerInputEl.addEventListener('keyup', (event) => {
         if (event.key === 'Enter') {
@@ -301,8 +354,6 @@
         }
     });
 
-    // התחלת המשחק
-    initGame();
     </script>
 </body>
 </html>
