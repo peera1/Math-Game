@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק זיכרון בחשבון - הרפתקת הכוכבים!</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap');
+
+        :root {
+            --primary-color: #8e44ad; /* סגול כהה */
+            --secondary-color: #f1c40f; /* צהוב בוהק */
+            --success-color: #2ecc71; /* ירוק הצלחה */
+            --error-color: #e74c3c; /* אדום שגיאה */
+            --background-color: #ecf0f1; /* אפור בהיר */
+            --card-back-color: #9b59b6; /* סגול בהיר לקלף הפוך */
+            --text-color: #34495e; /* כחול אפור לטקסט */
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); /* רקע עדין */
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            perspective: 1200px; /* לאפקט תלת ממדי של הקלפים */
+            overflow-x: hidden; /* למנוע גלילה אופקית מבאגים באנימציית "מעוף" */
+        }
+
+        .container-box {
+            width: 95%;
+            max-width: 1000px; /* הגדלת הרוחב הכללי של הקונטיינר */
+            background: white;
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border: 4px solid #fff; /* מסגרת לבנה עבה */
+            transition: opacity 0.5s, transform 0.5s;
+            text-align: center; /* יישור מרכזי לברירת מחדל */
+        }
+
+        h1 { color: var(--primary-color); font-weight: 900; font-size: 3rem; margin-bottom: 10px; }
+        h1 i { color: var(--secondary-color); }
+        p { font-size: 1.2em; margin-bottom: 25px; color: #7f8c8d; }
+
+        /* --- מסך פתיחה --- */
+        #start-screen label { font-size: 1.4em; font-weight: 700; display: block; margin-bottom: 15px; }
+        #max-sum-input { width: 120px; padding: 15px; font-size: 2.2em; text-align: center; border: 3px solid var(--primary-color); border-radius: 15px; font-weight: 700; transition: border-color 0.3s; }
+        #max-sum-input:focus { border-color: var(--secondary-color); outline: none; }
+        #start-game-btn { width: 100%; max-width: 450px; margin: 35px auto 0; display: block; padding: 22px; font-size: 1.6em; font-weight: 700; color: white; background: linear-gradient(45deg, var(--primary-color), #a569bd); border: none; border-radius: 18px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 8px 0 #6c3483; }
+        #start-game-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(142, 68, 173, 0.4), 0 5px 0 #6c3483; }
+        #start-game-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #6c3483; }
+        #start-game-btn i { margin-right: 10px; transform: rotate(-20deg); display: inline-block; }
+
+        /* --- מסך משחק --- */
+        #game-screen { display: none; }
+        .game-header { display: flex; justify-content: space-around; align-items: center; margin-bottom: 25px; font-size: 1.5rem; font-weight: 700; background: #f8f9fa; padding: 15px; border-radius: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+        .game-layout { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; /* מאפשר גלישה בשורה במידת הצורך */ }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 עמודות ל-10 קלפים (2 שורות) */
+            gap: 18px; /* הגדלת המרווח בין קלפים */
+            width: 100%;
+            flex-grow: 1;
+            max-width: 750px; /* הגבלת רוחב לוח המשחק */
+        }
+
+        .memory-card {
+            background-color: transparent;
+            width: 100%;
+            aspect-ratio: 5/4; /* קלף רחב יותר כדי למנוע שבירת טקסט */
+            border-radius: 18px; /* פינות עגולות יותר */
+            cursor: pointer;
+            transition: transform 0.6s cubic-bezier(0.2, 0.85, 0.4, 1.2); /* אנימציה חלקה יותר */
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .memory-card.flip { transform: rotateY(180deg); }
+        
+        .front-face, .back-face {
+            width: 100%; height: 100%; padding: 10px; position: absolute; border-radius: 18px;
+            backface-visibility: hidden; display: flex; justify-content: center; align-items: center;
+            font-size: 2.8rem; font-weight: 900; box-sizing: border-box; box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+            border: 4px solid transparent; /* כדי שהגבול יראה יפה גם כשהוא משתנה */
+        }
+        
+        .front-face { background: linear-gradient(135deg, var(--card-back-color) 0%, #af7ac5 100%); color: var(--secondary-color); font-size: 4.5rem; text-shadow: 0 3px 5px rgba(0,0,0,0.25); }
+        .back-face { background: #fff; color: var(--text-color); transform: rotateY(180deg); border-color: var(--primary-color); }
+        
+        .memory-card.shake .back-face { animation: shake-inner 0.4s ease-in-out; border-color: var(--error-color); }
+        @keyframes shake-inner {
+            0%, 100% { transform: rotateY(180deg) translateX(0); }
+            25% { transform: rotateY(180deg) translateX(-8px) rotateZ(-3deg); }
+            50% { transform: rotateY(180deg) translateX(8px) rotateZ(3deg); }
+            75% { transform: rotateY(180deg) translateX(-8px) rotateZ(-3deg); }
+        }
+
+        .memory-card.matched .back-face { border-color: var(--success-color); animation: glow-inner 0.6s forwards; }
+        @keyframes glow-inner {
+            0% { box-shadow: 0 0 0 rgba(46, 204, 113, 0.7); }
+            50% { box-shadow: 0 0 25px var(--success-color); }
+            100% { box-shadow: 0 0 0 rgba(46, 204, 113, 0.7); }
+        }
+
+        .memory-card.fly-away { animation: fly 0.9s ease-in-out forwards; }
+        @keyframes fly {
+            0% { transform: rotateY(180deg) translateX(0) translateY(0) scale(1) rotateZ(0); opacity: 1; }
+            100% { transform: rotateY(180deg) translateX(calc(var(--fly-x) * 1px)) translateY(calc(var(--fly-y) * 1px)) scale(0.1) rotateZ(var(--fly-rotate)); opacity: 0; }
+        }
+        
+        /* --- Sidebar - Star Collector --- */
+        .sidebar { width: 150px; text-align: center; flex-shrink: 0; /* מונע התכווצות */ }
+        .sidebar h3 { margin-top: 0; font-size: 1.3rem; color: var(--primary-color); }
+        #star-collector { display: flex; flex-direction: column; gap: 15px; align-items: center; background: #fff; padding: 15px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .star-token { font-size: 3.5rem; color: var(--secondary-color); text-shadow: 0 3px 6px rgba(0,0,0,0.25); opacity: 0; animation: starAppear 0.6s ease-out forwards; }
+        @keyframes starAppear {
+            from { transform: scale(0.2) rotate(-90deg); opacity: 0; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        /* --- מסך סיום --- */
+        #final-screen { display: none; }
+        #final-screen h2 { color: var(--success-color); font-size: 3.2rem; margin-bottom: 20px; }
+        #final-screen p { font-size: 1.4em; line-height: 1.8; color: var(--text-color); }
+        h4 { font-size: 1.6rem; color: var(--primary-color); margin-top: 30px; margin-bottom: 15px; }
+        .speech { text-align: right; border-right: 5px solid var(--secondary-color); padding-right: 25px; margin-top: 35px; background: #fdfbfb; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .speech strong { color: var(--primary-color); font-weight: 900; }
+        #final-summary-pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 20px; text-align: center; }
+        .final-pair-display { background: #f8f9fa; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 1.3rem; color: var(--text-color); border: 2px solid var(--background-color); transition: background 0.3s; }
+        .final-pair-display:hover { background: #e0e6e7; }
+
+        /* רספונסיביות */
+        @media (max-width: 900px) {
+            .game-board { grid-template-columns: repeat(4, 1fr); max-width: 600px; } /* 4 עמודות בטאבלטים */
+        }
+
+        @media (max-width: 768px) {
+            .game-layout { flex-direction: column-reverse; align-items: center; gap: 25px; }
+            .sidebar { width: 100%; max-width: 300px; /* הגבלה לרוחב בסיידבר במובייל */ }
+            #star-collector { flex-direction: row; justify-content: center; flex-wrap: wrap; }
+            .game-board { grid-template-columns: repeat(3, 1fr); max-width: 450px; } /* 3 עמודות בטאבלטים קטנים */
+            h1 { font-size: 2.5rem; }
+            #start-game-btn { font-size: 1.4em; padding: 18px; }
+            .game-header { font-size: 1.3rem; }
+            .memory-card .front-face { font-size: 4rem; }
+            .memory-card .back-face { font-size: 2.2rem; }
+        }
+
+        @media (max-width: 480px) {
+            .container-box { padding: 20px 25px; }
+            .game-board { grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 300px; } /* 2 עמודות במובייל */
+            h1 { font-size: 2rem; }
+            #max-sum-input { font-size: 1.8em; padding: 12px; width: 100px; }
+            #start-game-btn { font-size: 1.3em; padding: 15px; }
+            .game-header { font-size: 1.1rem; }
+            .memory-card .front-face { font-size: 3.5rem; }
+            .memory-card .back-face { font-size: 1.8rem; }
+            .sidebar h3 { font-size: 1.1rem; }
+            .star-token { font-size: 3rem; }
+            #final-screen h2 { font-size: 2.5rem; }
+            #final-screen p { font-size: 1.2em; }
+            h4 { font-size: 1.4rem; }
+            .speech { padding-right: 15px; }
+            .final-pair-display { font-size: 1.1rem; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    
+    <audio id="audio-flip" src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" preload="auto"></audio>
+    <audio id="audio-match" src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkle-1210.mp3" preload="auto"></audio>
+    <audio id="audio-error" src="https://assets.mixkit.co/sfx/preview/mixkit-interface-device-click-1120.mp3" preload="auto"></audio>
+    <audio id="audio-win" src="https://assets.mixkit.co/sfx/preview/mixkit-video-game-win-2016.mp3" preload="auto"></audio>
+
+    <div id="start-screen" class="container-box">
+        <h1><i class="fas fa-star"></i> הרפתקת הכוכבים</h1>
+        <p>התאימו בין תרגיל לתשובה ואספו את כל הכוכבים!</p>
+        <div>
+            <label for="max-sum-input">תרגילים עד איזה מספר תרצו?</label>
+            <input type="number" id="max-sum-input" value="10" min="2" max="20">
+        </div>
+        <button id="start-game-btn">יוצאים להרפתקה! <i class="fas fa-rocket"></i></button>
+    </div>
+
+    <div id="game-screen" class="container-box">
+        <div class="game-header">
+            <span>מהלכים: <strong id="move-counter">0</strong></span>
+            <span>כוכבים לאיסוף: <strong id="pairs-left">5</strong></span>
+        </div>
+        <div class="game-layout">
+            <main class="game-board" id="game-board"></main>
+            <aside class="sidebar">
+                <h3>הכוכבים שלכם:</h3>
+                <div id="star-collector"></div>
+            </aside>
+        </div>
+    </div>
+
+    <div id="final-screen" class="container-box">
+        <h2>🎉 כל הכבוד, אלופים! 🎉</h2>
+        <p>סיימתם את המשחק ב-<strong id="final-moves"></strong> מהלכים ואספתם את כל הכוכבים!</p>
+        <h4>סיכום הזוגות שהתאמתם:</h4>
+        <div id="final-summary-pairs"></div>
+        <div class="speech">
+            <p>איזו עבודה נהדרת! אתם אלופים אמיתיים כי אתם משקיעים ולומדים, וזה הכוח הכי גדול שיש.</p>
+            <p><strong>בעתיד, הידע הזה יעמוד לזכותכם.</strong> היכולת לפתור בעיות תאפשר לכם לבנות דברים מדהימים, להמציא המצאות ולהגשים כל חלום שרק תרצו.</p>
+            <p>זכרו, לפעמים קשה, וזה בסדר. אלוף אמיתי לא מוותר גם כשמאתגר. <strong>תמשיכו לנסות, להתאמן ולהאמין בעצמכם</strong>, ותגיעו הכי רחוק שאפשר!</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script>
+    const startScreen = document.getElementById('start-screen');
+    const gameScreen = document.getElementById('game-screen');
+    const finalScreen = document.getElementById('final-screen');
+    const maxSumInput = document.getElementById('max-sum-input');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const gameBoard = document.getElementById('game-board');
+    const moveCounterEl = document.getElementById('move-counter');
+    const pairsLeftEl = document.getElementById('pairs-left');
+    const starCollector = document.getElementById('star-collector');
+    const finalMovesEl = document.getElementById('final-moves');
+    const finalSummaryContainer = document.getElementById('final-summary-pairs');
+    
+    const sounds = {
+        flip: document.getElementById('audio-flip'),
+        match: document.getElementById('audio-match'),
+        error: document.getElementById('audio-error'),
+        win: document.getElementById('audio-win')
+    };
+
+    let lockBoard = false;
+    let hasFlippedCard = false;
+    let firstCard, secondCard;
+    let moves = 0;
+    let matchedPairs = 0;
+    const TOTAL_PAIRS = 5; // הגדרת מספר הזוגות ל-5
+    let foundPairsData = []; // מערך לשמירת זוגות שנמצאו עבור סיכום הסיום
+
+    function playSound(soundName) {
+        sounds[soundName].currentTime = 0; 
+        sounds[soundName].play().catch(e => console.log("Sound play error:", e)); // טיפול בשגיאות השמעה
+    }
+
+    // פונקציה לייצור זוגות תרגילים ותשובות
+    function generatePairs(maxSum) {
+        let pairs = []; 
+        let usedAnswers = new Set(); // שומר תשובות כדי למנוע כפילויות
+        let attempts = 0;
+        const maxAttempts = 100; // הגבלת ניסיונות למניעת לולאה אינסופית
+
+        while (pairs.length < TOTAL_PAIRS * 2 && attempts < maxAttempts) { // נכפיל ב-2 כי כל זוג הוא 2 קלפים
+            attempts++;
+            const answer = Math.floor(Math.random() * (maxSum - 1)) + 2; // תשובה בין 2 ל-maxSum
+            if (usedAnswers.has(answer)) continue; // אם התשובה כבר בשימוש, ננסה שוב
+
+            const num1 = Math.floor(Math.random() * (answer - 1)) + 1; // num1 בין 1 ל-answer-1
+            const num2 = answer - num1; // num2 משלים את הסכום
+
+            // וודא ש-num1 ו-num2 שניהם גדולים מ-0
+            if (num1 > 0 && num2 > 0) {
+                const problem = `${num1} + ${num2}`;
+                pairs.push({ value: problem, id: answer, type: 'problem' });
+                pairs.push({ value: answer, id: answer, type: 'answer' });
+                usedAnswers.add(answer);
+            }
+        }
+        // אם לא הצלחנו לייצר מספיק זוגות, נחזיר מה שיש (או הודעת שגיאה/ברירת מחדל)
+        if (pairs.length < TOTAL_PAIRS * 2) {
+            console.warn(`Could not generate ${TOTAL_PAIRS} unique pairs up to sum ${maxSum}. Generated ${pairs.length / 2} pairs.`);
+            // ניתן להוסיף כאן לוגיקה נוספת, כמו הורדת TOTAL_PAIRS או הגדלת maxSum
+        }
+        return pairs;
+    }
+
+    // פונקציית ערבוב
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // יצירת לוח המשחק
+    function createBoard(maxSum) {
+        moves = 0; matchedPairs = 0; foundPairsData = [];
+        moveCounterEl.textContent = '0';
+        pairsLeftEl.textContent = TOTAL_PAIRS;
+        gameBoard.innerHTML = ''; 
+        starCollector.innerHTML = ''; // מנקה כוכבים קודמים
+
+        const cardData = generatePairs(maxSum);
+        // אם נוצרו פחות מ-TOTAL_PAIRS זוגות, נתאים את pairsLeft
+        if (cardData.length / 2 < TOTAL_PAIRS) {
+             pairsLeftEl.textContent = cardData.length / 2;
+        }
+
+        shuffle(cardData);
+
+        cardData.forEach(item => {
+            const card = document.createElement('div');
+            card.classList.add('memory-card');
+            card.dataset.id = item.id;
+            card.dataset.value = item.value;
+            card.innerHTML = `<div class="front-face"><i class="fas fa-star"></i></div><div class="back-face">${item.value}</div>`;
+            card.addEventListener('click', flipCard);
+            gameBoard.appendChild(card);
+        });
+    }
+
+    // היפוך קלף
+    function flipCard() {
+        if (lockBoard || this === firstCard || this.classList.contains('flip')) return;
+        playSound('flip');
+        this.classList.add('flip');
+        if (!hasFlippedCard) {
+            hasFlippedCard = true;
+            firstCard = this;
+            return;
+        }
+        secondCard = this;
+        lockBoard = true;
+        updateMoves();
+        checkForMatch();
+    }
+
+    // בדיקה האם זוג מתאים
+    function checkForMatch() {
+        let isMatch = firstCard.dataset.id === secondCard.dataset.id;
+        isMatch ? disableCards() : unflipCards();
+    }
+
+    // התאמה מוצלחת
+    function disableCards() {
+        playSound('match');
+        firstCard.removeEventListener('click', flipCard);
+        secondCard.removeEventListener('click', flipCard);
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        
+        // שמירת הזוג לסיכום הסופי
+        const problemCard = firstCard.dataset.value.includes('+') ? firstCard : secondCard;
+        const answerCard = firstCard.dataset.value.includes('+') ? secondCard : firstCard;
+        foundPairsData.push({problem: problemCard.dataset.value, answer: answerCard.dataset.value});
+
+        // הגדרת משתני CSS לאנימציית fly-away אקראית
+        firstCard.style.setProperty('--fly-x', Math.floor(Math.random() * 400) * (Math.random() < 0.5 ? 1 : -1));
+        firstCard.style.setProperty('--fly-y', Math.floor(Math.random() * 300) * (Math.random() < 0.5 ? 1 : -1));
+        firstCard.style.setProperty('--fly-rotate', Math.floor(Math.random() * 180) * (Math.random() < 0.5 ? 1 : -1) + 'deg');
+
+        secondCard.style.setProperty('--fly-x', Math.floor(Math.random() * 400) * (Math.random() < 0.5 ? 1 : -1));
+        secondCard.style.setProperty('--fly-y', Math.floor(Math.random() * 300) * (Math.random() < 0.5 ? 1 : -1));
+        secondCard.style.setProperty('--fly-rotate', Math.floor(Math.random() * 180) * (Math.random() < 0.5 ? 1 : -1) + 'deg');
+
+
+        setTimeout(() => {
+            firstCard.classList.add('fly-away');
+            secondCard.classList.add('fly-away');
+            addStarToCollector();
+            matchedPairs++;
+            pairsLeftEl.textContent = TOTAL_PAIRS - matchedPairs;
+            if (matchedPairs === TOTAL_PAIRS) {
+                endGame();
+            }
+            resetBoard();
+        }, 1000);
+    }
+    
+    // הוספת כוכב לסרגל האיסוף
+    function addStarToCollector() {
+        const star = document.createElement('div');
+        star.classList.add('star-token');
+        star.innerHTML = '<i class="fas fa-star"></i>';
+        starCollector.appendChild(star);
+    }
+
+    // התאמה שגויה - הפיכת קלפים בחזרה
+    function unflipCards() {
+        playSound('error');
+        firstCard.classList.add('shake');
+        secondCard.classList.add('shake');
+        setTimeout(() => {
+            firstCard.classList.remove('flip', 'shake');
+            secondCard.classList.remove('flip', 'shake');
+            resetBoard();
+        }, 1200);
+    }
+
+    // איפוס לוח המשחק לאחר מהלך
+    function resetBoard() {
+        [hasFlippedCard, lockBoard] = [false, false];
+        [firstCard, secondCard] = [null, null];
+    }
+    
+    // עדכון מונה מהלכים
+    function updateMoves() { moves++; moveCounterEl.textContent = moves; }
+    
+    // סיום המשחק
+    function endGame() {
+        playSound('win');
+        setTimeout(() => {
+            gameScreen.style.display = 'none';
+            finalScreen.style.display = 'block';
+            finalMovesEl.textContent = moves;
+            
+            // הצגת סיכום הזוגות
+            finalSummaryContainer.innerHTML = '';
+            foundPairsData.forEach(pair => {
+                const pairDiv = document.createElement('div');
+                pairDiv.classList.add('final-pair-display');
+                pairDiv.textContent = `${pair.problem} = ${pair.answer}`;
+                finalSummaryContainer.appendChild(pairDiv);
+            });
+            
+            // Confetti Explosion
+            const duration = 2.5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            const interval = setInterval(() => {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                const particleCount = 50 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            }, 250);
+        }, 1200);
+    }
+
+    // לחיצה על כפתור התחלת המשחק
+    startGameBtn.addEventListener('click', () => {
+        let maxSum = parseInt(maxSumInput.value);
+        if (isNaN(maxSum) || maxSum < 2) maxSum = 10; // ברירת מחדל אם הקלט לא תקין
+        if (maxSum > 20) maxSum = 20; // הגבלת סכום מקסימלי ל-20 כדי לשמור על קושי מתאים לכיתה א' ועל מגוון סביר של קלפים
+        startScreen.style.display = 'none';
+        gameScreen.style.display = 'block';
+        createBoard(maxSum);
+    });
+
+    // וודא שהקלט הוא מספר ומוגבל לטווח
+    maxSumInput.addEventListener('input', (event) => {
+        let value = parseInt(event.target.value);
+        if (isNaN(value) || value < 2) {
+            event.target.value = 2;
+        } else if (value > 20) {
+            event.target.value = 20;
+        }
+    });
+
+    // טעינה מקדימה של צלילים
+    document.addEventListener('DOMContentLoaded', () => {
+        for (const key in sounds) {
+            sounds[key].load();
+        }
+    });
+    </script>
+</body>
+</html>
