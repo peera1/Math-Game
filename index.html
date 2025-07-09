@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ברוכים הבאים ללומדת חשבון</title>
+    
+    <!-- ================= SEO - START ================= -->
+    <title>משחקי חשבון לכיתות א-ד | לומדת חשבון אונליין לילדים</title>
+    <meta name="description" content="לומדת חשבון חינמית עם מגוון משחקי חשבון ותרגול לכיתות א', ב', ג', ו-ד'. תרגול חיבור, חיסור, כפל, חילוק, שברים ועוד בצורה מהנה ואינטראקטיבית.">
+    <meta name="keywords" content="משחק חשבון, לומדת חשבון, תרגול חשבון, חשבון לכיתה ד, חשבון לכיתה ג, חשבון לכיתה ב, חשבון לכיתה א, משחקים לילדים, לימוד חשבון">
+    <!-- הוסף כאן את תג האימות של Google Search Console כשתקבל אותו -->
+    <!-- ================= SEO - END =================== -->
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPNZZJWSF8"></script>
@@ -74,12 +80,21 @@
 
         h1 {
             color: var(--primary-gradient-start);
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Reduced margin */
             font-size: 2.8rem;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
             background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        /* עיצוב לפסקת הפתיחה החדשה */
+        .intro-text {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            line-height: 1.7;
         }
 
         h2 {
@@ -154,65 +169,21 @@
             50% { transform: translateY(-5px); }
         }
 
-        .blue { 
-            background: linear-gradient(to right, #3B4F7D, #6B728E);
-        }
-
-        .green { 
-            background: linear-gradient(to right, #355E3B, #7D9D72);
-        }
-
-        .yellow { 
-            background: linear-gradient(to right, #F4A261, #E9C46A);
-        }
-
-        .red { 
-            background: linear-gradient(to right, #8B1E3F, #C84767);
-        }
-
-        .pink {
-            background: linear-gradient(to right, #A63C6D, #D47B9A);
-        }
-
-        .coral {
-            background: linear-gradient(to right, #D76A03, #F89F5B);
-        }
-
-        .purple {
-            background: linear-gradient(to right, #4A235A, #8E44AD);
-        }
-        
-        .deep-purple {
-            background: linear-gradient(to right, #6a1b9a, #ab47bc);
-        }
-
-        .radiant {
-            background: linear-gradient(to right, #2A0944, #A12568);
-        }
-
-        .teal {
-            background: linear-gradient(to right, #1A535C, #4ECDC4);
-        }
-
-        .emerald { 
-            background: linear-gradient(to right, #1B4332, #52B788);
-        }
-
-        .indigo { 
-            background: linear-gradient(to right, #2C3E50, #5D8AA8);
-        }
-
-        .lime { 
-            background: linear-gradient(to right, #6A994E, #A3BFFA);
-        }
-
-        .orange { 
-            background: linear-gradient(to right, #ff9800, #ffeb3b);
-        }
-        
-        .science-blue {
-            background: linear-gradient(to right, #0077b6, #00b4d8);
-        }
+        .blue { background: linear-gradient(to right, #3B4F7D, #6B728E); }
+        .green { background: linear-gradient(to right, #355E3B, #7D9D72); }
+        .yellow { background: linear-gradient(to right, #F4A261, #E9C46A); }
+        .red { background: linear-gradient(to right, #8B1E3F, #C84767); }
+        .pink { background: linear-gradient(to right, #A63C6D, #D47B9A); }
+        .coral { background: linear-gradient(to right, #D76A03, #F89F5B); }
+        .purple { background: linear-gradient(to right, #4A235A, #8E44AD); }
+        .deep-purple { background: linear-gradient(to right, #6a1b9a, #ab47bc); }
+        .radiant { background: linear-gradient(to right, #2A0944, #A12568); }
+        .teal { background: linear-gradient(to right, #1A535C, #4ECDC4); }
+        .emerald { background: linear-gradient(to right, #1B4332, #52B788); }
+        .indigo { background: linear-gradient(to right, #2C3E50, #5D8AA8); }
+        .lime { background: linear-gradient(to right, #6A994E, #A3BFFA); }
+        .orange { background: linear-gradient(to right, #ff9800, #ffeb3b); }
+        .science-blue { background: linear-gradient(to right, #0077b6, #00b4d8); }
 
         .grade-section {
             margin-bottom: 30px;
@@ -240,23 +211,10 @@
         }
 
         @media (max-width: 600px) {
-            .container {
-                padding: 30px;
-                margin: 15px auto;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .button {
-                font-size: 16px;
-                padding: 12px;
-            }
+            .container { padding: 30px; margin: 15px auto; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            .button { font-size: 16px; padding: 12px; }
         }
     </style>
 </head>
@@ -269,6 +227,9 @@
         
         <h1>ברוכים הבאים ללומדת חשבון</h1>
         
+        <!-- פסקת פתיחה חדשה ל-SEO -->
+        <p class="intro-text">כאן תמצאו מגוון רחב של משחקי חשבון מהנים לילדים, המחולקים לפי כיתות. הלומדה מציעה תרגול חשבון אינטראקטיבי בנושאים כמו חיבור, חיסור, כפל, חילוק, שברים ועוד. בואו נתחיל ללמוד ולשחק!</p>
+
         <div class="buttons-container">
             <!-- כיתה א -->
             <div class="grade-section">
@@ -345,11 +306,9 @@
                 <button class="button coral" onclick="openLinkWithConfetti('ClassD/Word-Problems-Advanced.html')">
                     <i class="fas fa-wand-magic-sparkles"></i> בעיות מילוליות - שברים
                 </button>
-                <!-- START: הכפתור החדש שהוספתי -->
                 <button class="button teal" onclick="openLinkWithConfetti('ClassD/ClassD-Mix.html')">
                     <i class="fas fa-puzzle-piece"></i> משחק פאזל אקראי
                 </button>
-                <!-- END: הכפתור החדש שהוספתי -->
             </div>
         </div>
 
@@ -368,7 +327,6 @@
             });
 
             setTimeout(() => {
-                // שינוי לפתיחה באותו חלון במקום חלון חדש
                 window.location.href = url;
             }, 500);
         }
