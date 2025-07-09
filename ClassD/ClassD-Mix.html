@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>פאזל האלופים V2 - אתגר אקראי!</title>
+    <title>פאזל האלופים V3 - תמונות מתחלפות!</title>
     <style>
         /* --- General Styles (same as before) --- */
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
 
         :root {
-            --primary-color: #ff6b6b; /* New color scheme */
-            --success-color: #4ecdc4;
-            --error-color: #d0021b;
-            --background-color: #f7f9fb;
-            --tile-color: #feca57;
-            --text-color: #333;
+            --primary-color: #5e72e4; /* New color scheme */
+            --success-color: #2dce89;
+            --error-color: #f5365c;
+            --background-color: #f4f5f7;
+            --tile-color: #89a1ef;
+            --text-color: #32325d;
+            
+            /* THIS IS WHERE THE RANDOM IMAGE WILL BE PLACED BY JAVASCRIPT */
+            --puzzle-image-url: url(''); 
         }
 
         body {
@@ -50,13 +53,13 @@
             margin-bottom: 20px;
         }
 
-        /* --- Puzzle Grid (same as before) --- */
+        /* --- Puzzle Grid --- */
         .puzzle-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-bottom: 25px;
-            border: 5px solid #ff9f43;
+            border: 5px solid var(--tile-color);
             padding: 8px;
             border-radius: 12px;
         }
@@ -71,7 +74,7 @@
             font-size: 3em;
             color: white;
             font-weight: bold;
-            background-image: linear-gradient(135deg, #feca57, #ff9f43);
+            background-image: linear-gradient(135deg, #a2d2ff, #bde0fe);
             cursor: default;
             transition: all 0.6s ease-in-out;
             transform-style: preserve-3d;
@@ -79,11 +82,14 @@
         }
 
         .puzzle-piece::before { content: '?'; }
+        
+        /* THE MAGIC: Uses the CSS variable set by JavaScript */
         .puzzle-piece.revealed {
             transform: rotateY(180deg);
-            background-image: url('https://i.imgur.com/vHqXyT8.jpg'); /* New Image: Space Fox */
+            background-image: var(--puzzle-image-url);
             background-color: transparent;
         }
+
         .puzzle-piece.revealed::before { content: ''; }
         
         /* Positioning for each puzzle piece */
@@ -97,10 +103,10 @@
         #piece-7.revealed { background-position: 50% 100%; }
         #piece-8.revealed { background-position: 100% 100%; }
 
-        /* --- Question Area (same as before) --- */
+        /* --- Question Area --- */
         .question-area {
             padding: 20px;
-            background: #fff3e0;
+            background: #eef2ff;
             border-radius: 12px;
         }
         #question-text {
@@ -135,15 +141,15 @@
             transition: background-color 0.3s, transform 0.2s;
         }
         #submit-btn:hover {
-            background-color: #e63946;
+            background-color: #324cba;
             transform: translateY(-2px);
         }
 
-        /* --- Feedback & Final Screen Styles (same as before, adjusted for new colors) --- */
+        /* --- Feedback & Final Screen Styles --- */
         .correct-flash { animation: flash-green 0.7s ease; }
         @keyframes flash-green {
             0%, 100% { background-color: var(--background-color); }
-            50% { background-color: #e0f8f7; }
+            50% { background-color: #e3f9e9; }
         }
         .incorrect-shake { animation: shake 0.5s ease; }
         @keyframes shake {
@@ -159,7 +165,7 @@
         .final-screen.visible { display: flex; animation: fadeIn 1s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .final-content { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); max-width: 700px; max-height: 90vh; overflow-y: auto; }
-        .final-content h2 { font-size: 3em; color: transparent; background: linear-gradient(45deg, #feca57, #ff6b6b, #4ecdc4); background-clip: text; -webkit-background-clip: text; }
+        .final-content h2 { font-size: 3em; color: transparent; background: linear-gradient(45deg, #f5365c, #5e72e4, #2dce89); background-clip: text; -webkit-background-clip: text; }
         .final-image { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
         .final-letter { font-size: 1.2em; line-height: 1.8; text-align: justify; }
         
@@ -170,8 +176,8 @@
 <body>
 
     <div id="game-container" class="game-container">
-        <h1>פאזל האלופים V2 🚀</h1>
-        <p>בכל משחק שאלות חדשות! ענו נכון וגלו את התמונה.</p>
+        <h1>פאזל האלופים V3 🖼️</h1>
+        <p>בכל משחק תמונה חדשה! ענו נכון וגלו מה מסתתר.</p>
         
         <div class="puzzle-grid" id="puzzle-grid">
              <!-- 9 puzzle pieces will be generated by JS -->
@@ -190,299 +196,194 @@
     <div id="final-screen" class="final-screen">
         <div id="confetti-container"></div>
         <div class="final-content">
-            <h2>🎉 וואו, אתם אסטרונאוטים של חשבון! 🎉</h2>
-            <img src="https://i.imgur.com/vHqXyT8.jpg" alt="שועל אסטרונאוט" class="final-image">
+            <h2>🎉 כל הכבוד, גיליתם את התמונה! 🎉</h2>
+            <!-- The image source will be set by JavaScript -->
+            <img src="" alt="התמונה שהרכבתם" class="final-image" id="final-puzzle-image">
             
             <h3>איגרת לכובשי הידע</h3>
             <p class="final-letter">
-                כל הכבוד לכם על שהשלמתם את המסע המאתגר הזה!
+                עבודה נפלאה! הצלחתם לפתור את כל החידות ולגלות את התמונה המסתורית.
                 <br>
-                ראיתם? כל פעם קיבלתם שאלה קצת שונה. לפעמים תרגיל בחשבון יכול להרגיש כמו טיסה לחלל לא נודע, אבל אתם הוכחתם שאתם אמיצים, חכמים ולא מוותרים! בדיוק כמו השועל האסטרונאוט שגיליתם, אתם יצאתם לחקור, חשבתם, ובסוף הצלחתם להרכיב את התמונה השלמה.
+                ראיתם? בכל פעם שהתמודדתם עם אתגר חדש, התקרבתם עוד צעד לגילוי התמונה השלמה. כל תשובה נכונה הייתה כמו הבזק של הבנה, שמאיר עוד פינה בעולם הידע שלכם.
                 <br><br>
-                <strong>החיים והלימודים הם ממש כמו הפאזל הדינמי הזה.</strong>
+                <strong>החיים והלימודים הם ממש כמו הפאזל שהרכבתם.</strong>
                 <br>
-                כל יום מביא איתו אתגרים חדשים ובלתי צפויים. היכולת שלכם לקחת את מה שאתם יודעים ולהתמודד עם בעיה חדשה היא כוח-על אמיתי. כל תרגיל שפתרתם היום חיזק את ה"שריר" הזה במוח שלכם.
+                כל יום מביא איתו אתגרים חדשים ובלתי צפויים. היכולת שלכם לקחת את מה שאתם יודעים ולהתמודד עם בעיה חדשה היא כוח-על אמיתי. כל תרגיל שפתרתם היום חיזק את ה"שריר" הזה במוח שלכם, והפך אתכם למסוגלים יותר.
                 <br><br>
-                היכולת לפתור בעיות תפתח לכם בעתיד דלתות לעולמות מופלאים. תוכלו לבנות, להמציא, לחקור ולהגשים כל חלום. כל תרגיל הוא עוד כוכב שאתם מוסיפים לגלקסיה הפרטית שלכם - גלקסיית הידע והכישרון.
+                היכולת לפתור בעיות תפתח לכם בעתיד דלתות לעולמות מופלאים. תוכלו לבנות, להמציא, לחקור ולהגשים כל חלום. כל תרגיל הוא עוד צבע שאתם מוסיפים לציור המרהיב של העתיד שלכם.
                 <br><br>
-                אז תמשיכו להיות סקרנים כמו חוקרי חלל, תמשיכו לשאול שאלות, ואל תפחדו מאתגרים חדשים. אתם כבר בדרך הנכונה להיות כל מה שתרצו.
+                אז תמשיכו להיות סקרנים, תמשיכו לשאול שאלות, ואל תפחדו מאתגרים חדשים. אתם כבר בדרך הנכונה להיות כל מה שתרצו.
                 <br><br>
-                <strong>עבודה מדהימה, אנחנו גאים בכם עד הירח ובחזרה!</strong>
+                <strong>אנחנו גאים בכם מאוד על הנחישות וההצלחה!</strong>
             </p>
         </div>
     </div>
 
 
     <script>
-        // --- UTILITY FUNCTIONS ---
-        function randomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+    // ==========================================================
+    //                  AREA PENTING UNTUK DIEDIT
+    //    כאן נמצא המקום היחיד שצריך לערוך כדי לשנות תמונות
+    // ==========================================================
+    const imagePool = [
+        'https://static.wixstatic.com/media/c7aa4ede3378f0cec372a83b2bf88204.jpg/v1/fill/w_1000,h_819,al_c,q_85/c7aa4ede3378f0cec372a83b2bf88204.jpg',   // אריה מלכותי
+        'https://www.safari.co.il/Images/_croppedImage201961710_5625695.png',   // שועל אסטרונאוט
+        'https://chowchow.co.il/wp-content/uploads/2022/01/aswathy-n-srMHHWCTvcU-unsplash.jpg',   // דב פנדה חמוד
+        'https://dalicanvas.co.il/wp-content/uploads/2022/10/%D7%9E%D7%A9%D7%A4%D7%97%D7%AA-%D7%90%D7%A8%D7%A0%D7%91%D7%95%D7%A0%D7%99%D7%9D1.jpg',   // ינשוף חכם
+        'https://media-cdn.tripadvisor.com/media/photo-s/0b/b5/b1/dc/avec-l-etang.jpg',   // טירה קסומה
+        'https://davidson.org.il/read-experience/wp-content/uploads/sites/3/2013/07/shutterstock_107619971.jpg'   // צב ים
+
+    ];
+    // ==========================================================
+    //                 סוף אזור העריכה
+    // ==========================================================
+
+
+    // --- UTILITY FUNCTIONS ---
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
+    }
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-            }
-        }
+    // --- QUESTION GENERATORS (Same as V2) ---
+    const questionGenerators = [
+        { type: 'חיבור', generate: () => { const num1 = randomInt(100, 899); const num2 = randomInt(100, 899); return { question: `➕ מה הסכום של ${num1} ועוד ${num2}?`, answer: num1 + num2 }; } },
+        { type: 'חיסור', generate: () => { const num1 = randomInt(200, 999); const num2 = randomInt(101, num1 - 50); return { question: `➖ לרוני היו ${num1} ש"ח והיא קנתה משחק ב-${num2} ש"ח. כמה כסף נשאר לה?`, answer: num1 - num2 }; } },
+        { type: 'כפל', generate: () => { const num1 = randomInt(2, 12); const num2 = randomInt(10, 50); return { question: `✖️ בארגז יש ${num2} תפוזים. כמה תפוזים יש ב-${num1} ארגזים?`, answer: num1 * num2 }; } },
+        { type: 'חילוק', generate: () => { const answer = randomInt(3, 12); const divisor = randomInt(2, 10); const dividend = answer * divisor; return { question: `➗ חילקו ${dividend} בלונים שווה בשווה בין ${divisor} ילדים. כמה קיבל כל ילד?`, answer: answer }; } },
+        { type: 'שטח', generate: () => { const length = randomInt(5, 25); const width = randomInt(4, 15); return { question: `🟩 למגרש מלבני יש אורך של ${length} מ' ורוחב של ${width} מ'. מה שטחו?`, answer: length * width }; } },
+        { type: 'היקף', generate: () => { const length = randomInt(10, 30); const width = randomInt(5, 20); return { question: `🏃 מה ההיקף של גינה מלבנית שאורכה ${length} מ' ורוחבה ${width} מ'?`, answer: 2 * (length + width) }; } },
+        { type: 'חזקות', generate: () => { const base = randomInt(2, 12); return { question: `💪 כמה זה ${base} בחזקת 2 (כלומר, ${base} × ${base})?`, answer: base * base }; } },
+        { type: 'סדר פעולות', generate: () => { const num1 = randomInt(3, 9); const num2 = randomInt(5, 12); const num3 = randomInt(10, 30); return { question: `🧠 תרגיל מורכב: ${num1} × ${num2} + ${num3} = ?`, answer: (num1 * num2) + num3 }; } },
+        { type: 'אתגר חילוק וכפל', generate: () => { const num1 = randomInt(20, 50); const num2 = randomInt(2, 5); const num3 = randomInt(2, 5); const product = num1 * num2; if (product % num3 !== 0) { return questionGenerators[8].generate(); } return { question: `🏆 אתגר אחרון: (${num1} × ${num2}) ÷ ${num3} = ?`, answer: product / num3 }; } }
+    ];
 
-        // --- QUESTION GENERATORS ---
-        const questionGenerators = [
-            {
-                type: 'חיבור',
-                generate: () => {
-                    const num1 = randomInt(100, 899);
-                    const num2 = randomInt(100, 899);
-                    const templates = [
-                        `מה הסכום של ${num1} ועוד ${num2}?`,
-                        `אם לדניאל יש ${num1} מדבקות והוא קיבל ${num2} נוספות, כמה מדבקות יש לו עכשיו?`,
-                        `פתרו את התרגיל: ${num1} + ${num2} = ?`
-                    ];
-                    return {
-                        question: `➕ ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: num1 + num2
-                    };
-                }
-            },
-            {
-                type: 'חיסור',
-                generate: () => {
-                    const num1 = randomInt(200, 999);
-                    const num2 = randomInt(101, num1 - 50); // Ensure num2 is smaller
-                    const templates = [
-                        `מה ההפרש בין ${num1} ל-${num2}?`,
-                        `לרוני היו ${num1} ש"ח והיא קנתה משחק ב-${num2} ש"ח. כמה כסף נשאר לה?`,
-                        `פתרו: ${num1} - ${num2} = ?`
-                    ];
-                    return {
-                        question: `➖ ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: num1 - num2
-                    };
-                }
-            },
-            {
-                type: 'כפל',
-                generate: () => {
-                    const num1 = randomInt(2, 12);
-                    const num2 = randomInt(10, 50);
-                    const templates = [
-                        `מהי המכפלה של ${num1} ו-${num2}?`,
-                        `בארגז יש ${num2} תפוזים. כמה תפוזים יש ב-${num1} ארגזים כאלה?`,
-                        `פתרו את התרגיל: ${num1} × ${num2} = ?`
-                    ];
-                    return {
-                        question: `✖️ ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: num1 * num2
-                    };
-                }
-            },
-            {
-                type: 'חילוק',
-                generate: () => {
-                    const answer = randomInt(3, 12);
-                    const divisor = randomInt(2, 10);
-                    const dividend = answer * divisor;
-                    const templates = [
-                        `כמה זה ${dividend} לחלק ל-${divisor}?`,
-                        `חילקו ${dividend} בלונים שווה בשווה בין ${divisor} ילדים. כמה בלונים קיבל כל ילד?`,
-                        `פתרו: ${dividend} ÷ ${divisor} = ?`
-                    ];
-                    return {
-                        question: `➗ ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: answer
-                    };
-                }
-            },
-            {
-                type: 'שטח',
-                generate: () => {
-                    const length = randomInt(5, 25);
-                    const width = randomInt(4, 15);
-                    const templates = [
-                        `למגרש מלבני יש אורך של ${length} מ' ורוחב של ${width} מ'. מה שטחו?`,
-                        `מהו שטחו של חדר שאורכו ${length} ס"מ ורוחבו ${width} ס"מ?`
-                    ];
-                     return {
-                        question: `🟩 ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: length * width
-                    };
-                }
-            },
-            {
-                type: 'היקף',
-                generate: () => {
-                    const length = randomInt(10, 30);
-                    const width = randomInt(5, 20);
-                    const templates = [
-                        `מה ההיקף של גינה מלבנית שאורכה ${length} מ' ורוחבה ${width} מ'?`,
-                        `רוצים להקים גדר סביב מגרש שאורכו ${length} מ' ורוחבו ${width} מ'. מה אורך הגדר?`
-                    ];
-                    return {
-                        question: `🏃 ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: 2 * (length + width)
-                    };
-                }
-            },
-            {
-                type: 'חזקות',
-                generate: () => {
-                    const base = randomInt(2, 12);
-                    const templates = [
-                        `כמה זה ${base} בחזקת 2?`,
-                        `מה התוצאה של ${base} × ${base}?`,
-                        `לריבוע יש צלע באורך ${base}. מה שטחו?`
-                    ];
-                     return {
-                        question: `💪 ${templates[randomInt(0, templates.length - 1)]}`,
-                        answer: base * base
-                    };
-                }
-            },
-            {
-                type: 'סדר פעולות',
-                generate: () => {
-                    const num1 = randomInt(3, 9);
-                    const num2 = randomInt(5, 12);
-                    const num3 = randomInt(10, 30);
-                    return {
-                        question: `🧠 תרגיל מורכב: ${num1} × ${num2} + ${num3} = ?`,
-                        answer: (num1 * num2) + num3
-                    }
-                }
-            },
-            {
-                 type: 'אתגר חילוק וכפל',
-                 generate: () => {
-                    const num1 = randomInt(20, 50);
-                    const num2 = randomInt(2, 5);
-                    const num3 = randomInt(2, 5);
-                    const answer = (num1 * num2) / num3;
-                    // Ensure a whole number answer
-                    if ( (num1 * num2) % num3 !== 0) {
-                        return this.generate(); // Rerun if not a whole number
-                    }
-                    return {
-                        question: `🏆 אתגר אחרון: (${num1} × ${num2}) ÷ ${num3} = ?`,
-                        answer
-                    }
-                 }
-            }
-        ];
+    // --- GAME LOGIC ---
+    let currentQuestionIndex = 0;
+    let currentAnswer = 0;
+    let shuffledGenerators = [];
+    let selectedImageUrl = '';
 
-        // --- GAME LOGIC ---
-        let currentQuestionIndex = 0;
-        let currentAnswer = 0;
-        let shuffledGenerators = [];
+    const questionTextEl = document.getElementById('question-text');
+    const answerInputEl = document.getElementById('answer-input');
+    const submitBtn = document.getElementById('submit-btn');
+    const puzzleGrid = document.getElementById('puzzle-grid');
+    const feedbackTextEl = document.getElementById('feedback-text');
+    const bodyEl = document.querySelector('body');
+    const gameContainerEl = document.getElementById('game-container');
+    const finalScreenEl = document.getElementById('final-screen');
+    const finalImageEl = document.getElementById('final-puzzle-image');
 
-        const questionTextEl = document.getElementById('question-text');
-        const answerInputEl = document.getElementById('answer-input');
-        const submitBtn = document.getElementById('submit-btn');
-        const puzzleGrid = document.getElementById('puzzle-grid');
-        const feedbackTextEl = document.getElementById('feedback-text');
-        const bodyEl = document.querySelector('body');
-        const gameContainerEl = document.getElementById('game-container');
-        const finalScreenEl = document.getElementById('final-screen');
+    function initGame() {
+        // --- NEW: Select a random image and set it up ---
+        selectedImageUrl = imagePool[randomInt(0, imagePool.length - 1)];
+        document.documentElement.style.setProperty('--puzzle-image-url', `url(${selectedImageUrl})`);
+        finalImageEl.src = selectedImageUrl;
 
-        function initGame() {
-            // Create puzzle pieces
-            puzzleGrid.innerHTML = '';
-            for (let i = 0; i < 9; i++) {
-                const piece = document.createElement('div');
-                piece.className = 'puzzle-piece';
-                piece.id = `piece-${i}`;
-                puzzleGrid.appendChild(piece);
-            }
-            // Shuffle and start
-            shuffledGenerators = [...questionGenerators];
-            shuffleArray(shuffledGenerators);
-            displayQuestion();
-        }
-
-        function displayQuestion() {
-            if (currentQuestionIndex < shuffledGenerators.length) {
-                const generator = shuffledGenerators[currentQuestionIndex];
-                const questionData = generator.generate();
-                
-                currentAnswer = questionData.answer;
-                questionTextEl.innerHTML = questionData.question;
-                
-                answerInputEl.value = '';
-                answerInputEl.focus();
-                feedbackTextEl.textContent = '';
-                feedbackTextEl.className = '';
-            } else {
-                endGame();
-            }
-        }
-
-        function checkAnswer() {
-            const userAnswer = parseInt(answerInputEl.value);
-            if (isNaN(userAnswer)) {
-                feedbackTextEl.textContent = 'יש להזין מספר!';
-                feedbackTextEl.className = 'incorrect';
-                answerInputEl.classList.add('incorrect-shake');
-                setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
-                return;
-            }
-
-            if (userAnswer === currentAnswer) {
-                // Correct Answer
-                feedbackTextEl.textContent = 'מעולה! תשובה נכונה! ✨';
-                feedbackTextEl.className = 'correct';
-                bodyEl.classList.add('correct-flash');
-                document.getElementById(`piece-${currentQuestionIndex}`).classList.add('revealed');
-                
-                currentQuestionIndex++;
-                
-                setTimeout(() => {
-                    bodyEl.classList.remove('correct-flash');
-                    displayQuestion();
-                }, 1500);
-
-            } else {
-                // Incorrect Answer
-                feedbackTextEl.textContent = 'אוי, זו לא התשובה. נסו שוב!';
-                feedbackTextEl.className = 'incorrect';
-                answerInputEl.classList.add('incorrect-shake');
-                setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
-            }
-        }
-
-        function endGame() {
-             gameContainerEl.style.opacity = '0';
-             gameContainerEl.style.transform = 'scale(0.8)';
-             setTimeout(() => {
-                gameContainerEl.style.display = 'none';
-                finalScreenEl.classList.add('visible');
-                launchConfetti();
-             }, 500);
+        // Create puzzle pieces
+        puzzleGrid.innerHTML = '';
+        for (let i = 0; i < 9; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'puzzle-piece';
+            piece.id = `piece-${i}`;
+            puzzleGrid.appendChild(piece);
         }
         
-        function launchConfetti() {
-            const confettiContainer = document.getElementById('confetti-container');
-            const colors = ['#ff6b6b', '#4ecdc4', '#feca57', '#1dd1a1', '#ff9f43'];
-            if(confettiContainer.children.length > 0) return; // Prevent multiple launches
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.animationDelay = Math.random() * 5 + 's';
-                confetti.style.width = (Math.random() * 8 + 5) + 'px';
-                confetti.style.height = (Math.random() * 15 + 10) + 'px';
-                confettiContainer.appendChild(confetti);
-            }
+        // Shuffle and start
+        shuffledGenerators = [...questionGenerators];
+        shuffleArray(shuffledGenerators);
+        currentQuestionIndex = 0; // Reset index for new game
+        displayQuestion();
+    }
+
+    function displayQuestion() {
+        if (currentQuestionIndex < shuffledGenerators.length) {
+            const generator = shuffledGenerators[currentQuestionIndex];
+            const questionData = generator.generate();
+            
+            currentAnswer = questionData.answer;
+            questionTextEl.innerHTML = questionData.question;
+            
+            answerInputEl.value = '';
+            answerInputEl.focus();
+            feedbackTextEl.textContent = '';
+            feedbackTextEl.className = '';
+        } else {
+            endGame();
+        }
+    }
+
+    function checkAnswer() {
+        const userAnswer = parseInt(answerInputEl.value);
+        if (isNaN(userAnswer)) {
+            feedbackTextEl.textContent = 'יש להזין מספר!';
+            feedbackTextEl.className = 'incorrect';
+            answerInputEl.classList.add('incorrect-shake');
+            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
+            return;
         }
 
-        submitBtn.addEventListener('click', checkAnswer);
-        answerInputEl.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                checkAnswer();
-            }
-        });
+        if (userAnswer === currentAnswer) {
+            feedbackTextEl.textContent = 'מעולה! תשובה נכונה! ✨';
+            feedbackTextEl.className = 'correct';
+            bodyEl.classList.add('correct-flash');
+            document.getElementById(`piece-${currentQuestionIndex}`).classList.add('revealed');
+            
+            currentQuestionIndex++;
+            
+            setTimeout(() => {
+                bodyEl.classList.remove('correct-flash');
+                displayQuestion();
+            }, 1500);
+        } else {
+            feedbackTextEl.textContent = 'אוי, זו לא התשובה. נסו שוב!';
+            feedbackTextEl.className = 'incorrect';
+            answerInputEl.classList.add('incorrect-shake');
+            setTimeout(() => answerInputEl.classList.remove('incorrect-shake'), 500);
+        }
+    }
 
-        // Start the game
-        initGame();
+    function endGame() {
+         gameContainerEl.style.opacity = '0';
+         gameContainerEl.style.transform = 'scale(0.8)';
+         setTimeout(() => {
+            gameContainerEl.style.display = 'none';
+            finalScreenEl.classList.add('visible');
+            launchConfetti();
+         }, 500);
+    }
+    
+    function launchConfetti() {
+        const confettiContainer = document.getElementById('confetti-container');
+        const colors = ['#5e72e4', '#2dce89', '#f5365c', '#11cdef', '#fb6340'];
+        if(confettiContainer.children.length > 0) return;
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 5 + 's';
+            confetti.style.width = (Math.random() * 8 + 5) + 'px';
+            confetti.style.height = (Math.random() * 15 + 10) + 'px';
+            confettiContainer.appendChild(confetti);
+        }
+    }
+
+    submitBtn.addEventListener('click', checkAnswer);
+    answerInputEl.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+            checkAnswer();
+        }
+    });
+
+    // Start the game
+    initGame();
     </script>
 </body>
 </html>
