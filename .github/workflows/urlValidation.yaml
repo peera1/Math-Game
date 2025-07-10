@@ -35,7 +35,8 @@ jobs:
 
       # שלב 2: בדיקת קישורים באמצעות lycheejs/lychee-action
       - name: 🔗 בדיקת קישורים בקבצי HTML
-        uses: lycheejs/lychee-action@v1.x # שימוש באקשן של lychee לבדיקת קישורים
+        # *** תיקון כאן: שינוי מ-v1.x ל-v6 ***
+        uses: lycheejs/lychee-action@v6 # שימוש באקשן של lychee בגרסה הנוכחית
         with:
           # הארגומנטים עבור כלי ה-lychee.
           # אנו מציינים כאן את כל קבצי ה-HTML שאנו רוצים לסרוק.
