@@ -24,4 +24,4 @@ jobs:
 
     - name: Check links in index.html
       run: |
-        python3 .github/scripts/check_links.py
+        python3 /scripts/check_links.py
