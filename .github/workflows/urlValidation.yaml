@@ -2,40 +2,26 @@ name: Check Broken Links
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   check-links:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Check all links in index.html
-        run: |
-          # מחפש את כל הלינקים בקובץ ה-HTML
-          LINKS=$(grep -oP '(?<=href=")[^"]+' index.html)
+    - name: Install dependencies
+      run: pip install beautifulsoup4 requests
 
-          # בודק את הלינקים
-          for link in $LINKS; do
-            echo "בודק את הלינק: $link"
-            STATUS=$(wget --spider --quiet --max-redirect=0 $link 2>&1 | grep "HTTP/" | awk '{print $2}')
-            
-            if [ "$STATUS" != "200" ]; then
-              echo "הנך נתקלת בשגיאה בלינק: $link. סטטוס: $STATUS"
-              exit 1
-            else
-              echo "הלינק $link תקין (סטטוס: 200)"
-            fi
-          done
-          
-          echo "כל הלינקים תקינים!"
+    - name: Check links in index.html
+      run: |
+        python3 .github/scripts/check_links.py
