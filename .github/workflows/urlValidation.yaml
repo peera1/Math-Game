@@ -4,30 +4,37 @@ name: בדיקת תקינות קישורים באתר
 
 # הגדרת הטריגרים להפעלת ה-workflow
 on:
+  # 1. הפעלה בכל PUSH לענף הראשי
   push:
     branches:
       - main # שנה ל-master אם זה שם הענף הראשי שלך
   
+  # 2. הפעלה בכל Pull Request לענף הראשי
   pull_request:
     branches:
       - main # שנה ל-master אם זה שם הענף הראשי שלך
       
+  # 3. הפעלה ידנית מתוך לשונית "Actions" ב-GitHub
   workflow_dispatch:
 
+  # 4. הפעלה אוטומטית לפי לוח זמנים (כל יום בחצות UTC)
   schedule:
     - cron: '0 0 * * *' 
 
 # הגדרת ה-jobs (משימות) שירוצו
 jobs:
   check_html_links:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # מערכת ההפעלה שעליה ירוץ ה-job
 
     steps:
+      # שלב 1: משיכת קוד הפרויקט
       - name: ⬇️ משיכת קוד הריפוזיטורי
         uses: actions/checkout@v4
 
+      # שלב 2: בדיקת קישורים באמצעות lycheejs/lychee-action
       - name: 🔗 בדיקת קישורים בקבצי HTML
-        uses: lycheejs/lychee-action@v6 # שימוש בגרסה v6
+        # *** תיקון כאן: שימוש בגרסה הנכונה v1 ***
+        uses: lycheejs/lychee-action@v1 
         with:
           args: |
             ./index.html
@@ -38,6 +45,4 @@ jobs:
             --timeout 30s
             --max-retries 3
             --exclude 'mailto:.*|tel:.*|http://example.com'
-            --verbose # *** הוספתי (או הדגשתי) את הדגל הזה ללוג מפורט ***
-            # --base-url 'https://your-website.com/' 
-          
+            --verbose # הצגת מידע מפורט (כולל כל URL שנבדק)
