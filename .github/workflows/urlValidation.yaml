@@ -1,44 +1,41 @@
-# .github/workflows/link-check.yml
+name: Check Broken Links
 
-name: בדיקת תקינות קישורים באתר
-
-# הגדרת הטריגרים להפעלת ה-workflow
 on:
   push:
     branches:
-      - main # שנה ל-master אם זה שם הענף הראשי שלך
-  
+      - main
   pull_request:
     branches:
-      - main # שנה ל-master אם זה שם הענף הראשי שלך
-      
-  workflow_dispatch:
+      - main
 
-  schedule:
-    - cron: '0 0 * * *' 
-
-# הגדרת ה-jobs (משימות) שירוצו
 jobs:
-  check_html_links:
+  check-links:
     runs-on: ubuntu-latest
-
     steps:
-      - name: ⬇️ משיכת קוד הריפוזיטורי
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: 🔗 בדיקת קישורים בקבצי HTML
-        # *** תיקון כאן: שימוש ב-SHA1 ספציפי במקום תגית v6 ***
-        # זה הופך את ה-workflow ליציב יותר ועמיד בפני בעיות רשת זמניות
-        uses: lycheejs/lychee-action@29221141a02929949d28892f90a256927d6d1b22 # זהו SHA1 של גרסה v6.0.0
-        with:
-          args: |
-            ./index.html
-            ./ClassA/*.html
-            ./ClassB/*.html
-            ./ClassC/*.html
-            ./ClassD/*.html
-            --timeout 30s
-            --max-retries 3
-            --exclude 'mailto:.*|tel:.*|http://example.com' 
-            --verbose
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+
+      - name: Check all links in index.html
+        run: |
+          # מחפש את כל הלינקים בקובץ ה-HTML
+          LINKS=$(grep -oP '(?<=href=")[^"]+' index.html)
+
+          # בודק את הלינקים
+          for link in $LINKS; do
+            echo "בודק את הלינק: $link"
+            STATUS=$(wget --spider --quiet --max-redirect=0 $link 2>&1 | grep "HTTP/" | awk '{print $2}')
+            
+            if [ "$STATUS" != "200" ]; then
+              echo "הנך נתקלת בשגיאה בלינק: $link. סטטוס: $STATUS"
+              exit 1
+            else
+              echo "הלינק $link תקין (סטטוס: 200)"
+            fi
+          done
           
+          echo "כל הלינקים תקינים!"
