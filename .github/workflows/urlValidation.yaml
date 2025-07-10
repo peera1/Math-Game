@@ -1,0 +1,59 @@
+# .github/workflows/link-check.yml
+
+name: בדיקת תקינות קישורים באתר
+
+# הגדרת הטריגרים להפעלת ה-workflow
+on:
+  # 1. הפעלה בכל PUSH לענף הראשי
+  push:
+    branches:
+      - main # שנה ל-master אם זה שם הענף הראשי שלך
+  
+  # 2. הפעלה בכל Pull Request לענף הראשי
+  pull_request:
+    branches:
+      - main # שנה ל-master אם זה שם הענף הראשי שלך
+      
+  # 3. הפעלה ידנית מתוך לשונית "Actions" ב-GitHub
+  workflow_dispatch:
+
+  # 4. הפעלה אוטומטית לפי לוח זמנים (כל יום בחצות UTC)
+  # הערה: לוח הזמנים ב-GitHub Actions מבוסס על זמן UTC.
+  # "0 0 * * *" = כל יום בחצות (שעה 0, דקה 0).
+  schedule:
+    - cron: '0 0 * * *' 
+
+# הגדרת ה-jobs (משימות) שירוצו
+jobs:
+  check_html_links:
+    runs-on: ubuntu-latest # מערכת ההפעלה שעליה ירוץ ה-job
+
+    steps:
+      # שלב 1: משיכת קוד הפרויקט
+      - name: ⬇️ משיכת קוד הריפוזיטורי
+        uses: actions/checkout@v4 # אקשן סטנדרטי למשיכת קוד הפרויקט
+
+      # שלב 2: בדיקת קישורים באמצעות lycheejs/lychee-action
+      - name: 🔗 בדיקת קישורים בקבצי HTML
+        uses: lycheejs/lychee-action@v1.x # שימוש באקשן של lychee לבדיקת קישורים
+        with:
+          # הארגומנטים עבור כלי ה-lychee.
+          # אנו מציינים כאן את כל קבצי ה-HTML שאנו רוצים לסרוק.
+          # lychee יזהה ויבדוק גם קישורים יחסיים בתוך הקבצים.
+          args: |
+            ./index.html
+            ./ClassA/*.html
+            ./ClassB/*.html
+            ./ClassC/*.html
+            ./ClassD/*.html
+            # ניתן להוסיף ארגומנטים נוספים לשליטה מדויקת יותר:
+            --timeout 30s # זמן קצוב מקסימלי לבדיקת קישור יחיד
+            --max-retries 3 # מספר ניסיונות חוזרים עבור קישורים שנכשלו זמנית
+            --exclude 'mailto:.*|tel:.*|http://example.com' # דפוסים (regex) של קישורים להתעלם מהם (לדוגמה, קישורי אימייל/טלפון או דומיינים חיצוניים ספציפיים).
+            --verbose # הצגת מידע מפורט יותר ב-log של ה-workflow
+            # --base-url 'https://your-website.com/' # אם האתר שלך פרוס בכתובת מסוימת, זה יכול לעזור בפתרון קישורים יחסיים שאינם קבצים מקומיים.
+          
+      # שלב 3 (אופציונלי): דיווח תוצאות
+      # lychee כבר ידאג שה-job ייכשל אם יש קישורים שבורים.
+      # תוכל להוסיף כאן שלב נוסף לשמירת דוח מפורט יותר אם תרצה,
+      # למשל באמצעות `actions/upload-artifact` כדי לשמור את קובץ ה-report של lychee.
