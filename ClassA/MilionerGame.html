@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מתמטיקאי המיליון! 💰</title>
+    
+    <!-- פונטים מ-Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Styles -->
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* ירוק בהיר */
+            --secondary-color: #FFC107; /* צהוב */
+            --accent-color: #2196F3; /* כחול */
+            --bg-color: #f0f8ff; /* כחול בהיר מאוד */
+            --text-color: #333;
+            --correct-color: #4CAF50;
+            --incorrect-color: #f44336;
+            --shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="15" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 50px 50px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--accent-color);
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            color: #DAA520; /* זהב עמוק */
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
+        }
+
+        .game-container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: var(--shadow-heavy);
+            padding: 40px;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-screen {
+            display: none;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* הגדרות מסך */
+        #config-screen .config-section {
+            background-color: #e8f5e9;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-light);
+            border: 2px solid var(--primary-color);
+        }
+
+        #config-screen h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        /* Checkbox עיצוב מותאם אישית */
+        .checkbox-container {
+            display: block;
+            position: relative;
+            padding-right: 35px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-size: 1.2em;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            text-align: right; /* יישור לימין */
+            padding-left: 0;
+            padding-right: 35px; /* Adjust padding for right-to-left */
+        }
+
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            right: 0; /* Position to the right */
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border-radius: 5px;
+            border: 2px solid var(--accent-color);
+        }
+
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--accent-color);
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
+        }
+
+        .main-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.6em;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+            margin-top: 20px;
+            width: auto;
+            display: inline-block;
+        }
+
+        .main-button:hover {
+            background-color: #4CAF50; /* A bit darker green */
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .main-button:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-light);
+        }
+
+        /* מסך המשחק */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background-color: var(--secondary-color);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-light);
+        }
+
+        .level-indicator, .money-display {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.5em;
+            color: #8B4513; /* חום כהה */
+            display: flex;
+            align-items: center;
+        }
+
+        .money-display .money-icon {
+            height: 30px;
+            margin-left: 10px; /* Adjust for RTL */
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--primary-color);
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+        }
+
+        .question-box {
+            background-color: #f9f9f9;
+            border: 3px solid var(--accent-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-heavy);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #question-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.5em;
+            color: var(--text-color);
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        #answer-input {
+            width: 60%;
+            max-width: 250px;
+            padding: 15px;
+            font-size: 2em;
+            text-align: center;
+            border: 3px solid var(--secondary-color);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        #answer-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .feedback-message {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.8em;
+            margin-top: 20px;
+            height: 1.2em; /* Ensure consistent height */
+        }
+
+        .feedback-message.correct {
+            color: var(--correct-color);
+            animation: bounceIn 0.8s;
+        }
+
+        .feedback-message.incorrect {
+            color: var(--incorrect-color);
+            animation: shake 0.5s;
+        }
+
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                -webkit-transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+                transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+            }
+            0% { opacity: 0; -webkit-transform: scale3d(.3, .3, .3); transform: scale3d(.3, .3, .3); }
+            20% { -webkit-transform: scale3d(1.1, 1.1, 1.1); transform: scale3d(1.1, 1.1, 1.1); }
+            40% { -webkit-transform: scale3d(.9, .9, .9); transform: scale3d(.9, .9, .9); }
+            60% { opacity: 1; -webkit-transform: scale3d(1.03, 1.03, 1.03); transform: scale3d(1.03, 1.03, 1.03); }
+            80% { -webkit-transform: scale3d(.97, .97, .97); transform: scale3d(.97, .97, .97); }
+            100% { opacity: 1; -webkit-transform: scale3d(1, 1, 1); transform: scale3d(1, 1, 1); }
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(+2px, 0, 0); }
+            30%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(+4px, 0, 0); }
+            50% { transform: translate3d(-4px, 0, 0); }
+        }
+
+        /* מסך סיכום */
+        #summary-screen h2 {
+            color: var(--primary-color);
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        #summary-screen p {
+            font-size: 1.5em;
+            color: var(--text-color);
+            margin-bottom: 30px;
+        }
+
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-light);
+            border-radius: 10px;
+            overflow: hidden; /* For rounded corners on table */
+        }
+
+        #summary-table th, #summary-table td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        #summary-table thead {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        #summary-table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #summary-table tbody tr:hover {
+            background-color: #e0f2f7;
+        }
+
+        /* כפתור איפוס משחק */
+        #restart-game-btn {
+            background-color: var(--accent-color);
+        }
+
+        #restart-game-btn:hover {
+            background-color: #1976D2; /* Darker blue */
+        }
+
+        /* רספונסיביות */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+            .game-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            .main-button {
+                font-size: 1.3em;
+                padding: 12px 25px;
+            }
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .level-indicator, .money-display {
+                font-size: 1.2em;
+            }
+            #question-text {
+                font-size: 2.5em;
+            }
+            #answer-input {
+                font-size: 1.8em;
+                width: 80%;
+            }
+            .feedback-message {
+                font-size: 1.5em;
+            }
+            #summary-table th, #summary-table td {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .game-container {
+                padding: 15px;
+            }
+            #question-text {
+                font-size: 2em;
+            }
+            #answer-input {
+                font-size: 1.5em;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>מתמטיקאי המיליון! 💰</h1>
+
+        <!-- מסך הגדרות -->
+        <div id="config-screen" class="game-screen active">
+            <h2>הגדרות המשחק</h2>
+            <div class="config-section">
+                <h3>בחר פעולות חשבון:</h3>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-add" checked>
+                    <span class="checkmark"></span>חיבור (+)
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-sub">
+                    <span class="checkmark"></span>חיסור (-)
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-mul">
+                    <span class="checkmark"></span>כפל (×)
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-div">
+                    <span class="checkmark"></span>חילוק (÷)
+                </label>
+            </div>
+            <div class="config-section">
+                <h3>עד איזה מספר יהיו השאלות?</h3>
+                <input type="number" id="max-number" value="10" min="5" max="1000">
+            </div>
+            <button id="start-game-btn" class="main-button">בואו נתחיל!</button>
+        </div>
+
+        <!-- מסך המשחק -->
+        <div id="game-screen" class="game-screen">
+            <div class="game-header">
+                <div class="level-indicator">שלב <span id="current-level">1</span> מתוך <span id="total-levels">10</span></div>
+                <div class="money-display">
+                    <img src="https://em-content.zobj.net/source/apple/354/money-bag_1f4b0.png" alt="כסף" class="money-icon">
+                    <span id="current-winnings">0</span> ש"ח
+                </div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="game-progress-bar"></div>
+            </div>
+
+            <div class="question-box">
+                <p id="question-text">מה התשובה ל...?</p>
+                <input type="number" id="answer-input" placeholder="הכנס תשובה כאן" autofocus>
+                <button id="submit-answer-btn" class="main-button">שלח תשובה</button>
+                <div id="feedback-message" class="feedback-message"></div>
+            </div>
+        </div>
+
+        <!-- מסך סיכום -->
+        <div id="summary-screen" class="game-screen">
+            <h2>🎉 כל הכבוד! המשחק הסתיים! 🎉</h2>
+            <p id="final-message"></p>
+            <h3>סיכום ביצועים:</h3>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>שאלה</th>
+                        <th>תשובה נכונה</th>
+                        <th>תשובה שלך</th>
+                        <th>זמן (שניות)</th>
+                        <th>ניסיונות</th>
+                        <th>סטטוס</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- שורות יתווספו כאן ע"י JS -->
+                </tbody>
+            </table>
+            <button id="restart-game-btn" class="main-button">שחק שוב!</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const configScreen = document.getElementById('config-screen');
+            const gameScreen = document.getElementById('game-screen');
+            const summaryScreen = document.getElementById('summary-screen');
+
+            const opAdd = document.getElementById('op-add');
+            const opSub = document.getElementById('op-sub');
+            const opMul = document.getElementById('op-mul');
+            const opDiv = document.getElementById('op-div');
+            const maxNumberInput = document.getElementById('max-number');
+            const startGameBtn = document.getElementById('start-game-btn');
+
+            const currentLevelSpan = document.getElementById('current-level');
+            const totalLevelsSpan = document.getElementById('total-levels');
+            const currentWinningsSpan = document.getElementById('current-winnings');
+            const gameProgressBar = document.getElementById('game-progress-bar');
+            const questionText = document.getElementById('question-text');
+            const answerInput = document.getElementById('answer-input');
+            const submitAnswerBtn = document.getElementById('submit-answer-btn');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            const finalMessage = document.getElementById('final-message');
+            const summaryTableBody = document.querySelector('#summary-table tbody');
+            const restartGameBtn = document.getElementById('restart-game-btn');
+
+            // --- Game State Variables ---
+            const gameConfig = {
+                operators: ['+'], // Default: Addition
+                maxNumber: 10,    // Default: Numbers up to 10
+                totalLevels: 10,
+                moneyPerLevel: [
+                    100, 200, 300, 500, 1000,
+                    2000, 4000, 8000, 16000, 1000000
+                ]
+            };
+
+            let currentLevel = 0;
+            let currentWinnings = 0;
+            let currentQuestion = null;
+            let questionStartTime = 0;
+            let gameLog = []; // Stores data for summary: { question, correctAnswer, userAnswer, timeTaken, attempts, status }
+
+            // --- Functions ---
+
+            /**
+             * Switches between game screens.
+             * @param {HTMLElement} screenToShow - The screen to make active.
+             */
+            const showScreen = (screenToShow) => {
+                [configScreen, gameScreen, summaryScreen].forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                screenToShow.classList.add('active');
+            };
+
+            /**
+             * Generates a random integer between min (inclusive) and max (inclusive).
+             */
+            const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            /**
+             * Generates a math question based on current level and config.
+             * Difficulty increases by increasing operand range.
+             * Returns { problem: string, answer: number }.
+             */
+            const generateQuestion = () => {
+                const selectedOps = gameConfig.operators;
+                if (selectedOps.length === 0) {
+                    alert('אנא בחר לפחות פעולת חשבון אחת כדי להתחיל את המשחק!');
+                    return null;
+                }
+
+                const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
+                let num1, num2, answer;
+                let maxNumForLevel = gameConfig.maxNumber;
+
+                // Scale max number based on level for difficulty increase
+                if (currentLevel >= 7) { // Hardest levels
+                    maxNumForLevel = Math.min(gameConfig.maxNumber * 5, 1000);
+                } else if (currentLevel >= 4) { // Medium levels
+                    maxNumForLevel = Math.min(gameConfig.maxNumber * 2, 500);
+                }
+                maxNumForLevel = Math.max(maxNumForLevel, 10); // Ensure a minimum max number
+
+                switch (operator) {
+                    case '+':
+                        num1 = getRandomInt(1, maxNumForLevel);
+                        num2 = getRandomInt(1, maxNumForLevel);
+                        answer = num1 + num2;
+                        return { problem: `${num1} + ${num2} = ?`, answer: answer, op: '+' };
+                    case '-':
+                        num1 = getRandomInt(1, maxNumForLevel);
+                        num2 = getRandomInt(1, num1); // Ensure positive result
+                        answer = num1 - num2;
+                        return { problem: `${num1} - ${num2} = ?`, answer: answer, op: '-' };
+                    case '*':
+                        // For multiplication, keep numbers slightly smaller if maxNumForLevel is very high
+                        const maxMulNum = Math.min(maxNumForLevel, 50); // Prevent excessively large products
+                        num1 = getRandomInt(1, Math.min(maxMulNum, 20)); // Keep one factor smaller
+                        num2 = getRandomInt(1, maxMulNum);
+                        answer = num1 * num2;
+                        return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
+                    case '/':
+                        let result, divisor, dividend;
+                        do {
+                            result = getRandomInt(1, Math.min(maxNumForLevel, 20)); // Keep result reasonable
+                            divisor = getRandomInt(1, Math.min(maxNumForLevel, 20)); // Keep divisor reasonable
+                            dividend = result * divisor;
+                        } while (dividend > maxNumForLevel * 2 || divisor === 0); // Ensure dividend is not too large and divisor is not zero
+
+                        answer = result;
+                        return { problem: `${dividend} ÷ ${divisor} = ?`, answer: answer, op: '/' };
+                }
+            };
+
+            /**
+             * Starts a new game or restarts an existing one.
+             */
+            const startGame = () => {
+                // Read configuration
+                gameConfig.operators = [];
+                if (opAdd.checked) gameConfig.operators.push('+');
+                if (opSub.checked) gameConfig.operators.push('-');
+                if (opMul.checked) gameConfig.operators.push('*');
+                if (opDiv.checked) gameConfig.operators.push('/');
+
+                gameConfig.maxNumber = parseInt(maxNumberInput.value);
+
+                if (gameConfig.operators.length === 0) {
+                    alert('אנא בחר לפחות פעולת חשבון אחת!');
+                    return;
+                }
+                if (isNaN(gameConfig.maxNumber) || gameConfig.maxNumber < 5) {
+                    alert('אנא הזן מספר מקסימלי חוקי (מינימום 5)!');
+                    return;
+                }
+
+                // Reset game state
+                currentLevel = 0;
+                currentWinnings = 0;
+                gameLog = [];
+                showScreen(gameScreen);
+                nextQuestion();
+            };
+
+            /**
+             * Advances to the next question or ends the game.
+             */
+            const nextQuestion = () => {
+                currentLevel++;
+                if (currentLevel > gameConfig.totalLevels) {
+                    endGame();
+                    return;
+                }
+
+                currentQuestion = generateQuestion();
+                if (!currentQuestion) { // Handle case where no operators selected
+                     showScreen(configScreen); // Go back to config
+                     return;
+                }
+
+                questionText.textContent = currentQuestion.problem;
+                answerInput.value = '';
+                answerInput.focus();
+                feedbackMessage.textContent = '';
+                feedbackMessage.className = 'feedback-message'; // Reset feedback styles
+
+                currentLevelSpan.textContent = currentLevel;
+                totalLevelsSpan.textContent = gameConfig.totalLevels;
+                currentWinningsSpan.textContent = currentWinnings;
+                updateProgressBar();
+                questionStartTime = Date.now(); // Start timer for current question
+            };
+
+            /**
+             * Updates the game progress bar.
+             */
+            const updateProgressBar = () => {
+                const progress = (currentLevel - 1) / gameConfig.totalLevels * 100;
+                gameProgressBar.style.width = `${progress}%`;
+            };
+
+            /**
+             * Checks the user's answer.
+             */
+            const checkAnswer = () => {
+                const userAnswer = parseInt(answerInput.value);
+                const correctAnswer = currentQuestion.answer;
+                const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1);
+
+                if (isNaN(userAnswer)) {
+                    feedbackMessage.textContent = 'אנא הזן מספר!';
+                    feedbackMessage.classList.add('incorrect');
+                    return;
+                }
+
+                // Initialize log entry for the current question if it doesn't exist
+                let logEntry = gameLog.find(entry => entry.question === currentQuestion.problem);
+                if (!logEntry) {
+                    logEntry = {
+                        question: currentQuestion.problem,
+                        correctAnswer: correctAnswer,
+                        userAnswer: null, // Will be updated on first attempt
+                        timeTaken: 0, // Will be updated on first correct attempt
+                        attempts: 0,
+                        status: 'Incorrect'
+                    };
+                    gameLog.push(logEntry);
+                }
+
+                logEntry.attempts++;
+                logEntry.userAnswer = userAnswer; // Always update with latest attempt
+
+                if (userAnswer === correctAnswer) {
+                    feedbackMessage.textContent = '🥳 נכון מאוד! כל הכבוד! 🥳';
+                    feedbackMessage.classList.add('correct');
+                    currentWinnings = gameConfig.moneyPerLevel[currentLevel - 1]; // Update winnings for this level
+                    currentWinningsSpan.textContent = currentWinnings;
+
+                    logEntry.status = 'Correct';
+                    logEntry.timeTaken = timeTaken; // Record time only on correct answer
+
+                    // Move to next question after a short delay to show feedback
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 1500);
+                } else {
+                    feedbackMessage.textContent = '😔 טעות... נסה שוב!';
+                    feedbackMessage.classList.add('incorrect');
+                    answerInput.value = ''; // Clear input for retry
+                }
+            };
+
+            /**
+             * Ends the game and displays the summary screen.
+             */
+            const endGame = () => {
+                showScreen(summaryScreen);
+                let finalText = '';
+                if (currentLevel > gameConfig.totalLevels) { // This means all levels were completed
+                    finalText = `הגעת למיליון שקלים! אתה אשף מתמטיקה! 🚀`;
+                } else { // This means the game ended prematurely (e.g., if user decided to restart or hit an error)
+                    finalText = `המשחק הסתיים בנקודה זו. נסה שוב להגיע למיליון! 🎯`;
+                }
+                finalMessage.textContent = finalText;
+                displaySummary();
+            };
+
+            /**
+             * Populates the summary table with game data.
+             */
+            const displaySummary = () => {
+                summaryTableBody.innerHTML = ''; // Clear previous summary
+                gameLog.forEach(entry => {
+                    const row = summaryTableBody.insertRow();
+                    row.insertCell().textContent = entry.question;
+                    row.insertCell().textContent = entry.correctAnswer;
+                    row.insertCell().textContent = entry.userAnswer !== null ? entry.userAnswer : 'לא ענה';
+                    row.insertCell().textContent = entry.timeTaken > 0 ? entry.timeTaken : '-';
+                    row.insertCell().textContent = entry.attempts;
+                    
+                    const statusCell = row.insertCell();
+                    statusCell.textContent = entry.status === 'Correct' ? 'נכון' : 'לא נכון';
+                    statusCell.style.color = entry.status === 'Correct' ? 'var(--correct-color)' : 'var(--incorrect-color)';
+                    statusCell.style.fontWeight = 'bold';
+                });
+            };
+
+            /**
+             * Event Listeners
+             */
+            startGameBtn.addEventListener('click', startGame);
+            submitAnswerBtn.addEventListener('click', checkAnswer);
+            answerInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+            restartGameBtn.addEventListener('click', () => {
+                currentLevel = 0;
+                currentWinnings = 0;
+                gameLog = [];
+                answerInput.value = '';
+                feedbackMessage.textContent = '';
+                feedbackMessage.className = 'feedback-message';
+                updateProgressBar(); // Reset progress bar
+                showScreen(configScreen); // Go back to config screen
+            });
+
+            // Initial setup: show config screen
+            showScreen(configScreen);
+            updateProgressBar(); // Initialize progress bar to 0%
+        });
+    </script>
+</body>
+</html>
