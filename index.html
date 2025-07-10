@@ -335,7 +335,8 @@
             });
 
             setTimeout(() => {
-                window.location.href = url;
+                // השינוי העיקרי כאן: פותח בטאב חדש
+                window.open(url, '_blank'); 
             }, 500);
         }
 
