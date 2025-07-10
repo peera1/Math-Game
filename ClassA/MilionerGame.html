@@ -459,7 +459,7 @@
                 </label>
             </div>
             <div class="config-section">
-                <h3>עד איזה מספר יהיו השאלות?</h3>
+                <h3>עד איזה מספר יהיו התוצאות?</h3>
                 <input type="number" id="max-number" value="10" min="5" max="1000">
             </div>
             <button id="start-game-btn" class="main-button">בואו נתחיל!</button>
@@ -542,7 +542,7 @@
             // --- Game State Variables ---
             const gameConfig = {
                 operators: ['+'], // Default: Addition
-                maxNumber: 10,    // Default: Numbers up to 10
+                maxNumber: 10,    // Default: Results up to 10
                 totalLevels: 10,
                 moneyPerLevel: [
                     100, 200, 300, 500, 1000,
@@ -588,44 +588,81 @@
 
                 const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
                 let num1, num2, answer;
-                let maxNumForLevel = gameConfig.maxNumber;
 
-                // Scale max number based on level for difficulty increase
+                // Scale the maximum *result* based on level for difficulty increase
+                let maxResultForThisLevel = gameConfig.maxNumber;
                 if (currentLevel >= 7) { // Hardest levels
-                    maxNumForLevel = Math.min(gameConfig.maxNumber * 5, 1000);
+                    maxResultForThisLevel = Math.min(gameConfig.maxNumber * 5, 1000); // Result up to 1000
                 } else if (currentLevel >= 4) { // Medium levels
-                    maxNumForLevel = Math.min(gameConfig.maxNumber * 2, 500);
+                    maxResultForThisLevel = Math.min(gameConfig.maxNumber * 2, 500);  // Result up to 500
                 }
-                maxNumForLevel = Math.max(maxNumForLevel, 10); // Ensure a minimum max number
+                maxResultForThisLevel = Math.max(maxResultForThisLevel, 5); // Ensure a minimum max result (e.g. 5)
 
                 switch (operator) {
                     case '+':
-                        num1 = getRandomInt(1, maxNumForLevel);
-                        num2 = getRandomInt(1, maxNumForLevel);
+                        // num1 + num2 = answer, where answer <= maxResultForThisLevel and operands are non-negative
+                        num1 = getRandomInt(0, maxResultForThisLevel);
+                        num2 = getRandomInt(0, maxResultForThisLevel - num1); // Ensure num1 + num2 doesn't exceed maxResultForThisLevel
                         answer = num1 + num2;
                         return { problem: `${num1} + ${num2} = ?`, answer: answer, op: '+' };
-                    case '-':
-                        num1 = getRandomInt(1, maxNumForLevel);
-                        num2 = getRandomInt(1, num1); // Ensure positive result
-                        answer = num1 - num2;
-                        return { problem: `${num1} - ${num2} = ?`, answer: answer, op: '-' };
-                    case '*':
-                        // For multiplication, keep numbers slightly smaller if maxNumForLevel is very high
-                        const maxMulNum = Math.min(maxNumForLevel, 50); // Prevent excessively large products
-                        num1 = getRandomInt(1, Math.min(maxMulNum, 20)); // Keep one factor smaller
-                        num2 = getRandomInt(1, maxMulNum);
-                        answer = num1 * num2;
-                        return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
-                    case '/':
-                        let result, divisor, dividend;
-                        do {
-                            result = getRandomInt(1, Math.min(maxNumForLevel, 20)); // Keep result reasonable
-                            divisor = getRandomInt(1, Math.min(maxNumForLevel, 20)); // Keep divisor reasonable
-                            dividend = result * divisor;
-                        } while (dividend > maxNumForLevel * 2 || divisor === 0); // Ensure dividend is not too large and divisor is not zero
 
-                        answer = result;
-                        return { problem: `${dividend} ÷ ${divisor} = ?`, answer: answer, op: '/' };
+                    case '-':
+                        // num1 - num2 = answer, where 0 <= answer <= maxResultForThisLevel
+                        // and num1 >= num2 (for non-negative result)
+                        do {
+                            num1 = getRandomInt(0, maxResultForThisLevel + Math.floor(maxResultForThisLevel / 2) + 10); // Allow num1 to be slightly larger than maxResultForThisLevel
+                            num2 = getRandomInt(0, num1); // Ensure num2 <= num1 for non-negative answer
+                            answer = num1 - num2;
+                        } while (answer < 0 || answer > maxResultForThisLevel);
+                        return { problem: `${num1} - ${num2} = ?`, answer: answer, op: '-' };
+
+                    case '*':
+                        // num1 * num2 = answer, where answer <= maxResultForThisLevel
+                        // Keep factors reasonable for kids (e.g., up to 12 or 20 for one factor)
+                        let productMax = maxResultForThisLevel;
+                        let maxFactor1 = Math.min(productMax, 15); // Limit first factor for multiplication to keep it simpler
+                        
+                        let attempts = 0;
+                        do {
+                            num1 = getRandomInt(0, maxFactor1);
+                            if (num1 === 0) { // If num1 is 0, num2 can be anything, answer will be 0
+                                num2 = getRandomInt(0, maxFactor1); 
+                            } else {
+                                num2 = getRandomInt(0, Math.floor(productMax / num1)); // Ensure product fits
+                            }
+                            answer = num1 * num2;
+                            attempts++;
+                        } while (answer > productMax && attempts < 50); // Try to get a valid question, prevent infinite loop
+                        
+                        // Fallback if it's too hard to find a suitable pair (e.g., productMax is tiny)
+                        if (attempts >= 50) {
+                            num1 = getRandomInt(0, Math.min(5, productMax));
+                            num2 = getRandomInt(0, Math.min(5, productMax));
+                            answer = num1 * num2;
+                            if (answer > productMax) answer = 0; // Force 0 if still out of range
+                        }
+
+                        return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
+
+                    case '/':
+                        // dividend / divisor = answer, where 0 <= answer <= maxResultForThisLevel
+                        // Make sure dividend is perfectly divisible by divisor
+                        do {
+                            answer = getRandomInt(0, maxResultForThisLevel); // This is the desired result
+                            let maxDivisorForOperand = Math.min(maxResultForThisLevel + 10, 20); // Limit divisor size to avoid huge dividends
+
+                            if (answer === 0) { // If the result is 0, dividend must be 0
+                                num1 = 0;
+                                num2 = getRandomInt(1, maxDivisorForOperand); // Divisor must be non-zero
+                            } else {
+                                num2 = getRandomInt(1, maxDivisorForOperand); // Pick a divisor first (non-zero)
+                                num1 = answer * num2; // Calculate dividend based on desired result and divisor
+                            }
+                        } while (num1 > (maxResultForThisLevel * 3) && answer !== 0); // Avoid excessively large dividends for higher levels, but allow 0/X
+                        // The maxResultForThisLevel * 3 is an arbitrary multiplier to keep operands from getting too crazy
+                        // but still allow larger dividends for small results (e.g., 60 / 10 = 6 when max result is 10)
+
+                        return { problem: `${num1} ÷ ${num2} = ?`, answer: answer, op: '/' };
                 }
             };
 
