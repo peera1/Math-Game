@@ -170,6 +170,32 @@
         .final-image { width: 100%; max-width: 400px; border-radius: 15px; margin-bottom: 20px; }
         .final-letter { font-size: 1.2em; line-height: 1.8; text-align: center; }
         
+        /* New button for Play Again */
+        #play-again-btn {
+            width: 100%;
+            max-width: 250px; /* Adjust as needed */
+            margin-top: 25px;
+            padding: 15px;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(45deg, var(--success-color), #5a88d7); /* Using success color for restart */
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 5px 0 #5a88d7; /* Darker shade for shadow */
+        }
+        #play-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 15px rgba(112, 161, 255, 0.4);
+        }
+        #play-again-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #5a88d7;
+        }
+
+        /* Confetti styles */
         .confetti { position: absolute; width: 10px; height: 20px; background-color: #f00; top: -20px; opacity: 0.8; animation: fall 5s linear infinite; }
         @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
     </style>
@@ -225,6 +251,7 @@
                 <br><br>
                 <strong>אתם תותחים! המשיכו ככה!</strong>
             </p>
+            <button id="play-again-btn">שחקו שוב! <i class="fas fa-redo"></i></button>
         </div>
     </div>
 
@@ -278,6 +305,7 @@ const imagePool = [
     let currentQuestionIndex = 0;
     let gameQuestions = [];
     let selectedImageUrl = '';
+    let currentMaxSum = 10; // לשמור את רמת הקושי הנוכחית
 
     const startScreen = document.getElementById('start-screen');
     const maxSumInput = document.getElementById('max-sum-input');
@@ -290,8 +318,10 @@ const imagePool = [
     const feedbackTextEl = document.getElementById('feedback-text');
     const finalScreenEl = document.getElementById('final-screen');
     const finalImageEl = document.getElementById('final-puzzle-image');
+    const playAgainBtn = document.getElementById('play-again-btn'); // New: Play Again button
 
     function initGame(maxSum) {
+        currentMaxSum = maxSum; // שמירת רמת הקושי
         selectedImageUrl = imagePool[randomInt(0, imagePool.length - 1)];
         document.documentElement.style.setProperty('--puzzle-image-url', `url(${selectedImageUrl})`);
         finalImageEl.src = selectedImageUrl;
@@ -350,8 +380,10 @@ const imagePool = [
     
     function launchConfetti() {
         const confettiContainer = document.getElementById('confetti-container');
+        // Clear existing confetti before launching new ones
+        confettiContainer.innerHTML = ''; 
+
         const colors = ['#ff6b81', '#70a1ff', '#ffda79', '#ff4757', '#5352ed'];
-        if(confettiContainer.children.length > 0) return;
         for (let i = 0; i < 100; i++) {
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
@@ -381,6 +413,16 @@ const imagePool = [
         if (event.key === 'Enter') {
             checkAnswer();
         }
+    });
+
+    // New: Event listener for "Play Again" button
+    playAgainBtn.addEventListener('click', () => {
+        finalScreenEl.classList.remove('visible'); // Hide the final screen
+        document.getElementById('confetti-container').innerHTML = ''; // Clear existing confetti
+        
+        // Re-show game container and initialize a new game with the last selected maxSum
+        gameContainer.style.display = 'block'; 
+        initGame(currentMaxSum); // Start a new game with a new image and new questions
     });
 
     </script>
