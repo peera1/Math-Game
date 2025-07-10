@@ -1,10 +1,13 @@
 name: Check Broken Links
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  push:            # כל קומיט
+    branches: [ "*" ]
+    
+  schedule:        # הרצה אוטומטית כל יום בחצות (UTC)
+    - cron: '0 0 * * *'
+
+  workflow_dispatch:  # הרצה ידנית לפי דרישה מה-GitHub UI
 
 jobs:
   check-links:
