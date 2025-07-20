@@ -459,9 +459,9 @@
                 </label>
             </div>
             <div class="config-section">
-                <!-- שינוי הטקסט כאן -->
-                <h3>עד איזה מספר יהיו המספרים בתרגילים? (טווח: 10 - המספר שתזין)</h3>
-                <input type="number" id="max-number" value="20" min="10" max="1000"> <!-- שינוי ערך ברירת מחדל ומינימום ל-10 -->
+                <!-- שינוי הטקסט כאן לבהירות -->
+                <h3>המספר המקסימלי שיופיע בתרגילים:</h3>
+                <input type="number" id="max-number" value="20" min="1" max="1000"> <!-- שינוי מינימום ל-1 -->
             </div>
             <button id="start-game-btn" class="main-button">בואו נתחיל!</button>
         </div>
@@ -543,8 +543,7 @@
             // --- Game State Variables ---
             const gameConfig = {
                 operators: ['+'], // Default: Addition
-                maxOperandValue: 20, // NEW: Max value for operands, renamed from maxNumber
-                minOperandValue: 10, // NEW: Min value for operands (as per user request)
+                maxOperandValue: 20, // Max value for *any* number in the problem (operand, answer etc.)
                 totalLevels: 10,
                 moneyPerLevel: [
                     100, 200, 300, 500, 1000,
@@ -574,11 +573,16 @@
             /**
              * Generates a random integer between min (inclusive) and max (inclusive).
              */
-            const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            const getRandomInt = (min, max) => {
+                if (min > max) { // Handle cases where min might become greater than max (e.g., in division constraints)
+                    return min; // Or throw an error, depending on desired behavior
+                }
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            };
 
             /**
              * Generates a math question based on current level and config.
-             * Operands are strictly between gameConfig.minOperandValue and gameConfig.maxOperandValue.
+             * Operands are strictly between 0 (or 1 for div/mul) and gameConfig.maxOperandValue.
              * Returns { problem: string, answer: number }.
              */
             const generateQuestion = () => {
@@ -588,93 +592,71 @@
                     return null;
                 }
 
-                // Retrieve the operand range from gameConfig
-                const minOp = gameConfig.minOperandValue;
-                const maxOp = gameConfig.maxOperandValue;
-
-                // Basic validation for operand range (should be caught by startGame too)
-                if (maxOp < minOp) {
-                    alert(`שגיאה: המספר המקסימלי שהוזן (${maxOp}) קטן מהמספר המינימלי (${minOp}). אנא הגדר טווח חוקי.`);
-                    return null;
-                }
-
+                const maxVal = gameConfig.maxOperandValue; // Max value for any operand
                 const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
                 let num1, num2, answer;
                 let attempts = 0; // Safety counter for loops
 
                 switch (operator) {
                     case '+':
-                        num1 = getRandomInt(minOp, maxOp);
-                        num2 = getRandomInt(minOp, maxOp);
+                        num1 = getRandomInt(0, maxVal); // Allow 0 for variety (e.g., 5+0)
+                        num2 = getRandomInt(0, maxVal);
                         answer = num1 + num2;
+                        // If answer exceeds maxVal, regenerate. This is for complexity control.
+                        // For addition, we'd typically want operands <= maxVal, not necessarily answer <= maxVal.
+                        // But if the user expects results within this, then we check.
+                        // Given the previous bug, let's assume maxVal is for the operands themselves.
+                        // If the sum exceeds maxVal, that's fine, as long as operands are within.
+                        // Let's allow sum to exceed maxVal, as long as num1 and num2 are <= maxVal.
                         return { problem: `${num1} + ${num2} = ?`, answer: answer, op: '+' };
 
                     case '-':
-                        do {
-                            num1 = getRandomInt(minOp, maxOp);
-                            num2 = getRandomInt(minOp, maxOp);
-                            // Ensure num1 >= num2 for non-negative result
-                            if (num1 < num2) [num1, num2] = [num2, num1]; // Swap if num1 is smaller
-                            attempts++;
-                            // This do-while is mainly for robustness; with minOp=10, it's less likely to fail
-                        } while ((num1 < minOp || num2 < minOp) && attempts < 100); 
-                        
-                        // Fallback in case loop fails (highly unlikely with current logic)
-                        if (attempts >= 100) {
-                            num1 = maxOp;
-                            num2 = minOp;
-                            if (num1 < num2) [num1, num2] = [num2, num1];
-                        }
-                        
+                        // Ensure num1 >= num2 for non-negative result
+                        num1 = getRandomInt(0, maxVal);
+                        num2 = getRandomInt(0, num1); // num2 must be less than or equal to num1
                         answer = num1 - num2;
                         return { problem: `${num1} - ${num2} = ?`, answer: answer, op: '-' };
 
                     case '*':
-                        num1 = getRandomInt(minOp, maxOp);
-                        num2 = getRandomInt(minOp, maxOp);
+                        num1 = getRandomInt(0, maxVal);
+                        num2 = getRandomInt(0, maxVal);
                         answer = num1 * num2;
+                        // Similar to addition, if product exceeds maxVal, it's fine as long as operands are <= maxVal.
                         return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
 
                     case '/':
-                        let foundDivision = false;
+                        // For division, we need num2 (divisor) > 0.
+                        // We also need num1 (dividend) to be a multiple of num2,
+                        // and both num1, num2, and the answer (quotient) should be within reasonable bounds.
+                        let dividend, divisor, quotient;
                         attempts = 0;
-                        while (!foundDivision && attempts < 500) { // Increased attempts for complex division logic
-                            num2 = getRandomInt(minOp, maxOp); // Pick a divisor within the range
-                            
-                            // Calculate the range of possible quotients (answers)
-                            // that would result in num1 (dividend) also being in the [minOp, maxOp] range.
-                            const minQuotient = Math.ceil(minOp / num2); // Smallest quotient that makes num1 >= minOp
-                            const maxQuotient = Math.floor(maxOp / num2); // Largest quotient that makes num1 <= maxOp
-
-                            if (minQuotient <= maxQuotient && minQuotient > 0) { // Ensure there's a valid quotient range and not 0
-                                answer = getRandomInt(minQuotient, maxQuotient);
-                                num1 = answer * num2;
-                                
-                                // Double check if num1 is exactly within the range after calculations
-                                if (num1 >= minOp && num1 <= maxOp) {
-                                    foundDivision = true;
-                                }
-                            }
+                        do {
+                            // Pick a divisor (num2) first, ensuring it's not zero
+                            divisor = getRandomInt(1, maxVal); 
+                            // Pick a quotient (answer) that will result in a dividend within maxVal
+                            quotient = getRandomInt(1, maxVal); 
+                            dividend = quotient * divisor; // Calculate dividend
                             attempts++;
+                        } while ((dividend > maxVal || quotient > maxVal) && attempts < 500); // Regenerate if dividend or quotient is too large
+
+                        // Fallback if unable to generate a valid problem (highly unlikely with sensible maxVal)
+                        if (attempts >= 500) {
+                            console.warn(`Could not generate suitable division problem for maxVal ${maxVal}. Using fallback.`);
+                            // Try to find smallest valid division, e.g., 4/2=2 or 10/5=2
+                            if (maxVal >= 2) { dividend = 4; divisor = 2; quotient = 2; }
+                            else { dividend = 1; divisor = 1; quotient = 1; } // Will generate 1/1=1 if maxVal is 1
+                        }
+                        
+                        num1 = dividend;
+                        num2 = divisor;
+                        answer = quotient;
+
+                        // Additional check to avoid 0/0 or X/0 if any values somehow ended up that way
+                        if (num2 === 0) { // Should be prevented by getRandomInt(1, maxVal) but extra safe
+                            num2 = 1;
+                            num1 = answer * num2; // Recalculate num1
                         }
 
-                        if (!foundDivision) {
-                            // Fallback: If after many attempts, no valid division is found, provide a default.
-                            // This can happen if the min/max operand range is very restrictive (e.g., [11,11]) and no division works.
-                            console.warn(`Could not find a valid division problem for range [${minOp}, ${maxOp}]. Defaulting.`);
-                            // Try to pick a simple one that fits the smallest valid range
-                            num1 = 20; 
-                            num2 = 10; 
-                            if (num1 < minOp || num1 > maxOp || num2 < minOp || num2 > maxOp || num1 % num2 !== 0) {
-                                // If even the hardcoded default is out of range, resort to min possible
-                                num1 = minOp; 
-                                num2 = minOp; 
-                                // If minOp is not divisible by itself (e.g., 11), this will loop or fail.
-                                // For robust division with prime numbers, you might need a different strategy.
-                                // For simplicity assuming minOp can be divided by minOp (which is true).
-                            }
-                            answer = num1 / num2;
-                        }
                         return { problem: `${num1} ÷ ${num2} = ?`, answer: answer, op: '/' };
                 }
             };
@@ -699,10 +681,10 @@
                     return;
                 }
                 
-                // Validation for operand range
-                const minAllowedNumberForInput = 10; // Corresponds to gameConfig.minOperandValue
+                // Validation for max number input
+                const minAllowedNumberForInput = 1; 
                 if (isNaN(gameConfig.maxOperandValue) || gameConfig.maxOperandValue < minAllowedNumberForInput) {
-                    alert(`אנא הזן מספר מקסימלי חוקי (מינימום ${minAllowedNumberForInput}) כדי שהמספרים בתרגילים יהיו בטווח ${minAllowedNumberForInput} עד למספר שהזנת.`);
+                    alert(`אנא הזן מספר מקסימלי חוקי (מינימום ${minAllowedNumberForInput}).`);
                     return;
                 }
 
