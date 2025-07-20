@@ -35,6 +35,7 @@
             box-sizing: border-box;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="30" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="50" r="15" fill="rgba(255,255,255,0.1)"/></svg>');
             background-size: 50px 50px;
+            /* **תיקון 1: הסרנו direction: rtl; מה-body** */
         }
 
         h1, h2, h3 {
@@ -62,6 +63,7 @@
             box-sizing: border-box;
             position: relative;
             overflow: hidden;
+            direction: rtl; /* **תיקון 2: הוספנו direction: rtl; לקונטיינר הראשי** */
         }
 
         .game-screen {
@@ -227,7 +229,7 @@
 
         .money-display .money-icon {
             height: 30px;
-            margin-left: 10px; /* Adjust for RTL */
+            margin-left: 10px; /* Adjust for RTL, so icon is on the left of text */
         }
 
         .progress-bar-container {
@@ -269,6 +271,7 @@
             color: var(--text-color);
             margin-bottom: 25px;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            direction: ltr; /* **תיקון 3: הגדרנו במפורש LTR לתרגיל המתמטי** */
         }
 
         #answer-input {
@@ -434,7 +437,7 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>מתמטיקאי המיליון! 💰</h1>
+        <h1>מתמטיקאי המיליון!‏ 💰</h1>
 
         <!-- מסך הגדרות -->
         <div id="config-screen" class="game-screen active">
@@ -459,9 +462,8 @@
                 </label>
             </div>
             <div class="config-section">
-                <!-- שינוי הטקסט כאן לבהירות -->
                 <h3>המספר המקסימלי שיופיע בתרגילים:</h3>
-                <input type="number" id="max-number" value="20" min="1" max="1000"> <!-- שינוי מינימום ל-1 -->
+                <input type="number" id="max-number" value="20" min="1" max="1000">
             </div>
             <button id="start-game-btn" class="main-button">בואו נתחיל!</button>
         </div>
@@ -490,7 +492,7 @@
 
         <!-- מסך סיכום -->
         <div id="summary-screen" class="game-screen">
-            <h2>🎉 כל הכבוד! המשחק הסתיים! 🎉</h2>
+            <h2>🎉 כל הכבוד!‏ המשחק הסתיים!‏ 🎉</h2>
             <p id="final-message"></p>
             <h3>סיכום ביצועים:</h3>
             <table id="summary-table">
@@ -602,12 +604,6 @@
                         num1 = getRandomInt(0, maxVal); // Allow 0 for variety (e.g., 5+0)
                         num2 = getRandomInt(0, maxVal);
                         answer = num1 + num2;
-                        // If answer exceeds maxVal, regenerate. This is for complexity control.
-                        // For addition, we'd typically want operands <= maxVal, not necessarily answer <= maxVal.
-                        // But if the user expects results within this, then we check.
-                        // Given the previous bug, let's assume maxVal is for the operands themselves.
-                        // If the sum exceeds maxVal, that's fine, as long as operands are within.
-                        // Let's allow sum to exceed maxVal, as long as num1 and num2 are <= maxVal.
                         return { problem: `${num1} + ${num2} = ?`, answer: answer, op: '+' };
 
                     case '-':
@@ -621,7 +617,6 @@
                         num1 = getRandomInt(0, maxVal);
                         num2 = getRandomInt(0, maxVal);
                         answer = num1 * num2;
-                        // Similar to addition, if product exceeds maxVal, it's fine as long as operands are <= maxVal.
                         return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
 
                     case '/':
@@ -791,7 +786,7 @@
                 showScreen(summaryScreen);
                 let finalText = '';
                 if (currentLevel > gameConfig.totalLevels) { // This means all levels were completed
-                    finalText = `הגעת למיליון שקלים! אתה אשף מתמטיקה! 🚀`;
+                    finalText = `הגעת למיליון שקלים! אתה אשף מתמטיקה!‏ 🚀`; 
                 } else { // This means the game ended prematurely (e.g., if user decided to restart or hit an error)
                     finalText = `המשחק הסתיים בנקודה זו. נסה שוב להגיע למיליון! 🎯`;
                 }
