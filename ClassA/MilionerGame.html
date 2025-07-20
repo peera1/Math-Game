@@ -459,8 +459,9 @@
                 </label>
             </div>
             <div class="config-section">
-                <h3>עד איזה מספר יהיו התוצאות?</h3>
-                <input type="number" id="max-number" value="10" min="5" max="1000">
+                <!-- שינוי הטקסט כאן -->
+                <h3>עד איזה מספר יהיו המספרים בתרגילים? (טווח: 10 - המספר שתזין)</h3>
+                <input type="number" id="max-number" value="20" min="10" max="1000"> <!-- שינוי ערך ברירת מחדל ומינימום ל-10 -->
             </div>
             <button id="start-game-btn" class="main-button">בואו נתחיל!</button>
         </div>
@@ -542,7 +543,8 @@
             // --- Game State Variables ---
             const gameConfig = {
                 operators: ['+'], // Default: Addition
-                maxNumber: 10,    // Default: Results up to 10
+                maxOperandValue: 20, // NEW: Max value for operands, renamed from maxNumber
+                minOperandValue: 10, // NEW: Min value for operands (as per user request)
                 totalLevels: 10,
                 moneyPerLevel: [
                     100, 200, 300, 500, 1000,
@@ -576,7 +578,7 @@
 
             /**
              * Generates a math question based on current level and config.
-             * Difficulty increases by increasing *result* range.
+             * Operands are strictly between gameConfig.minOperandValue and gameConfig.maxOperandValue.
              * Returns { problem: string, answer: number }.
              */
             const generateQuestion = () => {
@@ -586,99 +588,92 @@
                     return null;
                 }
 
+                // Retrieve the operand range from gameConfig
+                const minOp = gameConfig.minOperandValue;
+                const maxOp = gameConfig.maxOperandValue;
+
+                // Basic validation for operand range (should be caught by startGame too)
+                if (maxOp < minOp) {
+                    alert(`שגיאה: המספר המקסימלי שהוזן (${maxOp}) קטן מהמספר המינימלי (${minOp}). אנא הגדר טווח חוקי.`);
+                    return null;
+                }
+
                 const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
                 let num1, num2, answer;
-
-                // maxAllowedAnswer is the user's input, scaled by difficulty
-                let maxAllowedAnswer = gameConfig.maxNumber;
-                if (currentLevel >= 7) { // Hardest levels
-                    maxAllowedAnswer = Math.min(gameConfig.maxNumber * 5, 1000); 
-                } else if (currentLevel >= 4) { // Medium levels
-                    maxAllowedAnswer = Math.min(gameConfig.maxNumber * 2, 500);  
-                }
-                maxAllowedAnswer = Math.max(maxAllowedAnswer, 5); // Ensure a minimum max result (e.g. 5)
-
                 let attempts = 0; // Safety counter for loops
 
                 switch (operator) {
                     case '+':
-                        // Ensures answer is within maxAllowedAnswer. Operands derived from answer.
-                        answer = getRandomInt(0, maxAllowedAnswer);
-                        num1 = getRandomInt(0, answer);
-                        num2 = answer - num1;
-                        // Minor adjustment to avoid 0+0=0 if maxAllowedAnswer > 0 and more interesting problems are possible.
-                        if (num1 === 0 && num2 === 0 && maxAllowedAnswer > 0) {
-                            num1 = 1; num2 = 0; answer = 1; // Simplest non-zero case
-                        } else if (num1 === 0 && num2 !== 0) { // If num1 is 0 but num2 isn't, swap for better look (e.g. 5+0 instead of 0+5)
-                            [num1, num2] = [num2, num1];
-                        }
+                        num1 = getRandomInt(minOp, maxOp);
+                        num2 = getRandomInt(minOp, maxOp);
+                        answer = num1 + num2;
                         return { problem: `${num1} + ${num2} = ?`, answer: answer, op: '+' };
 
                     case '-':
-                        // Ensures answer is within maxAllowedAnswer and non-negative.
-                        // Try to keep operands somewhat tied to maxAllowedAnswer too.
-                        let currentMaxOperand = Math.min(maxAllowedAnswer * 2, 200); // Allow operands up to 200 or 2x answer cap
-                        if (currentLevel >= 7) currentMaxOperand = Math.min(maxAllowedAnswer * 2, 500);
-                        currentMaxOperand = Math.max(currentMaxOperand, 10); // Minimum cap for operands
-
                         do {
-                            num1 = getRandomInt(0, currentMaxOperand);
-                            num2 = getRandomInt(0, num1); // Ensure num1 >= num2 for non-negative result
-                            answer = num1 - num2;
+                            num1 = getRandomInt(minOp, maxOp);
+                            num2 = getRandomInt(minOp, maxOp);
+                            // Ensure num1 >= num2 for non-negative result
+                            if (num1 < num2) [num1, num2] = [num2, num1]; // Swap if num1 is smaller
                             attempts++;
-                        } while ((answer < 0 || answer > maxAllowedAnswer) && attempts < 100);
-
-                        if (attempts >= 100) { // Fallback for very constrained scenarios
-                            answer = getRandomInt(0, Math.min(10, maxAllowedAnswer));
-                            num1 = getRandomInt(answer, answer + Math.min(5, maxAllowedAnswer - answer + 1)); // num1 = answer + small number
-                            num2 = num1 - answer;
+                            // This do-while is mainly for robustness; with minOp=10, it's less likely to fail
+                        } while ((num1 < minOp || num2 < minOp) && attempts < 100); 
+                        
+                        // Fallback in case loop fails (highly unlikely with current logic)
+                        if (attempts >= 100) {
+                            num1 = maxOp;
+                            num2 = minOp;
+                            if (num1 < num2) [num1, num2] = [num2, num1];
                         }
-                        // Avoid 0-0=0 unless it's the only option.
-                        if (num1 === 0 && num2 === 0 && maxAllowedAnswer > 0) {
-                            num1 = 1; num2 = 0; answer = 1;
-                        }
+                        
+                        answer = num1 - num2;
                         return { problem: `${num1} - ${num2} = ?`, answer: answer, op: '-' };
 
                     case '*':
-                        // Ensures product is within maxAllowedAnswer and factors are reasonable.
-                        let maxFactorLimit = Math.min(maxAllowedAnswer + 5, 12); // Keep factors up to 12 generally, or slightly more than result
-                        if (currentLevel >= 7) maxFactorLimit = Math.min(maxAllowedAnswer + 10, 20); // Higher factors for advanced levels
-                        maxFactorLimit = Math.max(maxFactorLimit, 5); // Ensure a minimum factor limit
-
-                        do {
-                            num1 = getRandomInt(0, maxFactorLimit);
-                            num2 = getRandomInt(0, maxFactorLimit);
-                            answer = num1 * num2;
-                            attempts++;
-                        } while (answer > maxAllowedAnswer && attempts < 100);
-
-                        if (attempts >= 100) { // Fallback
-                            num1 = getRandomInt(0, Math.min(5, maxAllowedAnswer));
-                            num2 = getRandomInt(0, Math.floor(maxAllowedAnswer / Math.max(1, num1))); // Ensure result does not exceed maxAllowedAnswer
-                            answer = num1 * num2;
-                        }
+                        num1 = getRandomInt(minOp, maxOp);
+                        num2 = getRandomInt(minOp, maxOp);
+                        answer = num1 * num2;
                         return { problem: `${num1} × ${num2} = ?`, answer: answer, op: '*' };
 
                     case '/':
-                        // Ensures quotient is within maxAllowedAnswer and division is exact.
-                        let maxDivisorLimit = Math.min(maxAllowedAnswer + 5, 12); // Limit divisor size
-                        if (currentLevel >= 7) maxDivisorLimit = Math.min(maxAllowedAnswer + 10, 20);
-                        maxDivisorLimit = Math.max(maxDivisorLimit, 5); // Minimum divisor limit
+                        let foundDivision = false;
+                        attempts = 0;
+                        while (!foundDivision && attempts < 500) { // Increased attempts for complex division logic
+                            num2 = getRandomInt(minOp, maxOp); // Pick a divisor within the range
+                            
+                            // Calculate the range of possible quotients (answers)
+                            // that would result in num1 (dividend) also being in the [minOp, maxOp] range.
+                            const minQuotient = Math.ceil(minOp / num2); // Smallest quotient that makes num1 >= minOp
+                            const maxQuotient = Math.floor(maxOp / num2); // Largest quotient that makes num1 <= maxOp
 
-                        do {
-                            answer = getRandomInt(0, maxAllowedAnswer); // Desired result
-                            num2 = getRandomInt(1, maxDivisorLimit); // Divisor (must be non-zero)
-                            num1 = answer * num2; // Calculate dividend
+                            if (minQuotient <= maxQuotient && minQuotient > 0) { // Ensure there's a valid quotient range and not 0
+                                answer = getRandomInt(minQuotient, maxQuotient);
+                                num1 = answer * num2;
+                                
+                                // Double check if num1 is exactly within the range after calculations
+                                if (num1 >= minOp && num1 <= maxOp) {
+                                    foundDivision = true;
+                                }
+                            }
+                            attempts++;
+                        }
 
-                            // Avoid excessively large dividends for a small answer if possible.
-                            // E.g., if maxAllowedAnswer is 10, and answer is 2, avoid 100 / 50 = 2.
-                            // Check if num1 is disproportionately large compared to maxAllowedAnswer (arbitrary multiplier 3)
-                        } while ((num1 > (maxAllowedAnswer * 3) && answer !== 0 && maxAllowedAnswer < 50) || attempts > 100);
-
-                        if (attempts >= 100) { // Fallback
-                            answer = getRandomInt(0, Math.min(10, maxAllowedAnswer));
-                            num2 = getRandomInt(1, Math.min(5, maxAllowedAnswer));
-                            num1 = answer * num2;
+                        if (!foundDivision) {
+                            // Fallback: If after many attempts, no valid division is found, provide a default.
+                            // This can happen if the min/max operand range is very restrictive (e.g., [11,11]) and no division works.
+                            console.warn(`Could not find a valid division problem for range [${minOp}, ${maxOp}]. Defaulting.`);
+                            // Try to pick a simple one that fits the smallest valid range
+                            num1 = 20; 
+                            num2 = 10; 
+                            if (num1 < minOp || num1 > maxOp || num2 < minOp || num2 > maxOp || num1 % num2 !== 0) {
+                                // If even the hardcoded default is out of range, resort to min possible
+                                num1 = minOp; 
+                                num2 = minOp; 
+                                // If minOp is not divisible by itself (e.g., 11), this will loop or fail.
+                                // For robust division with prime numbers, you might need a different strategy.
+                                // For simplicity assuming minOp can be divided by minOp (which is true).
+                            }
+                            answer = num1 / num2;
                         }
                         return { problem: `${num1} ÷ ${num2} = ?`, answer: answer, op: '/' };
                 }
@@ -695,14 +690,19 @@
                 if (opMul.checked) gameConfig.operators.push('*');
                 if (opDiv.checked) gameConfig.operators.push('/');
 
-                gameConfig.maxNumber = parseInt(maxNumberInput.value);
+                // Update maxOperandValue based on user input
+                gameConfig.maxOperandValue = parseInt(maxNumberInput.value);
 
+                // Validation for chosen operators
                 if (gameConfig.operators.length === 0) {
                     alert('אנא בחר לפחות פעולת חשבון אחת!');
                     return;
                 }
-                if (isNaN(gameConfig.maxNumber) || gameConfig.maxNumber < 5) {
-                    alert('אנא הזן מספר מקסימלי חוקי (מינימום 5)!');
+                
+                // Validation for operand range
+                const minAllowedNumberForInput = 10; // Corresponds to gameConfig.minOperandValue
+                if (isNaN(gameConfig.maxOperandValue) || gameConfig.maxOperandValue < minAllowedNumberForInput) {
+                    alert(`אנא הזן מספר מקסימלי חוקי (מינימום ${minAllowedNumberForInput}) כדי שהמספרים בתרגילים יהיו בטווח ${minAllowedNumberForInput} עד למספר שהזנת.`);
                     return;
                 }
 
@@ -725,7 +725,7 @@
                 }
 
                 currentQuestion = generateQuestion();
-                if (!currentQuestion) { // Handle case where no operators selected
+                if (!currentQuestion) { // Handle case where no operators selected or invalid config
                      showScreen(configScreen); // Go back to config
                      return;
                 }
