@@ -124,6 +124,60 @@
             display: inline-block;
         }
 
+        /* --- New: Operator selection styles --- */
+        .operator-selection {
+            margin-bottom: 30px;
+            background: #fdfdfd;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+        .operator-selection label {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+        .operator-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+        .operator-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: var(--text-color);
+            background: #f0f0f0;
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--accent-color);
+            transition: all 0.2s ease;
+            user-select: none; /* Prevent text selection */
+        }
+        .operator-checkbox input[type="checkbox"] {
+            margin-left: 10px; /* Space between text and checkbox */
+            min-width: 20px; /* Ensure checkbox is visible */
+            min-height: 20px;
+            accent-color: var(--primary-color); /* Color of the checkbox itself */
+            cursor: pointer;
+        }
+        .operator-checkbox:hover {
+            background: #e9e9e9;
+            border-color: var(--secondary-color);
+        }
+        .operator-checkbox.selected {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .operator-checkbox.selected i {
+            color: white; /* Make icon white when selected */
+        }
+        /* End: Operator selection styles */
+
+
         /* --- מסך המשחק הראשי - מתפרס יותר --- */
         #game-screen {
             display: none; /* מוסתר כברירת מחדל */
@@ -386,7 +440,13 @@
             .game-header { font-size: 1.3rem; }
             .memory-card .front-face { font-size: 4rem; }
             .memory-card .back-face { font-size: 1.8rem; }
+            .sidebar h3 { font-size: 1.1rem; }
+            .solved-pair-item { font-size: 0.9em; width: 100%; /* יתפוס את כל הרוחב כשאין מספיק מקום */ }
+            #final-screen h2 { font-size: 2.5rem; }
+            #final-screen p { font-size: 1.2em; }
+            h4 { font-size: 1.4rem; }
             .speech { padding-right: 20px; }
+            .final-pair-display { font-size: 1.1rem; padding: 10px; }
         }
 
         @media (max-width: 480px) {
@@ -429,12 +489,35 @@
     <div id="start-screen" class="container-box">
         <h1><i class="fas fa-brain"></i> משחק הזיכרון בחשבון</h1>
         <p>התאימו בין תרגיל לתשובה ואספו את כל הפתרונות!</p>
+        
+        <div class="input-group operator-selection">
+            <label>בחרו פעולות חשבון:</label>
+            <div class="operator-checkboxes">
+                <div class="operator-checkbox selected" data-operator="+">
+                    <i class="fas fa-plus"></i> חיבור
+                    <input type="checkbox" id="op-plus" value="+" checked>
+                </div>
+                <div class="operator-checkbox selected" data-operator="-">
+                    <i class="fas fa-minus"></i> חיסור
+                    <input type="checkbox" id="op-minus" value="-" checked>
+                </div>
+                <div class="operator-checkbox" data-operator="*">
+                    <i class="fas fa-times"></i> כפל
+                    <input type="checkbox" id="op-multiply" value="*">
+                </div>
+                <div class="operator-checkbox" data-operator="/">
+                    <i class="fas fa-divide"></i> חילוק
+                    <input type="checkbox" id="op-divide" value="/">
+                </div>
+            </div>
+        </div>
+
         <div class="input-group">
-            <label for="max-sum-input">תרגילים עד איזה מספר תרצו?</label>
-            <input type="number" id="max-sum-input" value="10" min="2" max="20">
+            <label for="max-sum-input">תרגילים עד איזה מספר תרצו? (עד 50)</label>
+            <input type="number" id="max-sum-input" value="10" min="2" max="50">
         </div>
         <div class="input-group">
-            <label for="num-pairs-input">כמה זוגות תרגילים במשחק? (מינימום 5)</label>
+            <label for="num-pairs-input">כמה זוגות תרגילים במשחק? (מינימום 5, מקסימום 15)</label>
             <input type="number" id="num-pairs-input" value="5" min="5" max="15">
         </div>
         <button id="start-game-btn" class="start-game-btn">יוצאים להרפתקה! <i class="fas fa-rocket"></i></button>
@@ -488,6 +571,7 @@
     const finalMovesEl = document.getElementById('final-moves');
     const finalSummaryContainer = document.getElementById('final-summary-pairs');
     const playAgainBtn = document.getElementById('play-again-btn'); 
+    const operatorCheckboxesContainer = document.querySelector('.operator-checkboxes'); // Container for checkboxes
 
     // אלמנטי אודיו
     const sounds = {
@@ -509,7 +593,6 @@
         '#D0E6E0', // אפור ירוק
         '#FFE6CC', // כתום אפרסק
         '#CCEEFF'  // כחול שמיים
-        // ניתן להוסיף עוד צבעים אם מספר הזוגות המקסימלי עולה על 10
     ];
 
     // משתני מצב המשחק
@@ -521,6 +604,7 @@
     let currentTotalPairs = 0; 
     let foundPairsData = []; 
     let currentMaxSum = 10; 
+    let currentSelectedOperators = ['+', '-']; // Default operators
 
     // פונקציה להשמעת צליל
     function playSound(soundName) {
@@ -531,31 +615,96 @@
     }
 
     // פונקציה לייצור זוגות תרגילים ותשובות ייחודיים
-    function generatePairs(maxSum, numberOfPairsToGenerate) {
+    function generatePairs(maxSum, numberOfPairsToGenerate, selectedOperators) {
         let pairs = []; 
-        let usedAnswers = new Set(); 
-        const maxAttemptsForSinglePair = 50; 
+        let usedAnswers = new Set(); // Stores the unique answers generated so far
+        const maxAttemptsForTotalPairs = numberOfPairsToGenerate * 10; // Total attempts to find all pairs
+        const maxAttemptsForSinglePair = 100; // Attempts to find a unique pair for a single answer
 
-        while (usedAnswers.size < numberOfPairsToGenerate) {
-            let attempts = 0;
-            let answer, num1, num2, problem;
-            
-            do {
-                answer = Math.floor(Math.random() * (maxSum - 1)) + 2; 
-                num1 = Math.floor(Math.random() * (answer - 1)) + 1; 
-                num2 = answer - num1; 
-                problem = `${num1} + ${num2}`; 
-                attempts++;
-            } while (usedAnswers.has(answer) && attempts < maxAttemptsForSinglePair); 
+        let currentTotalAttempts = 0;
 
-            if (!usedAnswers.has(answer)) {
+        // Ensure at least one operator is selected
+        if (selectedOperators.length === 0) {
+            console.error("No operators selected. Cannot generate problems.");
+            return [];
+        }
+
+        while (usedAnswers.size < numberOfPairsToGenerate && currentTotalAttempts < maxAttemptsForTotalPairs) {
+            currentTotalAttempts++;
+            let problem = '';
+            let answer = 0;
+            const op = selectedOperators[Math.floor(Math.random() * selectedOperators.length)];
+
+            let singlePairAttempts = 0;
+            let success = false;
+
+            while (!success && singlePairAttempts < maxAttemptsForSinglePair) {
+                singlePairAttempts++;
+
+                if (op === '+') {
+                    answer = Math.floor(Math.random() * (maxSum - 1)) + 2; // Answer from 2 to maxSum
+                    let num1 = Math.floor(Math.random() * (answer - 1)) + 1; // num1 from 1 to answer-1
+                    let num2 = answer - num1;
+                    problem = `${num1} + ${num2}`;
+                    success = !usedAnswers.has(answer) && answer <= maxSum && num1 > 0 && num2 > 0;
+                } else if (op === '-') {
+                    // Try to get a positive answer between 1 and maxSum
+                    answer = Math.floor(Math.random() * (maxSum - 1)) + 1; // Answer from 1 to maxSum-1 (to allow room for num1)
+                    let num1_min = answer + 1;
+                    let num1_max = 20; // Cap num1 to avoid very large numbers in subtraction problems
+                    if (num1_max < num1_min) { // Ensure num1_max is valid
+                        success = false; // Cannot generate valid subtraction
+                        continue;
+                    }
+                    let num1 = Math.floor(Math.random() * (num1_max - num1_min + 1)) + num1_min;
+                    let num2 = num1 - answer;
+                    problem = `${num1} - ${num2}`;
+                    success = !usedAnswers.has(answer) && answer >= 1 && num2 >=0;
+                } else if (op === '*') {
+                    // Generate multiplication problems where the result is within maxSum
+                    // Factors limited to make problems manageable (e.g., up to 12)
+                    let maxFactor = Math.min(12, Math.floor(Math.sqrt(maxSum)) + 2); // Adjust maxFactor based on maxSum
+                    if (maxFactor < 2) maxFactor = 2; // Ensure at least 2
+                    let num1 = Math.floor(Math.random() * (maxFactor - 1)) + 2; // num1 from 2 to maxFactor
+                    let num2 = Math.floor(Math.random() * (maxFactor - 1)) + 2; // num2 from 2 to maxFactor
+                    answer = num1 * num2;
+                    if (answer > maxSum || answer < 2) { // Ensure answer is within bounds and not 0 or 1
+                        success = false;
+                        continue;
+                    }
+                    problem = `${num1} * ${num2}`;
+                    success = !usedAnswers.has(answer);
+                } else if (op === '/') {
+                    // Generate division problems with integer results within maxSum
+                    let maxDivisor = Math.min(12, maxSum); // Limit divisor and ensure it's not larger than maxSum
+                    if (maxDivisor < 2) maxDivisor = 2; // Ensure at least 2
+                    
+                    answer = Math.floor(Math.random() * (maxSum - 1)) + 2; // Answer from 2 to maxSum
+                    let num2 = Math.floor(Math.random() * (maxDivisor - 1)) + 2; // Divisor from 2 to maxDivisor
+                    let num1 = answer * num2;
+                    
+                    // Cap num1 (dividend) to avoid overly large numbers and ensure it's divisible
+                    if (num1 > 100 || num1 % num2 !== 0) { // Arbitrary cap for dividend
+                        success = false;
+                        continue;
+                    }
+                    problem = `${num1} / ${num2}`;
+                    success = !usedAnswers.has(answer);
+                }
+            }
+
+            if (success) {
                 pairs.push({ value: problem, id: answer, type: 'problem' });
                 pairs.push({ value: answer, id: answer, type: 'answer' });
                 usedAnswers.add(answer);
             } else {
-                console.warn(`Could not generate unique pair for answer up to ${maxSum} after ${maxAttemptsForSinglePair} attempts. Ending generation early.`);
-                break; 
+                console.warn(`Failed to generate unique pair for operator '${op}' after ${maxAttemptsForSinglePair} attempts. Trying another operator or stopping. Current unique answers: ${usedAnswers.size}`);
             }
+        }
+        
+        if (usedAnswers.size < numberOfPairsToGenerate) {
+            console.warn(`Only generated ${usedAnswers.size} unique pairs instead of ${numberOfPairsToGenerate}. Please adjust maxSum, numPairs, or selected operators.`);
+            // You might want to display a user-friendly message here.
         }
         
         return pairs;
@@ -570,8 +719,9 @@
     }
 
     // יצירת לוח המשחק והתחלת המשחק
-    function createBoard(maxSum, numPairs) {
+    function createBoard(maxSum, numPairs, selectedOps) {
         currentMaxSum = maxSum; 
+        currentSelectedOperators = selectedOps; // Store for "Play Again"
         moves = 0; 
         matchedPairsCount = 0; 
         foundPairsData = []; 
@@ -580,7 +730,15 @@
         gameBoard.innerHTML = ''; 
         solvedPairsDisplay.innerHTML = ''; 
 
-        const cardData = generatePairs(maxSum, numPairs);
+        const cardData = generatePairs(maxSum, numPairs, selectedOps);
+        
+        if (cardData.length === 0) {
+            alert("לא ניתן ליצור מספיק זוגות ייחודיים עם הבחירות הנוכחיות. אנא נסו לשנות את טווח המספרים או להוסיף פעולות חשבון.");
+            startScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            return;
+        }
+
         currentTotalPairs = cardData.length / 2; 
         pairsLeftEl.textContent = currentTotalPairs; 
 
@@ -591,8 +749,6 @@
             card.classList.add('memory-card');
             card.dataset.id = item.id; 
             card.dataset.value = item.value; 
-            // עבור קלף תשובה, נציג רק את המספר. עבור קלף תרגיל, נציג את התרגיל.
-            // פורמט ה-value כבר סודר ב-generatePairs
             card.innerHTML = `
                 <div class="front-face"><i class="fas fa-brain"></i></div>
                 <div class="back-face">${item.value}</div>
@@ -644,8 +800,8 @@
         secondCard.classList.add('matched');
         
         // שמירת הזוג לסיכום הסופי
-        const problemCard = firstCard.dataset.value.includes('+') ? firstCard : secondCard;
-        const answerCard = firstCard.dataset.value.includes('+') ? secondCard : firstCard;
+        const problemCard = firstCard.dataset.value.includes('+') || firstCard.dataset.value.includes('-') || firstCard.dataset.value.includes('*') || firstCard.dataset.value.includes('/') ? firstCard : secondCard;
+        const answerCard = firstCard.dataset.value.includes('+') || firstCard.dataset.value.includes('-') || firstCard.dataset.value.includes('*') || firstCard.dataset.value.includes('/') ? secondCard : firstCard;
         
         const problemText = problemCard.dataset.value; 
         const answerValue = answerCard.dataset.value; 
@@ -727,27 +883,59 @@
         }, 1200); 
     }
 
+    // Event Listener לכפתורי בחירת אופרטורים
+    operatorCheckboxesContainer.addEventListener('click', (event) => {
+        const checkboxDiv = event.target.closest('.operator-checkbox');
+        if (checkboxDiv) {
+            const checkbox = checkboxDiv.querySelector('input[type="checkbox"]');
+            if (checkbox) {
+                // Toggle checkbox state
+                checkbox.checked = !checkbox.checked;
+                // Add/remove 'selected' class based on state
+                checkboxDiv.classList.toggle('selected', checkbox.checked);
+
+                // Ensure at least one operator is always selected
+                const checkedCount = Array.from(operatorCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked')).length;
+                if (checkedCount === 0) {
+                    checkbox.checked = true; // Re-check the one just clicked
+                    checkboxDiv.classList.add('selected');
+                }
+            }
+        }
+    });
+
     // Event Listener לכפתור התחלת המשחק
     startGameBtn.addEventListener('click', () => {
         let maxSum = parseInt(maxSumInput.value);
         let numPairs = parseInt(numPairsInput.value);
 
         if (isNaN(maxSum) || maxSum < 2) maxSum = 10; 
-        if (maxSum > 20) maxSum = 20; 
+        if (maxSum > 50) maxSum = 50; // Updated max for maxSum
         
         if (isNaN(numPairs) || numPairs < 5) numPairs = 5;
         if (numPairs > 15) numPairs = 15; 
 
+        // Get selected operators
+        const selectedOps = Array.from(operatorCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                               .map(cb => cb.value);
+
+        if (selectedOps.length === 0) {
+            alert("אנא בחרו לפחות פעולת חשבון אחת כדי להתחיל את המשחק.");
+            return;
+        }
+        
+        currentSelectedOperators = selectedOps; // Save for play again
         startScreen.style.display = 'none';
         gameScreen.style.display = 'flex'; 
-        createBoard(maxSum, numPairs); 
+        createBoard(maxSum, numPairs, selectedOps); 
     });
 
     // Event Listener לכפתור "שחקו שוב"
     playAgainBtn.addEventListener('click', () => {
         finalScreen.style.display = 'none'; 
         gameScreen.style.display = 'flex'; 
-        createBoard(currentMaxSum, currentTotalPairs); 
+        // Use the parameters from the last game
+        createBoard(currentMaxSum, currentTotalPairs, currentSelectedOperators); 
     });
 
     // ולידציה של קלט עבור maxSum
@@ -755,8 +943,8 @@
         let value = parseInt(event.target.value);
         if (isNaN(value) || value < 2) {
             event.target.value = 2;
-        } else if (value > 20) {
-            event.target.value = 20;
+        } else if (value > 50) {
+            event.target.value = 50;
         }
     });
 
