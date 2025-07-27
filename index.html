@@ -1,962 +1,372 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>גשר המספרים</title> <!-- שם המשחק שונה כאן -->
-    <!-- קישור לפונט מגוגל פונטס -->
-    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-    <!-- קישור ל-Font Awesome לאייקונים -->
+    
+    <!-- ================= SEO - START ================= -->
+    <title>משחקי חשבון לכיתות א-ד | לומדת חשבון אונליין לילדים</title>
+    <meta name="description" content="לומדת חשבון חינמית עם מגוון משחקי חשבון ותרגול לכיתות א', ב', ג', ו-ד'. תרגול חיבור, חיסור, כפל, חילוק, שברים ועוד בצורה מהנה ואינטראקטיבית.">
+    <meta name="keywords" content="משחק חשבון, לומדת חשבון, תרגול חשבון, חשבון לכיתה ד, חשבון לכיתה ג, חשבון לכיתה ב, חשבון לכיתה א, משחקים לילדים, לימוד חשבון">
+    <!-- הוסף כאן את תג האימות של Google Search Console כשתקבל אותו -->
+    <!-- ================= SEO - END =================== -->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPNZZJWSF8"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-BPNZZJWSF8');
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        /* כללי */
-        body {
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap');
+        
+        :root {
+            --primary-gradient-start: #2A0944; /* סגול כהה עמוק */
+            --primary-gradient-end: #A12568; /* ורוד-סגול אלגנטי */
+            --secondary-color: #FEC260; /* זהב חם */
+            --text-color: #333;
+            --background-overlay: rgba(255, 255, 255, 0.15);
+            --button-shadow: rgba(42, 9, 68, 0.3);
+        }
+
+        * {
             margin: 0;
-            font-family: 'Varela Round', sans-serif;
-            background-color: #1a1a1a; /* רקע כהה */
-            color: #eee;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden; /* למנוע גלילה אם יש אנימציות יציאה מהמסך */
-            direction: rtl; /* יישור לימין עבור עברית */
-        }
-
-        #game-container {
-            background-color: #2b2b2b; /* רקע כהה יותר לקונטיינר הראשי */
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-            padding: 30px;
-            text-align: center;
-            max-width: 90%;
-            width: 600px; /* רוחב קבוע יותר לקונטיינר הראשי */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            padding: 0;
             box-sizing: border-box;
-            height: fit-content; /* גובה לפי תוכן */
         }
 
-        .screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        body {
+            font-family: 'Rubik', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+            min-height: 100vh;
+            margin: 0;
+            direction: rtl;
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            transition: opacity 0.5s ease-in-out;
-            height: 100%; /* ממלא את גובה הקונטיינר */
+            height: 100%;
+            background: var(--background-overlay);
+            pointer-events: none;
+            z-index: 1;
         }
 
-        .hidden {
-            display: none;
-            opacity: 0;
+        .container {
+            background-color: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px var(--button-shadow);
+            padding: 50px;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            position: relative;
+            transition: all 0.5s ease;
+            border: 3px solid rgba(254, 194, 96, 0.3);
+            z-index: 2;
         }
 
-        /* כותרות וטקסט */
         h1 {
-            color: #e74c3c; /* אדום בוהק כמו בסדרה */
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            letter-spacing: 1px;
+            color: var(--primary-gradient-start);
+            margin-bottom: 20px; /* Reduced margin */
+            font-size: 2.8rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* עיצוב לפסקת הפתיחה החדשה */
+        .intro-text {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 500px;
+            margin: 0 auto 30px auto;
+            line-height: 1.7;
         }
 
         h2 {
-            color: #ecf0f1;
-            margin-top: 20px;
-            font-size: 1.8em;
+            font-size: 1.8rem;
+            margin: 20px 0 15px;
+            color: #ff5722;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(to right, #ff5722, var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        p {
-            font-size: 1.1em;
-            margin-bottom: 10px;
-        }
-
-        #player-id-start, #player-id-game, #player-id-end {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #f39c12; /* צהוב-כתום */
-            margin-bottom: 20px;
-        }
-
-        /* כפתורים */
-        .squid-button {
-            background-color: #e74c3c; /* אדום */
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            margin-top: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .squid-button:hover {
-            background-color: #c0392b; /* אדום כהה יותר */
-            transform: translateY(-2px);
-        }
-
-        .squid-button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-        }
-
-        .small-button {
-            padding: 10px 20px;
-            font-size: 0.9em;
-            margin-top: 20px; /* Adjust margin for image match */
-            margin-bottom: 10px;
-        }
-
-        /* מסך התחלה - קונפיגורציה */
-        .config-section {
-            background-color: #3b3b3b;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            width: 80%;
-            max-width: 400px;
-        }
-
-        .checkbox-group {
-            display: grid; /* שימוש ב-grid לסידור עמודות ושורות */
-            grid-template-columns: 1fr 1fr; /* 2 עמודות */
-            gap: 15px 10px; /* רווח בין שורות ועמודות */
-            margin-top: 10px;
-        }
-        /* התאמת סדר האלמנטים ב-RTL (עמודה ימין ואז עמודה שמאל) */
-        .checkbox-group > div {
-            display: flex;
-            align-items: center;
-        }
-        .checkbox-group > div:nth-child(odd) { /* אלמנטים אי-זוגיים - יעלו בעמודה הימנית */
-            justify-content: flex-end; /* יישור לימין */
-        }
-        .checkbox-group > div:nth-child(even) { /* אלמנטים זוגיים - יעלו בעמודה השמאלית */
-            justify-content: flex-start; /* יישור לשמאל */
-        }
-        
-
-        /* סגנון לתיבות הסימון - ריבועים רגילים עם V */
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px; /* רווח בין הטקסט לתיבה */
-            font-size: 1.1em;
-            cursor: pointer;
-            user-select: none; /* מניעת סימון טקסט בלחיצה */
-            color: #eee; /* צבע טקסט ברירת מחדל */
-        }
-        
-        .checkbox-group label i { /* עיצוב אייקונים בתוך הליבל */
-            margin-right: 5px; /* רווח בין האייקון לטקסט */
-            font-size: 1em; /* גודל אייקון יחסית לטקסט */
-            color: #f39c12; /* צבע לאייקונים, ניתן לשנות */
-        }
-
-        input[type="checkbox"] {
-            -webkit-appearance: none; /* הסתרת ברירת המחדל של הדפדפן */
-            -moz-appearance: none;
-            appearance: none;
-            width: 22px; /* גודל תיבת הסימון */
-            height: 22px;
-            border: 2px solid #999; /* מסגרת אפורה */
-            border-radius: 4px; /* פינות מעוגלות קלות */
-            background-color: #4a4a4a; /* צבע רקע של התיבה */
-            cursor: pointer;
-            display: inline-block;
+        .quote {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            opacity: 0.9;
             position: relative;
-            transition: background-color 0.2s, border-color 0.2s;
+            padding: 0 20px;
         }
 
-        input[type="checkbox"]:checked {
-            background-color: #2ecc71; /* צבע ירוק כשמסומן */
-            border-color: #2ecc71;
-        }
-
-        input[type="checkbox"]:checked::after {
-            content: '✔'; /* סימן V */
-            font-size: 18px;
-            color: white;
+        .quote::before, .quote::after {
+            content: '"';
+            color: var(--secondary-color);
+            font-size: 2rem;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            line-height: 1;
-        }
-
-
-        input[type="range"] {
-            width: 80%;
-            margin-top: 15px;
-            -webkit-appearance: none;
-            height: 10px;
-            background: #555;
-            border-radius: 5px;
-            outline: none;
             opacity: 0.7;
-            transition: opacity .2s;
         }
 
-        input[type="range"]:hover {
-            opacity: 1;
+        .quote::before {
+            left: 0;
+            top: -10px;
         }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #e74c3c;
-            cursor: pointer;
+        .quote::after {
+            right: 0;
+            bottom: -10px;
         }
 
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #e74c3c;
-            cursor: pointer;
-        }
-
-
-        /* מסך המשחק */
-        .game-info {
-            display: flex;
-            justify-content: space-between; /* יישור לקצוות כמו בתמונה */
+        .button {
+            display: block;
             width: 100%;
-            margin-bottom: 20px;
-            padding: 0 10px; /* רווח מהקצוות של הקונטיינר */
-            box-sizing: border-box;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 16px var(--button-shadow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
         }
 
-        .info-box {
-            background-color: #3b3b3b;
-            padding: 8px 15px; /* פדינג קטן יותר */
-            border-radius: 8px;
-            font-size: 1.1em; /* פונט קטן יותר */
-            font-weight: bold;
-            min-width: 100px; /* רוחב מינימלי */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
-            direction: rtl; /* לוודא שהמספרים בתוך הבוקס מתיישרים נכון ביחס לטקסט */
-        }
-        
-        /* ספציפי לבוקס הניסיונות (שמאל) */
-        .info-box.lives-box {
-            order: -1; /* כדי למקם משמאל ב-RTL */
+        .button:hover {
+            background: linear-gradient(to right, var(--secondary-color), #FFD700);
+            box-shadow: 0 0 20px rgba(254, 194, 96, 0.6);
+            transform: scale(1.05);
         }
 
-
-        .lives-box span:first-child {
-            color: #e74c3c; /* אדום למילה "ניסיונות" */
-        }
-        #lives-counter {
-            color: #f39c12; /* צהוב-כתום למונה עצמו */
+        .button i {
+            margin-left: 10px;
+            animation: bounce 1s infinite;
         }
 
-        /* פאנל התקדמות חדש */
-        #progress-indicator-container {
-            display: flex;
-            justify-content: center;
-            gap: 8px; /* רווח בין ריבועים */
-            margin-top: 15px;
-            margin-bottom: 25px; /* לפני הצגת השאלה */
-            width: 100%;
-            max-width: 400px; /* הגבלת רוחב */
-            flex-wrap: wrap; /* לאפשר גלישה אם יש הרבה שלבים */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        .progress-square {
-            width: 25px;
-            height: 25px;
-            background-color: #555; /* צבע ברירת מחדל לא הושלם */
-            border-radius: 4px; /* ריבועים מעוגלים קלות */
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
+        .blue { background: linear-gradient(to right, #3B4F7D, #6B728E); }
+        .green { background: linear-gradient(to right, #355E3B, #7D9D72); }
+        .yellow { background: linear-gradient(to right, #F4A261, #E9C46A); }
+        .red { background: linear-gradient(to right, #8B1E3F, #C84767); } /* צבע מתאים לדיונון */
+        .pink { background: linear-gradient(to right, #A63C6D, #D47B9A); }
+        .coral { background: linear-gradient(to right, #D76A03, #F89F5B); }
+        .purple { background: linear-gradient(to right, #4A235A, #8E44AD); }
+        .deep-purple { background: linear-gradient(to right, #6a1b9a, #ab47bc); }
+        .radiant { background: linear-gradient(to right, #2A0944, #A12568); }
+        .teal { background: linear-gradient(to right, #1A535C, #4ECDC4); }
+        .emerald { background: linear-gradient(to right, #1B4332, #52B788); }
+        .indigo { background: linear-gradient(to right, #2C3E50, #5D8AA8); }
+        .lime { background: linear-gradient(to right, #6A994E, #A3BFFA); }
+        .orange { background: linear-gradient(to right, #ff9800, #ffeb3b); }
+        .science-blue { background: linear-gradient(to right, #0077b6, #00b4d8); }
 
-        .progress-square.completed {
-            background-color: #2ecc71; /* ירוק לשלבים שהושלמו */
-            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5); /* זוהר עדין */
-        }
-
-        #question-display {
-            background-color: #4a4a4a;
-            padding: 15px 25px;
-            border-radius: 10px;
+        .grade-section {
             margin-bottom: 30px;
-            font-size: 2em;
-            font-weight: bold;
-            color: #ecf0f1;
-            min-width: 200px;
-            direction: ltr; /* חשוב: LTR עבור הביטוי המתמטי */
-            display: flex; /* לשימוש ב-justify-content */
-            justify-content: center; /* למרכז את הביטוי בתוך הבוקס */
-            align-items: center;
-            height: 70px; /* גובה קבוע */
-        }
-
-        #bridge-container {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 אריחים בשורה כמו בתמונה */
-            gap: 15px;
-            margin-top: 20px;
-            margin-bottom: 30px;
-            width: 100%;
-            max-width: 450px; /* רוחב מרבי לגשר */
-        }
-
-        .bridge-tile {
-            background-color: #4a4a4a; /* צבע אפור כהה יותר כמו בתמונה */
-            border: 2px solid #555;
-            border-radius: 8px;
-            width: 70px; /* רוחב קבוע לאריח */
-            height: 70px; /* גובה קבוע לאריח ליצירת ריבוע */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5em;
-            font-weight: bold;
-            color: #ecf0f1;
-            cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
-            user-select: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* צל עדין */
-        }
-
-        .bridge-tile:hover {
-            background-color: #555; /* שינוי צבע עדין בהובר */
-            border-color: #777;
-            transform: translateY(-3px);
-        }
-
-        .bridge-tile:active {
-            transform: translateY(0);
-        }
-
-        /* פידבק חזותי - צבעים כמו בתמונה (ירוק לאריח שנבחר נכון) */
-        .bridge-tile.correct-feedback {
-            background-color: #2ecc71; /* ירוק מלא לתשובה נכונה */
-            border-color: #27ae60;
-            animation: correct-answer 0.5s ease-out;
-            box-shadow: 0 0 15px #2ecc71;
-        }
-
-        .bridge-tile.wrong-feedback {
-            background-color: #e74c3c; /* אדום מלא לתשובה שגויה */
-            border-color: #c0392b;
-            animation: wrong-answer 0.3s ease-in-out;
-            box-shadow: 0 0 15px #e74c3c;
-        }
-
-        /* אנימציות */
-        @keyframes correct-answer {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes wrong-answer {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(0) rotateZ(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
-        }
-
-        .falling-player {
-            animation: fall 1.5s ease-in forwards;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3em;
-            color: #e74c3c;
-            z-index: 100;
-        }
-
-        /* מסך סיום */
-        #end-message {
-            font-size: 3em;
-            color: #e74c3c;
-            margin-bottom: 10px;
-        }
-        #end-stats {
-            font-size: 1.3em;
-            color: #f39c12;
-            margin-top: 15px;
-        }
-        
-        /* טבלת סיכום */
-        #summary-table-container {
-            margin-top: 30px;
-            background-color: #3b3b3b;
-            border-radius: 10px;
             padding: 20px;
-            max-width: 90%;
-            width: 500px;
-            overflow-x: auto; /* מאפשר גלילה בטבלה אם היא רחבה מדי */
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed var(--secondary-color);
+            transition: all 0.3s ease;
         }
 
-        #summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 0.9em;
+        .grade-section:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
-        #summary-table th, #summary-table td {
-            border: 1px solid #555;
-            padding: 10px;
-            text-align: center;
-        }
-
-        #summary-table th {
-            background-color: #4a4a4a;
-            color: #eee;
-        }
-
-        #summary-table tr:nth-child(even) {
-            background-color: #333;
-        }
-
-        #summary-table td.correct-answer-cell {
-            color: #2ecc71; /* ירוק לתשובה נכונה */
-            font-weight: bold;
-        }
-
-        #summary-table td.incorrect-answer-cell {
-            color: #e74c3c; /* אדום לתשובה שגויה */
-            font-weight: bold;
-        }
-        
-        #motivational-message {
+        .info-text {
+            background: linear-gradient(to right, #F6F4E6, #EDE4E0);
+            padding: 20px;
+            border-radius: 15px;
             margin-top: 25px;
-            font-size: 1.4em;
-            font-weight: bold;
-            color: #f39c12; /* צהוב-כתום */
-            line-height: 1.5;
+            color: #4A235A;
+            font-size: 15px;
+            border: 1px solid rgba(254, 194, 96, 0.4);
         }
 
-
-        /* רספונסיביות בסיסית */
         @media (max-width: 600px) {
-            h1 { font-size: 2em; }
-            h2 { font-size: 1.5em; }
-            .squid-button { padding: 12px 25px; font-size: 1.1em; }
-            .bridge-tile { width: 55px; height: 55px; font-size: 2em; }
-            #bridge-container { grid-template-columns: repeat(4, 1fr); max-width: 250px; } /* 4 אריחים בשורה במסכים קטנים */
-            #game-container { padding: 20px; }
-            .config-section { width: 90%; }
-            #summary-table th, #summary-table td {
-                padding: 8px 5px; /* פדינג קטן יותר בטבלה */
-                font-size: 0.8em;
-            }
+            .container { padding: 30px; margin: 15px auto; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            .button { font-size: 16px; padding: 12px; }
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <!-- מסך התחלה / קונפיגורציה -->
-        <div id="start-screen" class="screen">
-            <h1>גשר המספרים</h1> <!-- שם המשחק שונה כאן -->
-            <p id="player-id-start">שחקן XXX</p> <!-- שם המשחק הוסר מהטקסט כאן -->
-            <div class="config-section">
-                <h2>בחר פעולות חשבון:</h2>
-                <div class="checkbox-group">
-                    <!-- סדר אלמנטים לפי תמונה, עם אייקונים -->
-                    <div>
-                        <label><i class="fas fa-plus"></i> חיבור (+)<input type="checkbox" id="op-add" value="add" checked></label>
-                    </div>
-                    <div>
-                        <label><i class="fas fa-minus"></i> חיסור (-)<input type="checkbox" id="op-subtract" value="subtract" checked></label>
-                    </div>
-                    <div>
-                        <label><i class="fas fa-times"></i> כפל (*)<input type="checkbox" id="op-multiply" value="multiply"></label>
-                    </div>
-                    <div>
-                        <label><i class="fas fa-divide"></i> חילוק (/)<input type="checkbox" id="op-divide" value="divide"></label>
-                    </div>
-                </div>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <div class="quote">
+            "הַזֹּרְעִים בְּדִמְעָה בְּרִנָּה יִקְצֹרוּ" - תהילים קכ״ו
+        </div>
+        
+        <h1>ברוכים הבאים ללומדת חשבון</h1>
+        
+        <!-- פסקת פתיחה חדשה ל-SEO -->
+        <p class="intro-text">כאן תמצאו מגוון רחב של משחקי חשבון מהנים לילדים, המחולקים לפי כיתות. הלומדה מציעה תרגול חשבון אינטראקטיבי בנושאים כמו חיבור, חיסור, כפל, חילוק, שברים ועוד בצורה מהנה ואינטראקטיבית. בואו נתחיל ללמוד ולשחק!</p>
+
+        <div class="buttons-container">
+            <!-- START: סקשן חדש - תרגילים בהתאמה אישית -->
+            <div class="grade-section">
+                <h2>תרגילים בהתאמה אישית</h2>
+                <!-- כפתור חדש למשחק גשר המספרים עם אייקון ושם מעודכן -->
+                <button class="button red" onclick="openLinkWithConfetti('GenericGames/BridgeGame.html')">
+                    <i class="fas fa-bridge"></i> גשר המספרים
+                </button>
+                <button class="button deep-purple" onclick="openLinkWithConfetti('GenericGames/memory-game.html')">
+                    <i class="fas fa-brain"></i> משחק זיכרון
+                </button>
+                <button class="button yellow" onclick="openLinkWithConfetti('GenericGames/MilionerGame.html')">
+                    <i class="fas fa-money-bill-wave"></i> מתמטיקאי המיליון!
+                </button>
+                <!-- הועבר לכאן מ"כיתה א" -->
+                <button class="button pink" onclick="openLinkWithConfetti('GenericGames/ClassA-Puzzle.html')">
+                    <i class="fas fa-puzzle-piece"></i> הרפתקת פאזל
+                </button>
             </div>
-            <div class="config-section">
-                <h2>אורך הגשר (שלבים): <span id="bridge-length-display">5</span></h2>
-                <input type="range" id="bridge-length" min="5" max="15" value="5">
+            <!-- END: סקשן חדש - תרגילים בהתאמה אישית -->
+
+            <!-- כיתה א -->
+            <div class="grade-section">
+                <h2>כיתה א</h2>
+                <button class="button blue" onclick="openLinkWithConfetti('ClassA/core-1.html')">
+                    <i class="fas fa-plus"></i> חיבור
+                </button>
+                <button class="button teal" onclick="openLinkWithConfetti('ClassA/core-1-minus.html')">
+                    <i class="fas fa-minus"></i> חיסור
+                </button>
+                <!-- הפאזל הוסר מכאן -->
             </div>
-            <div class="config-section">
-                <h2>טווח המספרים לשאלות (עד): <span id="max-operand-value-display">10</span></h2>
-                <input type="range" id="max-operand-value-input" min="10" max="500" value="10">
+
+            <!-- כיתה ב -->
+            <div class="grade-section">
+                <h2>כיתה ב</h2>
+                <button class="button green" onclick="openLinkWithConfetti('ClassB/core-2.html')">
+                    <i class="fas fa-calculator"></i> פעולות יסוד
+                </button>
+                <button class="button teal" onclick="openLinkWithConfetti('ClassB/classB_advanced.html')">
+                    <i class="fas fa-rocket"></i> פעולות יסוד - מתקדם
+                </button>
+                <button class="button emerald" onclick="openLinkWithConfetti('ClassB/core-2-adding-with-transit.html')">
+                    <i class="fas fa-exchange-alt"></i> חיבור עם המרה
+                </button>
+                <button class="button lime" onclick="openLinkWithConfetti('ClassB/core-2-decrease-with-transit.html')">
+                    <i class="fas fa-minus"></i> חיסור עם המרה
+                </button>
+                <button class="button coral" onclick="openLinkWithConfetti('ClassB/classB_Geometry.html')">
+                    <i class="fas fa-draw-polygon"></i> שטח והיקף
+                </button>
+                <button class="button pink" onclick="openLinkWithConfetti('ClassB/Word-Problems.html')">
+                    <i class="fas fa-question"></i> בעיות מילוליות - חיבור וחיסור
+                </button>
+                <button class="button indigo" onclick="openLinkWithConfetti('ClassB/word-problems-+*:-core2.html')">
+                    <i class="fas fa-brain"></i> בעיות מילוליות - חיבור, חיסור, כפל, חילוק
+                </button>
             </div>
-            <button id="start-button" class="squid-button">התחל את האתגר</button>
+
+            <!-- כיתה ג -->
+            <div class="grade-section">
+                <h2>כיתה ג</h2>
+                <button class="button radiant" onclick="openLinkWithConfetti('ClassC/core-3.html')">
+                    <i class="fas fa-arrow-up-9-1"></i> סדר פעולות חשבון
+                </button>
+            </div>
+
+            <!-- כיתה ד -->
+            <div class="grade-section">
+                <h2>כיתה ד</h2>
+                <button class="button yellow" onclick="openLinkWithConfetti('ClassD/core-4.html')">
+                    <i class="fas fa-chart-line"></i> חשבון מתקדם
+                </button>
+                <button class="button orange" onclick="openLinkWithConfetti('ClassD/mul_advanced.html')">
+                    <i class="fas fa-times"></i> כפל מתקדם
+                </button>
+                <button class="button deep-purple" onclick="openLinkWithConfetti('ClassD/div_advanced.html')">
+                    <i class="fas fa-divide"></i> חילוק מתקדם
+                </button>
+                <button class="button radiant" onclick="openLinkWithConfetti('ClassD/pow.html')">
+                    <i class="fas fa-bolt"></i> חזקות
+                </button>
+                <button class="button science-blue" onclick="openLinkWithConfetti('ClassD/prime_number.html')">
+                    <i class="fas fa-atom"></i> מספרים ראשוניים
+                </button>
+                <button class="button red" onclick="openLinkWithConfetti('ClassD/frictions.html')">
+                    <i class="fas fa-divide"></i> שברים
+                </button>
+                <button class="button purple" onclick="openLinkWithConfetti('ClassD/frictions_simple.html')">
+                    <i class="fas fa-umbrella"></i> שבר פשוט
+                </button>
+                <button class="button indigo" onclick="openLinkWithConfetti('ClassD/FrictionsAdvancedD.html')">
+                    <i class="fas fa-layer-group"></i> חיבור וחיסור שברים
+                </button>
+                <button class="button coral" onclick="openLinkWithConfetti('ClassD/Word-Problems-Advanced.html')">
+                    <i class="fas fa-wand-magic-sparkles"></i> בעיות מילוליות - שברים
+                </button>
+                <button class="button teal" onclick="openLinkWithConfetti('ClassD/ClassD-Mix.html')">
+                    <i class="fas fa-puzzle-piece"></i> משחק פאזל אקראי
+                </button>
+            </div>
         </div>
 
-        <!-- מסך המשחק -->
-        <div id="game-screen" class="screen hidden">
-            <p id="player-id-game">שחקן XXX</p> <!-- שם המשחק הוסר מהטקסט כאן -->
-            <div class="game-info">
-                <div class="info-box">
-                    <span>שלב:</span> <span id="current-stage">1</span> / <span id="total-stages"></span>
-                </div>
-                <div class="info-box lives-box">
-                    <span>ניסיונות:</span> <span id="lives-counter">3</span> / 3
-                </div>
-            </div>
-            <!-- פאנל התקדמות חדש -->
-            <div id="progress-indicator-container">
-                <!-- Progress squares will be generated here -->
-            </div>
-            <h2 id="question-display"></h2>
-            <div id="bridge-container">
-                <!-- אריחי הגשר ייווצרו דינמית ע"י JavaScript -->
-            </div>
-            <button id="restart-game-button" class="squid-button small-button">התחל מהתחלה</button>
-        </div>
-
-        <!-- מסך סיום המשחק (ניצחון/הדחה) -->
-        <div id="end-screen" class="screen hidden">
-            <h1 id="end-message"></h1>
-            <p id="player-id-end">שחקן XXX</p> <!-- שם המשחק הוסר מהטקסט כאן -->
-            <p id="end-stats"></p>
-            
-            <div id="summary-table-container">
-                <h2>סיכום האתגר:</h2>
-                <table id="summary-table">
-                    <thead>
-                        <tr>
-                            <th>שלב</th>
-                            <th>תרגיל</th>
-                            <th>תשובה נכונה</th>
-                            <th>ניסיונות</th>
-                            <th>זמן (שניות)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="summary-table-body">
-                        <!-- Summary data will be inserted here by JavaScript -->
-                    </tbody>
-                </table>
-                <p id="motivational-message"></p>
-            </div>
-
-            <button id="play-again-button" class="squid-button">שחק שוב</button>
+        <div class="info-text">
+            טיפ מהמורה: למידה היא מסע של גילוי. כל תרגיל שאתה פותר מקרב אותך להצלחה גדולה!
         </div>
     </div>
 
     <script>
-        // --- DOM Elements ---
-        const startScreen = document.getElementById('start-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const endScreen = document.getElementById('end-screen');
-        const gameContainer = document.getElementById('game-container'); 
+        function openLinkWithConfetti(url) {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#FEC260', '#A12568', '#2A0944', '#8E44AD']
+            });
 
-        const startButton = document.getElementById('start-button');
-        const playAgainButton = document.getElementById('play-again-button');
-        const restartGameButton = document.getElementById('restart-game-button');
-
-        const opAdd = document.getElementById('op-add');
-        const opSubtract = document.getElementById('op-subtract');
-        const opMultiply = document.getElementById('op-multiply');
-        const opDivide = document.getElementById('op-divide');
-        const operatorCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
-
-
-        const bridgeLengthInput = document.getElementById('bridge-length');
-        const bridgeLengthDisplay = document.getElementById('bridge-length-display');
-
-        const maxOperandValueInput = document.getElementById('max-operand-value-input'); 
-        const maxOperandValueDisplay = document.getElementById('max-operand-value-display'); 
-
-        const playerIdStart = document.getElementById('player-id-start');
-        const playerIdGame = document.getElementById('player-id-game');
-        const playerIdEnd = document.getElementById('player-id-end');
-
-        const currentStageDisplay = document.getElementById('current-stage');
-        const totalStagesDisplay = document.getElementById('total-stages');
-        const livesCounterDisplay = document.getElementById('lives-counter');
-        const questionDisplay = document.getElementById('question-display');
-        const bridgeContainer = document.getElementById('bridge-container');
-        const endMessage = document.getElementById('end-message');
-        const endStats = document.getElementById('end-stats');
-        const progressIndicatorContainer = document.getElementById('progress-indicator-container');
-        const summaryTableBody = document.getElementById('summary-table-body'); 
-        const motivationalMessage = document.getElementById('motivational-message'); 
-
-        // --- Game State Variables ---
-        let playerNumber;
-        let currentStage = 1;
-        let totalStages = 5;
-        let selectedOperations = [];
-        let currentQuestion = {};
-        let incorrectAttempts = 0; 
-        const MAX_INCORRECT_ATTEMPTS = 3;
-        let questionStartTime; 
-        let gameSummary = []; 
-        let maxOperandValue = 10; 
-
-        // --- Sounds (basic) ---
-        // וודא שקבצי הקול נמצאים בתיקייה 'sounds' באותה רמה כמו קובץ ה-HTML
-        const correctSound = new Audio('sounds/correct.mp3'); 
-        const wrongSound = new Audio('sounds/wrong.mp3');
-        const fallSound = new Audio('sounds/fall.mp3');
-        const winSound = new Audio('sounds/win.mp3');
-
-        // --- Utility Functions ---
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
+            setTimeout(() => {
+                // פותח בטאב חדש
+                window.open(url, '_blank'); 
+            }, 500);
         }
 
-        function generatePlayerNumber() {
-            return Math.floor(Math.random() * 900) + 100; // 3-digit number
-        }
-
-        function updatePlayerIdDisplays() {
-            playerIdStart.textContent = `שחקן ${playerNumber}`;
-            playerIdGame.textContent = `שחקן ${playerNumber}`;
-            playerIdEnd.textContent = `שחקן ${playerNumber}`;
-        }
-
-        // --- Game Logic ---
-        function generateQuestion() {
-            questionStartTime = Date.now(); 
-            const operation = selectedOperations[getRandomInt(0, selectedOperations.length - 1)];
-            let num1, num2, answer;
-            let attempts = 0;
-            const maxGenerationAttempts = 500; // הגדל ניסיונות למניעת לולאה אינסופית בתנאים קשים
-            const maxOpVal = maxOperandValue; 
-
-            do {
-                attempts++;
-                answer = getRandomInt(1, 10); // התשובה תמיד בין 1 ל-10
-
-                switch (operation) {
-                    case 'add':
-                        num1 = getRandomInt(1, maxOpVal);
-                        num2 = answer - num1;
-                        // ודא ש-num2 גם בטווח, ולא שלילי או אפס
-                        if (num2 <= 0 || num2 > maxOpVal || num1 + num2 !== answer) {
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
-                        break;
-                    case 'subtract':
-                        num2 = getRandomInt(1, maxOpVal);
-                        num1 = answer + num2;
-                        // ודא ש-num1 בטווח, ולא שלילי או אפס
-                        if (num1 <= 0 || num1 > maxOpVal || num1 - num2 !== answer) {
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
-                        break;
-                    case 'multiply':
-                        // מצא גורמים ל-answer שמתאימים ל-maxOpVal
-                        let factors = [];
-                        for (let i = 1; i <= Math.sqrt(answer); i++) {
-                            if (answer % i === 0) {
-                                factors.push(i);
-                                if (i * i !== answer) factors.push(answer / i);
-                            }
-                        }
-                        // בחר גורמים שאינם חורגים מ-maxOpVal
-                        const validFactors = factors.filter(f => f <= maxOpVal);
-                        if (validFactors.length > 0) {
-                            num1 = validFactors[getRandomInt(0, validFactors.length - 1)];
-                            num2 = answer / num1;
-                            if (num2 > maxOpVal || num2 <= 0) { // לוודא שגם num2 בטווח
-                                num1 = 0; // Invalid, trigger re-generation
-                            }
-                        } else {
-                            num1 = 0; // No valid factors found, trigger re-generation
-                        }
-                        break;
-                    case 'divide':
-                        num2 = getRandomInt(1, maxOpVal); // המכנה יכול להיות עד maxOpVal
-                        num1 = answer * num2; // המונה הוא תוצאת המכפלה
-                        // ודא שהמונה לא גדול מ-maxOpVal
-                        if (num1 > maxOpVal || num1 % num2 !== 0 || num2 <= 0) { // ודא שאין שארית ושהמונה בטווח
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
-                        break;
-                }
-            // המשך לולאה אם התנאים לא מתקיימים או יצירה נכשלה
-            } while ((num1 <= 0 || num2 <= 0 || num1 > maxOpVal || num2 > maxOpVal || answer < 1 || answer > 10) && attempts < maxGenerationAttempts);
-
-            // Fallback for extreme cases (should be rare with this logic)
-            if (attempts >= maxGenerationAttempts) {
-                console.warn("Could not generate a suitable question within limits. Defaulting to 1+1=2.");
-                num1 = 1; num2 = 1; operation = 'add'; answer = 2;
-                currentQuestion = { num1, num2, operation, answer }; 
-            } else {
-                currentQuestion = { num1, num2, operation, answer };
-            }
-            
-            let opSymbol;
-            switch (operation) {
-                case 'add': opSymbol = '+'; break;
-                case 'subtract': opSymbol = '-'; break;
-                case 'multiply': opSymbol = '*'; break;
-                case 'divide': opSymbol = '/'; break;
-            }
-            questionDisplay.textContent = `${num1} ${opSymbol} ${num2} = ?`; 
-            incorrectAttempts = 0;
-            livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
-
-            document.querySelectorAll('.bridge-tile').forEach(tile => {
-                tile.classList.remove('correct-feedback', 'wrong-feedback');
+        function createBackgroundConfetti() {
+            confetti({
+                particleCount: 15,
+                spread: 60,
+                origin: { 
+                    x: Math.random(),
+                    y: Math.random()
+                },
+                colors: ['#FEC260', '#A12568', '#2A0944'],
+                opacity: 0.5
             });
         }
 
-        function createBridgeTiles() {
-            bridgeContainer.innerHTML = ''; 
-            // סדר המספרים כפי שמופיע בתמונה: 1-5 בשורה ראשונה, 6-10 בשנייה
-            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
-            numbers.forEach(num => {
-                const tile = document.createElement('div');
-                tile.classList.add('bridge-tile');
-                tile.textContent = num;
-                tile.dataset.value = num; 
-                bridgeContainer.appendChild(tile);
-            });
-        }
-
-        function createProgressIndicator() {
-            progressIndicatorContainer.innerHTML = ''; 
-            for (let i = 0; i < totalStages; i++) {
-                const square = document.createElement('div');
-                square.classList.add('progress-square');
-                progressIndicatorContainer.appendChild(square);
-            }
-        }
-
-        function checkAnswer(selectedTile, selectedValue) {
-            document.querySelectorAll('.bridge-tile').forEach(tile => {
-                tile.classList.remove('correct-feedback', 'wrong-feedback');
-            });
-
-            if (parseInt(selectedValue) === currentQuestion.answer) {
-                selectedTile.classList.add('correct-feedback'); 
-                correctSound.play();
-                
-                if (currentStage > 0 && (currentStage - 1) < totalStages) { 
-                    if (progressIndicatorContainer.children[currentStage - 1]) {
-                        progressIndicatorContainer.children[currentStage - 1].classList.add('completed');
-                    }
-                }
-
-                // שמור נתוני סיכום עבור השאלה שזה עתה נפתרה
-                const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1); 
-                gameSummary.push({
-                    stage: currentStage,
-                    question: questionDisplay.textContent,
-                    correctAnswer: currentQuestion.answer,
-                    attempts: incorrectAttempts + 1, 
-                    time: timeTaken
-                });
-
-                currentStage++;
-                currentStageDisplay.textContent = currentStage;
-
-                if (currentStage > totalStages) {
-                    gameOver(true); 
-                } else {
-                    setTimeout(() => {
-                        generateQuestion();
-                    }, 700);
-                }
-            } else {
-                selectedTile.classList.add('wrong-feedback'); 
-                wrongSound.play();
-                incorrectAttempts++;
-                livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS - incorrectAttempts} / ${MAX_INCORRECT_ATTEMPTS}`;
-
-                if (incorrectAttempts >= MAX_INCORRECT_ATTEMPTS) {
-                    // השחקן נופל ומודח - שמור נתונים גם לשאלה זו
-                    const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1);
-                    gameSummary.push({
-                        stage: currentStage,
-                        question: questionDisplay.textContent,
-                        correctAnswer: currentQuestion.answer,
-                        attempts: incorrectAttempts, 
-                        time: timeTaken,
-                        failed: true 
-                    });
-
-                    const fallingPlayer = document.createElement('div');
-                    fallingPlayer.classList.add('falling-player');
-                    fallingPlayer.textContent = `שחקן ${playerNumber}`;
-                    gameContainer.appendChild(fallingPlayer);
-                    fallSound.play();
-
-                    setTimeout(() => {
-                        gameOver(false); 
-                        if (gameContainer.contains(fallingPlayer)) { 
-                            gameContainer.removeChild(fallingPlayer); 
-                        }
-                    }, 1500); 
-                } else {
-                    setTimeout(() => {
-                        selectedTile.classList.remove('wrong-feedback'); 
-                    }, 700);
-                }
-            }
-        }
-
-        function startGame() {
-            // איסוף פעולות נבחרות
-            selectedOperations = [];
-            operatorCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedOperations.push(checkbox.value);
-                }
-            });
-
-            if (selectedOperations.length === 0) {
-                alert("אנא בחר לפחות פעולת חשבון אחת!");
-                return;
-            }
-            
-            totalStages = parseInt(bridgeLengthInput.value);
-            maxOperandValue = parseInt(maxOperandValueInput.value); 
-            
-            totalStagesDisplay.textContent = totalStages;
-            currentStage = 1;
-            currentStageDisplay.textContent = currentStage;
-            gameSummary = []; 
-
-            startScreen.classList.add('hidden');
-            gameScreen.classList.remove('hidden');
-
-            createProgressIndicator(); 
-            createBridgeTiles();
-            generateQuestion();
-        }
-
-        function displaySummaryTable(isWin) {
-            summaryTableBody.innerHTML = ''; 
-
-            gameSummary.forEach((entry, index) => {
-                const row = summaryTableBody.insertRow();
-                const stageCell = row.insertCell();
-                const questionCell = row.insertCell();
-                const answerCell = row.insertCell();
-                const attemptsCell = row.insertCell();
-                const timeCell = row.insertCell();
-
-                stageCell.textContent = index + 1; 
-                questionCell.textContent = entry.question;
-                answerCell.textContent = entry.correctAnswer;
-                attemptsCell.textContent = entry.attempts;
-                timeCell.textContent = entry.time;
-
-                if (entry.failed) {
-                    row.style.backgroundColor = 'rgba(231, 76, 60, 0.2)'; 
-                    answerCell.classList.add('incorrect-answer-cell');
-                    attemptsCell.style.color = '#e74c3c'; 
-                } else {
-                    answerCell.classList.add('correct-answer-cell');
-                    attemptsCell.style.color = '#2ecc71'; 
-                }
-            });
-
-            // הודעת מוטיבציה
-            if (isWin) {
-                motivationalMessage.textContent = "כל הכבוד! הצלחת לחצות את הגשר בכישרון ובמהירות! אתה אלוף אמיתי!";
-                motivationalMessage.style.color = '#2ecc71';
-            } else {
-                motivationalMessage.textContent = "אל דאגה! גם בדרך להצלחה יש נפילות. תמיד אפשר לנסות שוב ולנצח בפעם הבאה!";
-                motivationalMessage.style.color = '#e74c3c';
-            }
-        }
-
-
-        function gameOver(isWin) {
-            gameScreen.classList.add('hidden');
-            endScreen.classList.remove('hidden');
-
-            if (isWin) {
-                endMessage.textContent = "מזל טוב! חצית את הגשר!";
-                endMessage.style.color = '#2ecc71'; 
-                endStats.textContent = `פתרת בהצלחה את כל ${totalStages} השלבים.`;
-                winSound.play();
-            } else {
-                endMessage.textContent = "הודחת מהמשחק!";
-                endMessage.style.color = '#e74c3c'; 
-                endStats.textContent = `לא הצלחת לעבור את שלב ${currentStage} מתוך ${totalStages}.`;
-            }
-            displaySummaryTable(isWin); 
-        }
-
-        function resetGame() {
-            currentStage = 1;
-            incorrectAttempts = 0;
-            currentQuestion = {};
-            gameSummary = []; 
-
-            // איפוס UI למסך ההתחלה 
-            opAdd.checked = true;
-            opSubtract.checked = true;
-            opMultiply.checked = false;
-            opDivide.checked = false;
-            bridgeLengthInput.value = 5;
-            bridgeLengthDisplay.textContent = 5;
-            maxOperandValueInput.value = 10;
-            maxOperandValueDisplay.textContent = 10;
-
-            livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
-            
-            document.querySelectorAll('.bridge-tile').forEach(tile => {
-                tile.classList.remove('correct-feedback', 'wrong-feedback');
-            });
-
-            progressIndicatorContainer.innerHTML = '';
-
-            endScreen.classList.add('hidden');
-            gameScreen.classList.add('hidden');
-            startScreen.classList.remove('hidden');
-
-            playerNumber = generatePlayerNumber();
-            updatePlayerIdDisplays();
-        }
-
-
-        // --- Event Listeners ---
-        startButton.addEventListener('click', startGame);
-        playAgainButton.addEventListener('click', resetGame);
-        restartGameButton.addEventListener('click', resetGame); 
-
-        bridgeLengthInput.addEventListener('input', () => {
-            bridgeLengthDisplay.textContent = bridgeLengthInput.value;
-        });
-
-        maxOperandValueInput.addEventListener('input', () => { 
-            maxOperandValueDisplay.textContent = maxOperandValueInput.value;
-        });
-
-
-        bridgeContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('bridge-tile')) {
-                checkAnswer(event.target, event.target.dataset.value);
-            }
-        });
-
-        // אתחול בעת טעינת הדף
-        document.addEventListener('DOMContentLoaded', () => {
-            playerNumber = generatePlayerNumber();
-            updatePlayerIdDisplays();
-            resetGame(); 
-            // טעינה מראש של קולות (אופציונלי, אך מומלץ להשמעה מיידית)
-            correctSound.load();
-            wrongSound.load();
-            fallSound.load();
-            winSound.load();
-        });
+        setInterval(createBackgroundConfetti, 5000);
     </script>
 </body>
 </html>
