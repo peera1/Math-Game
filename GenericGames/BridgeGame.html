@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>גשר המספרים: אתגר הדיונון</title>
+    <!-- קישור לפונט מגוגל פונטס -->
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <style>
+        /* כללי */
+        body {
+            margin: 0;
+            font-family: 'Varela Round', sans-serif;
+            background-color: #1a1a1a; /* רקע כהה */
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* למנוע גלילה אם יש אנימציות יציאה מהמסך */
+            direction: rtl; /* יישור לימין עבור עברית */
+        }
+
+        #game-container {
+            background-color: #2b2b2b; /* רקע כהה יותר לקונטיינר הראשי */
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            text-align: center;
+            max-width: 90%;
+            width: 600px; /* רוחב קבוע יותר לקונטיינר הראשי */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+            height: fit-content; /* גובה לפי תוכן */
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            transition: opacity 0.5s ease-in-out;
+            height: 100%; /* ממלא את גובה הקונטיינר */
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+
+        /* כותרות וטקסט */
+        h1 {
+            color: #e74c3c; /* אדום בוהק כמו בסדרה */
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            color: #ecf0f1;
+            margin-top: 20px;
+            font-size: 1.8em;
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        #player-id-start, #player-id-game, #player-id-end {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f39c12; /* צהוב-כתום */
+            margin-bottom: 20px;
+        }
+
+        /* כפתורים */
+        .squid-button {
+            background-color: #e74c3c; /* אדום */
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .squid-button:hover {
+            background-color: #c0392b; /* אדום כהה יותר */
+            transform: translateY(-2px);
+        }
+
+        .squid-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .small-button {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            margin-top: 20px; /* Adjust margin for image match */
+            margin-bottom: 10px;
+        }
+
+        /* מסך התחלה - קונפיגורציה */
+        .config-section {
+            background-color: #3b3b3b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .checkbox-group {
+            display: grid; /* שימוש ב-grid לסידור עמודות ושורות */
+            grid-template-columns: 1fr 1fr; /* 2 עמודות */
+            gap: 15px 10px; /* רווח בין שורות ועמודות */
+            margin-top: 10px;
+        }
+        /* התאמת סדר האלמנטים ב-RTL (עמודה ימין ואז עמודה שמאל) */
+        .checkbox-group > div {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-group > div:nth-child(odd) { /* אלמנטים אי-זוגיים - יעלו בעמודה הימנית */
+            justify-content: flex-end; /* יישור לימין */
+        }
+        .checkbox-group > div:nth-child(even) { /* אלמנטים זוגיים - יעלו בעמודה השמאלית */
+            justify-content: flex-start; /* יישור לשמאל */
+        }
+        
+
+        /* סגנון לתיבות הסימון - ריבועים רגילים עם V */
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px; /* רווח בין הטקסט לתיבה */
+            font-size: 1.1em;
+            cursor: pointer;
+            user-select: none; /* מניעת סימון טקסט בלחיצה */
+            color: #eee; /* צבע טקסט ברירת מחדל */
+        }
+        
+        input[type="checkbox"] {
+            -webkit-appearance: none; /* הסתרת ברירת המחדל של הדפדפן */
+            -moz-appearance: none;
+            appearance: none;
+            width: 22px; /* גודל תיבת הסימון */
+            height: 22px;
+            border: 2px solid #999; /* מסגרת אפורה */
+            border-radius: 4px; /* פינות מעוגלות קלות */
+            background-color: #4a4a4a; /* צבע רקע של התיבה */
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        input[type="checkbox"]:checked {
+            background-color: #2ecc71; /* צבע ירוק כשמסומן */
+            border-color: #2ecc71;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✔'; /* סימן V */
+            font-size: 18px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 1;
+        }
+
+
+        input[type="range"] {
+            width: 80%;
+            margin-top: 15px;
+            -webkit-appearance: none;
+            height: 10px;
+            background: #555;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+        }
+
+
+        /* מסך המשחק */
+        .game-info {
+            display: flex;
+            justify-content: space-between; /* יישור לקצוות כמו בתמונה */
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 0 10px; /* רווח מהקצוות של הקונטיינר */
+            box-sizing: border-box;
+        }
+
+        .info-box {
+            background-color: #3b3b3b;
+            padding: 8px 15px; /* פדינג קטן יותר */
+            border-radius: 8px;
+            font-size: 1.1em; /* פונט קטן יותר */
+            font-weight: bold;
+            min-width: 100px; /* רוחב מינימלי */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            direction: rtl; /* לוודא שהמספרים בתוך הבוקס מתיישרים נכון ביחס לטקסט */
+        }
+        
+        /* ספציפי לבוקס הניסיונות (שמאל) */
+        .info-box.lives-box {
+            order: -1; /* כדי למקם משמאל ב-RTL */
+        }
+
+
+        .lives-box span:first-child {
+            color: #e74c3c; /* אדום למילה "ניסיונות" */
+        }
+        #lives-counter {
+            color: #f39c12; /* צהוב-כתום למונה עצמו */
+        }
+
+        /* פאנל התקדמות חדש */
+        #progress-indicator-container {
+            display: flex;
+            justify-content: center;
+            gap: 8px; /* רווח בין ריבועים */
+            margin-top: 15px;
+            margin-bottom: 25px; /* לפני הצגת השאלה */
+            width: 100%;
+            max-width: 400px; /* הגבלת רוחב */
+            flex-wrap: wrap; /* לאפשר גלישה אם יש הרבה שלבים */
+        }
+
+        .progress-square {
+            width: 25px;
+            height: 25px;
+            background-color: #555; /* צבע ברירת מחדל לא הושלם */
+            border-radius: 4px; /* ריבועים מעוגלים קלות */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .progress-square.completed {
+            background-color: #2ecc71; /* ירוק לשלבים שהושלמו */
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5); /* זוהר עדין */
+        }
+
+        #question-display {
+            background-color: #4a4a4a;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            font-size: 2em;
+            font-weight: bold;
+            color: #ecf0f1;
+            min-width: 200px;
+            direction: ltr; /* חשוב: LTR עבור הביטוי המתמטי */
+            display: flex; /* לשימוש ב-justify-content */
+            justify-content: center; /* למרכז את הביטוי בתוך הבוקס */
+            align-items: center;
+            height: 70px; /* גובה קבוע */
+        }
+
+        #bridge-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 אריחים בשורה כמו בתמונה */
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 450px; /* רוחב מרבי לגשר */
+        }
+
+        .bridge-tile {
+            background-color: #4a4a4a; /* צבע אפור כהה יותר כמו בתמונה */
+            border: 2px solid #555;
+            border-radius: 8px;
+            width: 70px; /* רוחב קבוע לאריח */
+            height: 70px; /* גובה קבוע לאריח ליצירת ריבוע */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ecf0f1;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* צל עדין */
+        }
+
+        .bridge-tile:hover {
+            background-color: #555; /* שינוי צבע עדין בהובר */
+            border-color: #777;
+            transform: translateY(-3px);
+        }
+
+        .bridge-tile:active {
+            transform: translateY(0);
+        }
+
+        /* פידבק חזותי - צבעים כמו בתמונה (ירוק לאריח שנבחר נכון) */
+        .bridge-tile.correct-feedback {
+            background-color: #2ecc71; /* ירוק מלא לתשובה נכונה */
+            border-color: #27ae60;
+            animation: correct-answer 0.5s ease-out;
+            box-shadow: 0 0 15px #2ecc71;
+        }
+
+        .bridge-tile.wrong-feedback {
+            background-color: #e74c3c; /* אדום מלא לתשובה שגויה */
+            border-color: #c0392b;
+            animation: wrong-answer 0.3s ease-in-out;
+            box-shadow: 0 0 15px #e74c3c;
+        }
+
+        /* אנימציות */
+        @keyframes correct-answer {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes wrong-answer {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotateZ(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+        }
+
+        .falling-player {
+            animation: fall 1.5s ease-in forwards;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: #e74c3c;
+            z-index: 100;
+        }
+
+        /* מסך סיום */
+        #end-message {
+            font-size: 3em;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        #end-stats {
+            font-size: 1.3em;
+            color: #f39c12;
+            margin-top: 15px;
+        }
+        
+        /* טבלת סיכום */
+        #summary-table-container {
+            margin-top: 30px;
+            background-color: #3b3b3b;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 90%;
+            width: 500px;
+            overflow-x: auto; /* מאפשר גלילה בטבלה אם היא רחבה מדי */
+        }
+
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        #summary-table th, #summary-table td {
+            border: 1px solid #555;
+            padding: 10px;
+            text-align: center;
+        }
+
+        #summary-table th {
+            background-color: #4a4a4a;
+            color: #eee;
+        }
+
+        #summary-table tr:nth-child(even) {
+            background-color: #333;
+        }
+
+        #summary-table td.correct-answer-cell {
+            color: #2ecc71; /* ירוק לתשובה נכונה */
+            font-weight: bold;
+        }
+
+        #summary-table td.incorrect-answer-cell {
+            color: #e74c3c; /* אדום לתשובה שגויה */
+            font-weight: bold;
+        }
+        
+        #motivational-message {
+            margin-top: 25px;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #f39c12; /* צהוב-כתום */
+            line-height: 1.5;
+        }
+
+
+        /* רספונסיביות בסיסית */
+        @media (max-width: 600px) {
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            .squid-button { padding: 12px 25px; font-size: 1.1em; }
+            .bridge-tile { width: 55px; height: 55px; font-size: 2em; }
+            #bridge-container { grid-template-columns: repeat(4, 1fr); max-width: 250px; } /* 4 אריחים בשורה במסכים קטנים */
+            #game-container { padding: 20px; }
+            .config-section { width: 90%; }
+            #summary-table th, #summary-table td {
+                padding: 8px 5px; /* פדינג קטן יותר בטבלה */
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- מסך התחלה / קונפיגורציה -->
+        <div id="start-screen" class="screen">
+            <h1>גשר המספרים: אתגר הדיונון</h1>
+            <p id="player-id-start">שחקן XXX</p>
+            <div class="config-section">
+                <h2>בחר פעולות חשבון:</h2>
+                <div class="checkbox-group">
+                    <!-- שורה ראשונה - סדר אלמנטים לפי תמונה -->
+                    <div>
+                        <label> חיבור (+)<input type="checkbox" id="op-add" value="add" checked></label>
+                    </div>
+                    <div>
+                        <label> חיסור (-)<input type="checkbox" id="op-subtract" value="subtract" checked></label>
+                    </div>
+                    <!-- שורה שנייה - סדר אלמנטים לפי תמונה -->
+                    <div>
+                        <label> כפל (*)<input type="checkbox" id="op-multiply" value="multiply"></label>
+                    </div>
+                    <div>
+                        <label> חילוק (/)<input type="checkbox" id="op-divide" value="divide"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="config-section">
+                <h2>אורך הגשר (שלבים): <span id="bridge-length-display">5</span></h2>
+                <input type="range" id="bridge-length" min="5" max="15" value="5">
+            </div>
+            <div class="config-section">
+                <h2>טווח המספרים לשאלות (עד): <span id="max-operand-value-display">10</span></h2>
+                <input type="range" id="max-operand-value-input" min="10" max="500" value="10">
+            </div>
+            <button id="start-button" class="squid-button">התחל את האתגר</button>
+        </div>
+
+        <!-- מסך המשחק -->
+        <div id="game-screen" class="screen hidden">
+            <p id="player-id-game">שחקן XXX</p>
+            <div class="game-info">
+                <div class="info-box">
+                    <span>שלב:</span> <span id="current-stage">1</span> / <span id="total-stages"></span>
+                </div>
+                <div class="info-box lives-box">
+                    <span>ניסיונות:</span> <span id="lives-counter">3</span> / 3
+                </div>
+            </div>
+            <!-- פאנל התקדמות חדש -->
+            <div id="progress-indicator-container">
+                <!-- Progress squares will be generated here -->
+            </div>
+            <h2 id="question-display"></h2>
+            <div id="bridge-container">
+                <!-- אריחי הגשר ייווצרו דינמית ע"י JavaScript -->
+            </div>
+            <button id="restart-game-button" class="squid-button small-button">התחל מהתחלה</button>
+        </div>
+
+        <!-- מסך סיום המשחק (ניצחון/הדחה) -->
+        <div id="end-screen" class="screen hidden">
+            <h1 id="end-message"></h1>
+            <p id="player-id-end">שחקן XXX</p>
+            <p id="end-stats"></p>
+            
+            <div id="summary-table-container">
+                <h2>סיכום האתגר:</h2>
+                <table id="summary-table">
+                    <thead>
+                        <tr>
+                            <th>שלב</th>
+                            <th>תרגיל</th>
+                            <th>תשובה נכונה</th>
+                            <th>ניסיונות</th>
+                            <th>זמן (שניות)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summary-table-body">
+                        <!-- Summary data will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+                <p id="motivational-message"></p>
+            </div>
+
+            <button id="play-again-button" class="squid-button">שחק שוב</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const gameContainer = document.getElementById('game-container'); 
+
+        const startButton = document.getElementById('start-button');
+        const playAgainButton = document.getElementById('play-again-button');
+        const restartGameButton = document.getElementById('restart-game-button');
+
+        const opAdd = document.getElementById('op-add');
+        const opSubtract = document.getElementById('op-subtract');
+        const opMultiply = document.getElementById('op-multiply');
+        const opDivide = document.getElementById('op-divide');
+        const operatorCheckboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]');
+
+
+        const bridgeLengthInput = document.getElementById('bridge-length');
+        const bridgeLengthDisplay = document.getElementById('bridge-length-display');
+
+        const maxOperandValueInput = document.getElementById('max-operand-value-input'); 
+        const maxOperandValueDisplay = document.getElementById('max-operand-value-display'); 
+
+        const playerIdStart = document.getElementById('player-id-start');
+        const playerIdGame = document.getElementById('player-id-game');
+        const playerIdEnd = document.getElementById('player-id-end');
+
+        const currentStageDisplay = document.getElementById('current-stage');
+        const totalStagesDisplay = document.getElementById('total-stages');
+        const livesCounterDisplay = document.getElementById('lives-counter');
+        const questionDisplay = document.getElementById('question-display');
+        const bridgeContainer = document.getElementById('bridge-container');
+        const endMessage = document.getElementById('end-message');
+        const endStats = document.getElementById('end-stats');
+        const progressIndicatorContainer = document.getElementById('progress-indicator-container');
+        const summaryTableBody = document.getElementById('summary-table-body'); 
+        const motivationalMessage = document.getElementById('motivational-message'); 
+
+        // --- Game State Variables ---
+        let playerNumber;
+        let currentStage = 1;
+        let totalStages = 5;
+        let selectedOperations = [];
+        let currentQuestion = {};
+        let incorrectAttempts = 0; 
+        const MAX_INCORRECT_ATTEMPTS = 3;
+        let questionStartTime; 
+        let gameSummary = []; 
+        let maxOperandValue = 10; 
+
+        // --- Sounds (basic) ---
+        // וודא שקבצי הקול נמצאים בתיקייה 'sounds' באותה רמה כמו קובץ ה-HTML
+        const correctSound = new Audio('sounds/correct.mp3'); 
+        const wrongSound = new Audio('sounds/wrong.mp3');
+        const fallSound = new Audio('sounds/fall.mp3');
+        const winSound = new Audio('sounds/win.mp3');
+
+        // --- Utility Functions ---
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generatePlayerNumber() {
+            return Math.floor(Math.random() * 900) + 100; // 3-digit number
+        }
+
+        function updatePlayerIdDisplays() {
+            playerIdStart.textContent = `שחקן ${playerNumber}`;
+            playerIdGame.textContent = `שחקן ${playerNumber}`;
+            playerIdEnd.textContent = `שחקן ${playerNumber}`;
+        }
+
+        // --- Game Logic ---
+        function generateQuestion() {
+            questionStartTime = Date.now(); 
+            const operation = selectedOperations[getRandomInt(0, selectedOperations.length - 1)];
+            let num1, num2, answer;
+            let attempts = 0;
+            const maxGenerationAttempts = 200; 
+            const maxOpVal = maxOperandValue; 
+
+            do {
+                attempts++;
+                answer = getRandomInt(1, 10); // התשובה תמיד בין 1 ל-10
+
+                switch (operation) {
+                    case 'add':
+                        // num1 from 1 up to maxOpVal. num2 is answer - num1.
+                        // Ensure num1 allows num2 to be valid (not zero or negative, and <= maxOpVal)
+                        num1 = getRandomInt(1, Math.min(maxOpVal, answer - 1));
+                        num2 = answer - num1;
+                        // Additional checks
+                        if (num1 + num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
+                            num1 = 0; // Invalid, trigger re-generation
+                        }
+                        break;
+                    case 'subtract':
+                        // num2 from 1 up to maxOpVal. num1 is answer + num2.
+                        num2 = getRandomInt(1, maxOpVal);
+                        num1 = answer + num2;
+                        // Additional checks
+                        if (num1 - num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
+                            num1 = 0; // Invalid, trigger re-generation
+                        }
+                        break;
+                    case 'multiply':
+                        // answer = num1 * num2. num1, num2 <= maxOpVal.
+                        num1 = getRandomInt(1, Math.min(maxOpVal, answer)); 
+                        // Ensure num1 is a factor and num2 is within bounds
+                        if (answer % num1 !== 0) { 
+                            num1 = 0; // Not a factor, trigger re-generation
+                            break;
+                        }
+                        num2 = answer / num1;
+                        if (num1 * num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
+                            num1 = 0; // Invalid, trigger re-generation
+                        }
+                        break;
+                    case 'divide':
+                        // answer = num1 / num2. num1, num2 <= maxOpVal.
+                        num2 = getRandomInt(1, maxOpVal);
+                        num1 = answer * num2;
+                        // Additional checks: ensure num1 is within maxOpVal, num2 is not zero, and no remainder after division.
+                        if (num1 / num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
+                            num1 = 0; // Invalid, trigger re-generation
+                        }
+                        break;
+                }
+            // Continue loop if conditions are not met or generation failed
+            } while ((num1 <= 0 || num2 <= 0 || num1 > maxOpVal || num2 > maxOpVal || answer < 1 || answer > 10) && attempts < maxGenerationAttempts);
+
+            // Fallback for extreme cases (should be rare with this logic)
+            if (attempts >= maxGenerationAttempts) {
+                console.warn("Could not generate a suitable question within limits. Defaulting to 1+1=2.");
+                num1 = 1; num2 = 1; operation = 'add'; answer = 2;
+                currentQuestion = { num1, num2, operation, answer }; 
+            } else {
+                currentQuestion = { num1, num2, operation, answer };
+            }
+            
+            let opSymbol;
+            switch (operation) {
+                case 'add': opSymbol = '+'; break;
+                case 'subtract': opSymbol = '-'; break;
+                case 'multiply': opSymbol = '*'; break;
+                case 'divide': opSymbol = '/'; break;
+            }
+            questionDisplay.textContent = `${num1} ${opSymbol} ${num2} = ?`; 
+            incorrectAttempts = 0;
+            livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
+
+            document.querySelectorAll('.bridge-tile').forEach(tile => {
+                tile.classList.remove('correct-feedback', 'wrong-feedback');
+            });
+        }
+
+        function createBridgeTiles() {
+            bridgeContainer.innerHTML = ''; 
+            // סדר המספרים כפי שמופיע בתמונה: 1-5 בשורה ראשונה, 6-10 בשנייה
+            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
+            numbers.forEach(num => {
+                const tile = document.createElement('div');
+                tile.classList.add('bridge-tile');
+                tile.textContent = num;
+                tile.dataset.value = num; 
+                bridgeContainer.appendChild(tile);
+            });
+        }
+
+        function createProgressIndicator() {
+            progressIndicatorContainer.innerHTML = ''; 
+            for (let i = 0; i < totalStages; i++) {
+                const square = document.createElement('div');
+                square.classList.add('progress-square');
+                progressIndicatorContainer.appendChild(square);
+            }
+        }
+
+        function checkAnswer(selectedTile, selectedValue) {
+            document.querySelectorAll('.bridge-tile').forEach(tile => {
+                tile.classList.remove('correct-feedback', 'wrong-feedback');
+            });
+
+            if (parseInt(selectedValue) === currentQuestion.answer) {
+                selectedTile.classList.add('correct-feedback'); 
+                correctSound.play();
+                
+                if (currentStage > 0 && (currentStage - 1) < totalStages) { 
+                    if (progressIndicatorContainer.children[currentStage - 1]) {
+                        progressIndicatorContainer.children[currentStage - 1].classList.add('completed');
+                    }
+                }
+
+                // שמור נתוני סיכום עבור השאלה שזה עתה נפתרה
+                const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1); 
+                gameSummary.push({
+                    stage: currentStage,
+                    question: questionDisplay.textContent,
+                    correctAnswer: currentQuestion.answer,
+                    attempts: incorrectAttempts + 1, 
+                    time: timeTaken
+                });
+
+                currentStage++;
+                currentStageDisplay.textContent = currentStage;
+
+                if (currentStage > totalStages) {
+                    gameOver(true); 
+                } else {
+                    setTimeout(() => {
+                        generateQuestion();
+                    }, 700);
+                }
+            } else {
+                selectedTile.classList.add('wrong-feedback'); 
+                wrongSound.play();
+                incorrectAttempts++;
+                livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS - incorrectAttempts} / ${MAX_INCORRECT_ATTEMPTS}`;
+
+                if (incorrectAttempts >= MAX_INCORRECT_ATTEMPTS) {
+                    // השחקן נופל ומודח - שמור נתונים גם לשאלה זו
+                    const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1);
+                    gameSummary.push({
+                        stage: currentStage,
+                        question: questionDisplay.textContent,
+                        correctAnswer: currentQuestion.answer,
+                        attempts: incorrectAttempts, 
+                        time: timeTaken,
+                        failed: true 
+                    });
+
+                    const fallingPlayer = document.createElement('div');
+                    fallingPlayer.classList.add('falling-player');
+                    fallingPlayer.textContent = `שחקן ${playerNumber}`;
+                    gameContainer.appendChild(fallingPlayer);
+                    fallSound.play();
+
+                    setTimeout(() => {
+                        gameOver(false); 
+                        if (gameContainer.contains(fallingPlayer)) { 
+                            gameContainer.removeChild(fallingPlayer); 
+                        }
+                    }, 1500); 
+                } else {
+                    setTimeout(() => {
+                        selectedTile.classList.remove('wrong-feedback'); 
+                    }, 700);
+                }
+            }
+        }
+
+        function startGame() {
+            // איסוף פעולות נבחרות
+            selectedOperations = [];
+            operatorCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    selectedOperations.push(checkbox.value);
+                }
+            });
+
+            if (selectedOperations.length === 0) {
+                alert("אנא בחר לפחות פעולת חשבון אחת!");
+                return;
+            }
+            
+            totalStages = parseInt(bridgeLengthInput.value);
+            maxOperandValue = parseInt(maxOperandValueInput.value); 
+            
+            totalStagesDisplay.textContent = totalStages;
+            currentStage = 1;
+            currentStageDisplay.textContent = currentStage;
+            gameSummary = []; 
+
+            startScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+
+            createProgressIndicator(); 
+            createBridgeTiles();
+            generateQuestion();
+        }
+
+        function displaySummaryTable(isWin) {
+            summaryTableBody.innerHTML = ''; 
+
+            gameSummary.forEach((entry, index) => {
+                const row = summaryTableBody.insertRow();
+                const stageCell = row.insertCell();
+                const questionCell = row.insertCell();
+                const answerCell = row.insertCell();
+                const attemptsCell = row.insertCell();
+                const timeCell = row.insertCell();
+
+                stageCell.textContent = index + 1; 
+                questionCell.textContent = entry.question;
+                answerCell.textContent = entry.correctAnswer;
+                attemptsCell.textContent = entry.attempts;
+                timeCell.textContent = entry.time;
+
+                if (entry.failed) {
+                    row.style.backgroundColor = 'rgba(231, 76, 60, 0.2)'; 
+                    answerCell.classList.add('incorrect-answer-cell');
+                    attemptsCell.style.color = '#e74c3c'; 
+                } else {
+                    answerCell.classList.add('correct-answer-cell');
+                    attemptsCell.style.color = '#2ecc71'; 
+                }
+            });
+
+            // הודעת מוטיבציה
+            if (isWin) {
+                motivationalMessage.textContent = "כל הכבוד! הצלחת לחצות את הגשר בכישרון ובמהירות! אתה אלוף אמיתי!";
+                motivationalMessage.style.color = '#2ecc71';
+            } else {
+                motivationalMessage.textContent = "אל דאגה! גם בדרך להצלחה יש נפילות. תמיד אפשר לנסות שוב ולנצח בפעם הבאה!";
+                motivationalMessage.style.color = '#e74c3c';
+            }
+        }
+
+
+        function gameOver(isWin) {
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+
+            if (isWin) {
+                endMessage.textContent = "מזל טוב! חצית את הגשר!";
+                endMessage.style.color = '#2ecc71'; 
+                endStats.textContent = `פתרת בהצלחה את כל ${totalStages} השלבים.`;
+                winSound.play();
+            } else {
+                endMessage.textContent = "הודחת מהמשחק!";
+                endMessage.style.color = '#e74c3c'; 
+                endStats.textContent = `לא הצלחת לעבור את שלב ${currentStage} מתוך ${totalStages}.`;
+            }
+            displaySummaryTable(isWin); 
+        }
+
+        function resetGame() {
+            currentStage = 1;
+            incorrectAttempts = 0;
+            currentQuestion = {};
+            gameSummary = []; 
+
+            // איפוס UI למסך ההתחלה 
+            opAdd.checked = true;
+            opSubtract.checked = true;
+            opMultiply.checked = false;
+            opDivide.checked = false;
+            bridgeLengthInput.value = 5;
+            bridgeLengthDisplay.textContent = 5;
+            maxOperandValueInput.value = 10;
+            maxOperandValueDisplay.textContent = 10;
+
+            livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
+            
+            document.querySelectorAll('.bridge-tile').forEach(tile => {
+                tile.classList.remove('correct-feedback', 'wrong-feedback');
+            });
+
+            progressIndicatorContainer.innerHTML = '';
+
+            endScreen.classList.add('hidden');
+            gameScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+
+            playerNumber = generatePlayerNumber();
+            updatePlayerIdDisplays();
+        }
+
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGame);
+        playAgainButton.addEventListener('click', resetGame);
+        restartGameButton.addEventListener('click', resetGame); 
+
+        bridgeLengthInput.addEventListener('input', () => {
+            bridgeLengthDisplay.textContent = bridgeLengthInput.value;
+        });
+
+        maxOperandValueInput.addEventListener('input', () => { 
+            maxOperandValueDisplay.textContent = maxOperandValueInput.value;
+        });
+
+
+        bridgeContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('bridge-tile')) {
+                checkAnswer(event.target, event.target.dataset.value);
+            }
+        });
+
+        // אתחול בעת טעינת הדף
+        document.addEventListener('DOMContentLoaded', () => {
+            playerNumber = generatePlayerNumber();
+            updatePlayerIdDisplays();
+            resetGame(); 
+            // טעינה מראש של קולות (אופציונלי, אך מומלץ להשמעה מיידית)
+            correctSound.load();
+            wrongSound.load();
+            fallSound.load();
+            winSound.load();
+        });
+    </script>
+</body>
+</html>
