@@ -5,37 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>גשר המספרים: אתגר הדיונון</title>
     <!-- קישור לפונט מגוגל פונטס -->
-    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Secular+One&display=swap" rel="stylesheet">
     <style>
+        /* New Cosmic/Digital Theme Palette */
+        :root {
+            --bg-deep-dark: #0A0A1A;
+            --bg-gradient-start: #1A0D3A;
+            --bg-gradient-end: #3A0B50;
+            --glass-bg: rgba(255, 255, 255, 0.08); /* Frosted glass effect */
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-light: #E0E6F0;
+            --text-accent-primary: #8EFFFB; /* Neon Cyan */
+            --text-accent-secondary: #FFB3F0; /* Neon Pink */
+            --button-primary: linear-gradient(135deg, #FF6B6B, #EE5253); /* Vibrant Red */
+            --button-hover: linear-gradient(135deg, #FF4B4B, #CC3D3D);
+            --feedback-correct: #2ECC71; /* Green */
+            --feedback-wrong: #E74C3C; /* Red */
+            --info-box-bg: #2C2C40;
+            --progress-inactive: #4A4A5A;
+            --progress-active: #8EFFFB;
+            --range-thumb: #FFB3F0;
+        }
+
         /* כללי */
         body {
             margin: 0;
             font-family: 'Varela Round', sans-serif;
-            background-color: #1a1a1a; /* רקע כהה */
-            color: #eee;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden; /* למנוע גלילה אם יש אנימציות יציאה מהמסך */
-            direction: rtl; /* יישור לימין עבור עברית */
+            /* Removed overflow: hidden; here */
+            direction: rtl;
+            position: relative;
+            background-size: 200% 200%;
+            animation: cosmicBackground 20s ease infinite alternate;
+        }
+
+        @keyframes cosmicBackground {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 100% 100%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzAwcHgiIGhlaWdodD0iNzAwcHgiIHZpZXdCb3g9IjAgMCA3MDAgNzAwIiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGNpcmNsZSBjeD0iMTUwIiBjeT0iMTUwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjMiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InIifmZyb209IjEiIHRvPSIyIiBkdXI9IjIuNnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iNDAwIiBjeT0iNzAiIHI9IjEiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuMiI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0icmYiIGZyb209IjEiIHRvPSIyIiBkdXI9IjIuMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iNzAiIGN5PSI0NTAiIHI9IjEiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNCI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0icmYiIGZyb209IjEiIHRvPSIyIiBkdXI9IjMuMHMidinb2F0Q291bnQ9ImluZGVmaW5pdGUiIGFkZGl0aXZlPSJzdW0iPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9IjYwMCIgY3k9IjU1MCIgcj0iMSIgZmlsbD0iI0ZGRkZGRiIgb3BhY2l0eT0iMC4yIj48YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJyIiBmcm9tPSIxIiB0bz0iMiIgZHVyPSIyLjRzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgYWRkaXRpdmU9InN1bSI+PC9hbmltYXRlPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9IjMwMCIgY3k9IjY1MCIgcD48YW5pbWF0ZSBhdHRyaWJ1dGVOYW1lPSJyIiBmcm9tPSIxIiB0bz0iMiIgZHVyPSIyLjdzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgYWRkaXRpdmU9InN1bSI+PC9hbmltYXRlPjwvY2lyY2xlPgogIDxjaXJjbGUgY3g9IjIwMCIgY3k9IjMwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjMiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InIiIGZyb209IjEiIHRvPSIyIiBkdXI9IjMuMXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iNTUwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjIiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InIiIGZyb209IjEiIHRvPSIyIiBkdXI9IjIuM3MiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9jaXJjbGU+CiAgPGNpcmNsZSBjeD0iNDQwIiBjeT0iMzAwiIHI9IjEiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNSI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0icmYiIGZyb209IjEiIHRvPSIyIiBkdXI9IjMuNnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9ciXJjbGU+CiAgPGNpcmNsZSBjeD0iNTIwIiBjeT0iMTIwIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjMiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InIiIGfyb209IjEiIHRvPSIyIiBkdXI9IjIuOHMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9ciXJjbGU+CiAgPGNpcmNsZSBjeD0iNjcwIiBjeT0iMjkzIiByPSIxIiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjQiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InIiIGZyb209IjEiIHRvPSIyIiBkdXI9IjMuMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9ciXJjbGU+CiAgPGNpcmNsZSBjeD0iODAiIGN5PSI2NTAiIHI9IjEiIGZpbGw9IiNGRkZGRkYiIGopYWNpdHk9IjAuMiI+PGFuaW1hdGUgYXR0cmlidXRlTmFtZT0icmYiIGZyb209IjEiIHRvPSIyIiBkdXI9IjIuOXMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiBhZGRpdGl2ZT0ic3VtIj48L2FuaW1hdGU+PC9jaXJjbGU+Cjwvc3ZnPg==') repeat;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.7;
+            animation: twinkle 10s infinite alternate;
         }
 
         #game-container {
-            background-color: #2b2b2b; /* רקע כהה יותר לקונטיינר הראשי */
-            border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
-            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(142, 68, 173, 0.4) inset; /* Deeper shadow + inner glow */
+            padding: 40px;
             text-align: center;
             max-width: 90%;
-            width: 600px; /* רוחב קבוע יותר לקונטיינר הראשי */
+            width: 700px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
             box-sizing: border-box;
-            height: fit-content; /* גובה לפי תוכן */
+            border: 2px solid var(--glass-border);
+            z-index: 1; /* Ensure it's above the background animation */
+            /* Add overflow for the container itself if content exceeds its height */
+            /* This will be handled in media queries for responsiveness */
         }
 
         .screen {
@@ -44,7 +91,6 @@
             align-items: center;
             width: 100%;
             transition: opacity 0.5s ease-in-out;
-            height: 100%; /* ממלא את גובה הקונטיינר */
         }
 
         .hidden {
@@ -54,124 +100,139 @@
 
         /* כותרות וטקסט */
         h1 {
-            color: #e74c3c; /* אדום בוהק כמו בסדרה */
-            margin-bottom: 20px;
-            font-size: 2.5em;
-            letter-spacing: 1px;
+            font-family: 'Secular One', sans-serif;
+            margin-bottom: 25px;
+            font-size: 3.5em;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--text-accent-primary) 0%, var(--text-accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(142, 68, 173, 0.7), 0 0 25px rgba(255, 105, 180, 0.5);
         }
 
         h2 {
-            color: #ecf0f1;
+            font-family: 'Secular One', sans-serif;
+            color: var(--text-accent-primary);
             margin-top: 20px;
-            font-size: 1.8em;
+            font-size: 2em;
+            text-shadow: 0 0 8px rgba(142, 68, 173, 0.5);
         }
 
         p {
             font-size: 1.1em;
             margin-bottom: 10px;
+            color: var(--text-light);
+            opacity: 0.9;
         }
 
         #player-id-start, #player-id-game, #player-id-end {
-            font-size: 1.2em;
+            font-size: 1.25em;
             font-weight: bold;
-            color: #f39c12; /* צהוב-כתום */
-            margin-bottom: 20px;
+            color: var(--neon-pink);
+            margin-bottom: 25px;
+            text-shadow: 0 0 8px rgba(255, 179, 240, 0.6);
         }
 
         /* כפתורים */
-        .squid-button {
-            background-color: #e74c3c; /* אדום */
+        .game-button {
+            background: var(--button-primary);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.2em;
+            padding: 16px 32px;
+            font-size: 1.3em;
             font-weight: bold;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-            margin-top: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease, transform 0.1s ease;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
         }
 
-        .squid-button:hover {
-            background-color: #c0392b; /* אדום כהה יותר */
-            transform: translateY(-2px);
+        .game-button:hover {
+            background: var(--button-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6), 0 0 20px var(--text-accent-primary);
         }
 
-        .squid-button:active {
+        .game-button:active {
             transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .small-button {
-            padding: 10px 20px;
-            font-size: 0.9em;
-            margin-top: 20px; /* Adjust margin for image match */
+            padding: 12px 25px;
+            font-size: 1em;
+            margin-top: 20px;
             margin-bottom: 10px;
         }
 
         /* מסך התחלה - קונפיגורציה */
         .config-section {
-            background-color: #3b3b3b;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            width: 80%;
-            max-width: 400px;
+            background: rgba(44, 44, 64, 0.6); /* Darker, slightly transparent for sections */
+            border: 1px solid rgba(142, 68, 173, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3) inset;
         }
 
         .checkbox-group {
-            display: grid; /* שימוש ב-grid לסידור עמודות ושורות */
-            grid-template-columns: 1fr 1fr; /* 2 עמודות */
-            gap: 15px 10px; /* רווח בין שורות ועמודות */
-            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 10px;
+            margin-top: 15px;
         }
-        /* התאמת סדר האלמנטים ב-RTL (עמודה ימין ואז עמודה שמאל) */
-        .checkbox-group > div {
-            display: flex;
-            align-items: center;
-        }
-        .checkbox-group > div:nth-child(odd) { /* אלמנטים אי-זוגיים - יעלו בעמודה הימנית */
-            justify-content: flex-end; /* יישור לימין */
-        }
-        .checkbox-group > div:nth-child(even) { /* אלמנטים זוגיים - יעלו בעמודה השמאלית */
-            justify-content: flex-start; /* יישור לשמאל */
-        }
-        
-
-        /* סגנון לתיבות הסימון - ריבועים רגילים עם V */
         .checkbox-group label {
             display: flex;
             align-items: center;
-            gap: 8px; /* רווח בין הטקסט לתיבה */
-            font-size: 1.1em;
+            gap: 10px;
+            font-size: 1.15em;
             cursor: pointer;
-            user-select: none; /* מניעת סימון טקסט בלחיצה */
-            color: #eee; /* צבע טקסט ברירת מחדל */
+            user-select: none;
+            color: var(--text-light);
+            justify-content: flex-end; /* Align text to the right for RTL */
+            text-shadow: 0 0 5px rgba(0,0,0,0.4);
+        }
+        /* Ensure checkbox is always on the right for RTL */
+        .checkbox-group input[type="checkbox"] {
+            order: 2; 
+        }
+        .checkbox-group label span {
+            order: 1;
         }
         
         input[type="checkbox"] {
-            -webkit-appearance: none; /* הסתרת ברירת המחדל של הדפדפן */
+            -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            width: 22px; /* גודל תיבת הסימון */
-            height: 22px;
-            border: 2px solid #999; /* מסגרת אפורה */
-            border-radius: 4px; /* פינות מעוגלות קלות */
-            background-color: #4a4a4a; /* צבע רקע של התיבה */
+            width: 25px;
+            height: 25px;
+            border: 2px solid var(--text-accent-primary);
+            border-radius: 6px;
+            background-color: var(--info-box-bg);
             cursor: pointer;
             display: inline-block;
             position: relative;
-            transition: background-color 0.2s, border-color 0.2s;
+            transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="checkbox"]:hover {
+            box-shadow: 0 0 10px var(--text-accent-primary);
         }
 
         input[type="checkbox"]:checked {
-            background-color: #2ecc71; /* צבע ירוק כשמסומן */
-            border-color: #2ecc71;
+            background-color: var(--feedback-correct);
+            border-color: var(--feedback-correct);
+            box-shadow: 0 0 10px var(--feedback-correct);
         }
 
         input[type="checkbox"]:checked::after {
-            content: '✔'; /* סימן V */
+            content: '✔';
             font-size: 18px;
             color: white;
             position: absolute;
@@ -179,281 +240,349 @@
             left: 50%;
             transform: translate(-50%, -50%);
             line-height: 1;
+            font-weight: bold;
         }
 
-
         input[type="range"] {
-            width: 80%;
-            margin-top: 15px;
+            width: 85%;
+            margin-top: 20px;
             -webkit-appearance: none;
             height: 10px;
-            background: #555;
+            background: var(--info-box-bg);
             border-radius: 5px;
             outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
+            opacity: 0.8;
+            transition: opacity .2s, box-shadow 0.2s;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3) inset;
         }
 
         input[type="range"]:hover {
             opacity: 1;
+            box-shadow: 0 0 15px var(--text-accent-primary);
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #e74c3c;
+            background: var(--range-thumb);
             cursor: pointer;
+            border: 3px solid var(--info-box-bg);
+            box-shadow: 0 0 10px var(--range-thumb);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: 0 0 15px var(--range-thumb), 0 0 25px var(--range-thumb);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #e74c3c;
+            background: var(--range-thumb);
             cursor: pointer;
+            border: 3px solid var(--info-box-bg);
+            box-shadow: 0 0 10px var(--range-thumb);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        input[type="range"]::-moz-range-thumb:hover {
+            box-shadow: 0 0 15px var(--range-thumb), 0 0 25px var(--range-thumb);
         }
 
 
         /* מסך המשחק */
         .game-info {
             display: flex;
-            justify-content: space-between; /* יישור לקצוות כמו בתמונה */
+            justify-content: space-between;
             width: 100%;
-            margin-bottom: 20px;
-            padding: 0 10px; /* רווח מהקצוות של הקונטיינר */
+            margin-bottom: 25px;
+            padding: 0 15px;
             box-sizing: border-box;
+            flex-wrap: wrap; /* allow wrapping on small screens */
+            gap: 10px; /* space between info boxes */
         }
 
         .info-box {
-            background-color: #3b3b3b;
-            padding: 8px 15px; /* פדינג קטן יותר */
-            border-radius: 8px;
-            font-size: 1.1em; /* פונט קטן יותר */
+            background: var(--info-box-bg);
+            border: 1px solid rgba(142, 68, 173, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
             font-weight: bold;
-            min-width: 100px; /* רוחב מינימלי */
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 5px;
-            direction: rtl; /* לוודא שהמספרים בתוך הבוקס מתיישרים נכון ביחס לטקסט */
+            gap: 8px;
+            color: var(--text-light);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
         }
         
-        /* ספציפי לבוקס הניסיונות (שמאל) */
         .info-box.lives-box {
-            order: -1; /* כדי למקם משמאל ב-RTL */
+            order: -1; /* To place it on the left in RTL */
         }
-
 
         .lives-box span:first-child {
-            color: #e74c3c; /* אדום למילה "ניסיונות" */
+            color: var(--feedback-wrong);
+            text-shadow: 0 0 5px rgba(231, 76, 60, 0.7);
         }
         #lives-counter {
-            color: #f39c12; /* צהוב-כתום למונה עצמו */
+            color: var(--text-accent-secondary);
+            text-shadow: 0 0 5px rgba(255, 179, 240, 0.6);
+        }
+        #current-stage, #total-stages {
+            color: var(--text-accent-primary);
+            text-shadow: 0 0 5px rgba(142, 68, 173, 0.6);
         }
 
-        /* פאנל התקדמות חדש */
+
+        /* פאנל התקדמות */
         #progress-indicator-container {
             display: flex;
             justify-content: center;
-            gap: 8px; /* רווח בין ריבועים */
-            margin-top: 15px;
-            margin-bottom: 25px; /* לפני הצגת השאלה */
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: 30px;
             width: 100%;
-            max-width: 400px; /* הגבלת רוחב */
-            flex-wrap: wrap; /* לאפשר גלישה אם יש הרבה שלבים */
+            max-width: 500px;
+            flex-wrap: wrap;
         }
 
         .progress-square {
-            width: 25px;
-            height: 25px;
-            background-color: #555; /* צבע ברירת מחדל לא הושלם */
-            border-radius: 4px; /* ריבועים מעוגלים קלות */
+            width: 28px;
+            height: 28px;
+            background-color: var(--progress-inactive);
+            border-radius: 5px;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) inset;
         }
 
         .progress-square.completed {
-            background-color: #2ecc71; /* ירוק לשלבים שהושלמו */
-            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5); /* זוהר עדין */
+            background-color: var(--progress-active);
+            box-shadow: 0 0 12px var(--progress-active);
         }
 
         #question-display {
-            background-color: #4a4a4a;
-            padding: 15px 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            font-size: 2em;
+            background: var(--info-box-bg);
+            border: 1px solid var(--text-accent-primary);
+            padding: 20px 35px;
+            border-radius: 15px;
+            margin-bottom: 35px;
+            font-size: 2.5em;
             font-weight: bold;
-            color: #ecf0f1;
-            min-width: 200px;
-            direction: ltr; /* חשוב: LTR עבור הביטוי המתמטי */
-            display: flex; /* לשימוש ב-justify-content */
-            justify-content: center; /* למרכז את הביטוי בתוך הבוקס */
+            color: var(--text-light);
+            min-width: 250px;
+            height: 90px;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            height: 70px; /* גובה קבוע */
+            direction: ltr; /* Always LTR for math expressions */
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--text-accent-primary) inset;
         }
 
         #bridge-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 אריחים בשורה כמו בתמונה */
-            gap: 15px;
-            margin-top: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+            margin-top: 25px;
+            margin-bottom: 35px;
             width: 100%;
-            max-width: 450px; /* רוחב מרבי לגשר */
+            max-width: 550px; /* Wider for larger numbers */
         }
 
         .bridge-tile {
-            background-color: #4a4a4a; /* צבע אפור כהה יותר כמו בתמונה */
-            border: 2px solid #555;
-            border-radius: 8px;
-            width: 70px; /* רוחב קבוע לאריח */
-            height: 70px; /* גובה קבוע לאריח ליצירת ריבוע */
+            background: var(--info-box-bg);
+            border: 2px solid var(--text-accent-primary);
+            border-radius: 12px;
+            width: 90px; /* Larger tiles */
+            height: 90px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.5em;
+            font-size: 2.8em; /* Larger font for numbers */
             font-weight: bold;
-            color: #ecf0f1;
+            color: var(--text-light);
             cursor: pointer;
-            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+            transition: all 0.2s ease;
             user-select: none;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* צל עדין */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
         .bridge-tile:hover {
-            background-color: #555; /* שינוי צבע עדין בהובר */
-            border-color: #777;
-            transform: translateY(-3px);
+            background-color: var(--bg-gradient-end);
+            border-color: var(--neon-pink);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5), 0 0 15px var(--neon-pink);
         }
 
         .bridge-tile:active {
             transform: translateY(0);
         }
 
-        /* פידבק חזותי - צבעים כמו בתמונה (ירוק לאריח שנבחר נכון) */
+        /* פידבק חזותי */
         .bridge-tile.correct-feedback {
-            background-color: #2ecc71; /* ירוק מלא לתשובה נכונה */
-            border-color: #27ae60;
+            background-color: var(--feedback-correct);
+            border-color: var(--feedback-correct);
             animation: correct-answer 0.5s ease-out;
-            box-shadow: 0 0 15px #2ecc71;
+            box-shadow: 0 0 20px var(--feedback-correct);
         }
 
         .bridge-tile.wrong-feedback {
-            background-color: #e74c3c; /* אדום מלא לתשובה שגויה */
-            border-color: #c0392b;
+            background-color: var(--feedback-wrong);
+            border-color: var(--feedback-wrong);
             animation: wrong-answer 0.3s ease-in-out;
-            box-shadow: 0 0 15px #e74c3c;
+            box-shadow: 0 0 20px var(--feedback-wrong);
         }
 
         /* אנימציות */
         @keyframes correct-answer {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(1); opacity: 1; box-shadow: 0 0 20px var(--feedback-correct); }
+            50% { transform: scale(1.08); opacity: 0.9; box-shadow: 0 0 30px var(--feedback-correct); }
+            100% { transform: scale(1); opacity: 1; box-shadow: 0 0 20px var(--feedback-correct); }
         }
 
         @keyframes wrong-answer {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
         }
 
         @keyframes fall {
             0% { transform: translateY(0) rotateZ(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+            100% { transform: translateY(150vh) rotateZ(720deg); opacity: 0; } /* Fall further */
         }
 
         .falling-player {
-            animation: fall 1.5s ease-in forwards;
+            animation: fall 2s ease-in forwards; /* Slower fall */
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 3em;
-            color: #e74c3c;
+            font-size: 4em; /* Larger falling text */
+            color: var(--feedback-wrong);
+            text-shadow: 0 0 15px var(--feedback-wrong);
             z-index: 100;
         }
 
         /* מסך סיום */
         #end-message {
-            font-size: 3em;
-            color: #e74c3c;
-            margin-bottom: 10px;
+            font-size: 3.5em;
+            color: var(--feedback-wrong);
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px var(--feedback-wrong);
         }
+        #end-message.win {
+            color: var(--feedback-correct);
+            text-shadow: 0 0 20px var(--feedback-correct);
+        }
+
         #end-stats {
-            font-size: 1.3em;
-            color: #f39c12;
+            font-size: 1.4em;
+            color: var(--text-accent-primary);
             margin-top: 15px;
+            text-shadow: 0 0 8px rgba(142, 68, 173, 0.5);
         }
         
         /* טבלת סיכום */
         #summary-table-container {
-            margin-top: 30px;
-            background-color: #3b3b3b;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 90%;
-            width: 500px;
-            overflow-x: auto; /* מאפשר גלילה בטבלה אם היא רחבה מדי */
+            margin-top: 35px;
+            background: rgba(44, 44, 64, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 95%;
+            width: 600px;
+            overflow-x: auto;
+            border: 1px solid rgba(142, 68, 173, 0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3) inset;
         }
 
         #summary-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
-            font-size: 0.9em;
+            font-size: 1em;
+            color: var(--text-light);
         }
 
         #summary-table th, #summary-table td {
-            border: 1px solid #555;
-            padding: 10px;
+            border: 1px solid rgba(142, 68, 173, 0.2);
+            padding: 12px;
             text-align: center;
         }
 
         #summary-table th {
-            background-color: #4a4a4a;
-            color: #eee;
+            background-color: rgba(60, 60, 80, 0.8);
+            color: var(--text-accent-primary);
+            text-shadow: 0 0 5px rgba(142, 68, 173, 0.5);
+            font-weight: bold;
         }
 
         #summary-table tr:nth-child(even) {
-            background-color: #333;
+            background-color: rgba(44, 44, 64, 0.4);
         }
 
         #summary-table td.correct-answer-cell {
-            color: #2ecc71; /* ירוק לתשובה נכונה */
+            color: var(--feedback-correct);
             font-weight: bold;
         }
 
         #summary-table td.incorrect-answer-cell {
-            color: #e74c3c; /* אדום לתשובה שגויה */
+            color: var(--feedback-wrong);
             font-weight: bold;
         }
         
         #motivational-message {
-            margin-top: 25px;
-            font-size: 1.4em;
+            margin-top: 30px;
+            font-size: 1.5em;
             font-weight: bold;
-            color: #f39c12; /* צהוב-כתום */
-            line-height: 1.5;
+            color: var(--neon-pink);
+            line-height: 1.6;
+            text-shadow: 0 0 10px rgba(255, 179, 240, 0.8);
         }
 
 
-        /* רספונסיביות בסיסית */
-        @media (max-width: 600px) {
-            h1 { font-size: 2em; }
+        /* רספונסיביות */
+        @media (max-width: 768px) {
+            #game-container { 
+                padding: 30px; 
+                width: 95%; 
+                max-height: 98vh; /* Allow container to take full viewport height */
+                overflow-y: auto; /* Make the container scrollable */
+            }
+            h1 { font-size: 2.8em; }
+            h2 { font-size: 1.8em; }
+            .game-button { padding: 14px 28px; font-size: 1.1em; }
+            #question-display { font-size: 2em; height: 80px; }
+            .bridge-tile { width: 75px; height: 75px; font-size: 2.2em; }
+            #bridge-container { gap: 12px; max-width: 400px; grid-template-columns: repeat(4, 1fr); }
+            #end-message { font-size: 2.8em; }
+            .info-box { padding: 8px 15px; font-size: 1em; }
+            .checkbox-group { gap: 10px 5px; }
+            .checkbox-group label { font-size: 1em; gap: 6px;}
+            input[type="checkbox"] { width: 20px; height: 20px; }
+            input[type="checkbox"]:checked::after { font-size: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            #game-container { padding: 20px; border-radius: 20px; }
+            h1 { font-size: 2.2em; letter-spacing: 1px; }
             h2 { font-size: 1.5em; }
-            .squid-button { padding: 12px 25px; font-size: 1.1em; }
-            .bridge-tile { width: 55px; height: 55px; font-size: 2em; }
-            #bridge-container { grid-template-columns: repeat(4, 1fr); max-width: 250px; } /* 4 אריחים בשורה במסכים קטנים */
-            #game-container { padding: 20px; }
-            .config-section { width: 90%; }
-            #summary-table th, #summary-table td {
-                padding: 8px 5px; /* פדינג קטן יותר בטבלה */
-                font-size: 0.8em;
+            .game-button { padding: 10px 20px; font-size: 1em; border-radius: 10px; margin-top: 20px; }
+            #player-id-start, #player-id-game, #player-id-end { font-size: 1.1em; margin-bottom: 20px; }
+            .config-section { padding: 15px; margin-bottom: 20px; }
+            #question-display { font-size: 1.8em; padding: 15px 25px; height: 70px; }
+            .bridge-tile { width: 60px; height: 60px; font-size: 1.8em; border-radius: 10px; }
+            #bridge-container { gap: 10px; max-width: 320px; grid-template-columns: repeat(4, 1fr); }
+            #end-message { font-size: 2.2em; }
+            #end-stats { font-size: 1.2em; }
+            #summary-table th, #summary-table td { padding: 8px; font-size: 0.8em; }
+            #motivational-message { font-size: 1.2em; margin-top: 20px; }
+            input[type="range"] { width: 95%; }
+            input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+                width: 20px; height: 20px;
             }
         }
     </style>
@@ -467,19 +596,17 @@
             <div class="config-section">
                 <h2>בחר פעולות חשבון:</h2>
                 <div class="checkbox-group">
-                    <!-- שורה ראשונה - סדר אלמנטים לפי תמונה -->
                     <div>
-                        <label> חיבור (+)<input type="checkbox" id="op-add" value="add" checked></label>
+                        <label><input type="checkbox" id="op-add" value="add" checked><span>חיבור (+)</span></label>
                     </div>
                     <div>
-                        <label> חיסור (-)<input type="checkbox" id="op-subtract" value="subtract" checked></label>
-                    </div>
-                    <!-- שורה שנייה - סדר אלמנטים לפי תמונה -->
-                    <div>
-                        <label> כפל (*)<input type="checkbox" id="op-multiply" value="multiply"></label>
+                        <label><input type="checkbox" id="op-subtract" value="subtract" checked><span>חיסור (-)</span></label>
                     </div>
                     <div>
-                        <label> חילוק (/)<input type="checkbox" id="op-divide" value="divide"></label>
+                        <label><input type="checkbox" id="op-multiply" value="multiply"><span>כפל (*)</span></label>
+                    </div>
+                    <div>
+                        <label><input type="checkbox" id="op-divide" value="divide"><span>חילוק (/)</span></label>
                     </div>
                 </div>
             </div>
@@ -488,10 +615,10 @@
                 <input type="range" id="bridge-length" min="5" max="15" value="5">
             </div>
             <div class="config-section">
-                <h2>טווח המספרים לשאלות (עד): <span id="max-operand-value-display">10</span></h2>
-                <input type="range" id="max-operand-value-input" min="10" max="500" value="10">
+                <h2>טווח המספרים לשאלות (עד): <span id="max-question-value-display">20</span></h2>
+                <input type="range" id="max-question-value-input" min="10" max="100" value="20">
             </div>
-            <button id="start-button" class="squid-button">התחל את האתגר</button>
+            <button id="start-button" class="game-button">התחל את האתגר</button>
         </div>
 
         <!-- מסך המשחק -->
@@ -513,7 +640,7 @@
             <div id="bridge-container">
                 <!-- אריחי הגשר ייווצרו דינמית ע"י JavaScript -->
             </div>
-            <button id="restart-game-button" class="squid-button small-button">התחל מהתחלה</button>
+            <button id="restart-game-button" class="game-button small-button">התחל מהתחלה</button>
         </div>
 
         <!-- מסך סיום המשחק (ניצחון/הדחה) -->
@@ -541,7 +668,7 @@
                 <p id="motivational-message"></p>
             </div>
 
-            <button id="play-again-button" class="squid-button">שחק שוב</button>
+            <button id="play-again-button" class="game-button">שחק שוב</button>
         </div>
     </div>
 
@@ -566,8 +693,8 @@
         const bridgeLengthInput = document.getElementById('bridge-length');
         const bridgeLengthDisplay = document.getElementById('bridge-length-display');
 
-        const maxOperandValueInput = document.getElementById('max-operand-value-input'); 
-        const maxOperandValueDisplay = document.getElementById('max-operand-value-display'); 
+        const maxQuestionValueInput = document.getElementById('max-question-value-input'); 
+        const maxQuestionValueDisplay = document.getElementById('max-question-value-display'); 
 
         const playerIdStart = document.getElementById('player-id-start');
         const playerIdGame = document.getElementById('player-id-game');
@@ -594,7 +721,9 @@
         const MAX_INCORRECT_ATTEMPTS = 3;
         let questionStartTime; 
         let gameSummary = []; 
-        let maxOperandValue = 10; 
+        let maxQuestionValue = 20; // Max value for operands (num1, num2)
+        const MAX_ANSWER_VALUE = 200; // Max value for the answer displayed on tiles (to keep numbers readable)
+        let askedQuestions = new Set(); // To store unique questions asked in the current game
 
         // --- Sounds (basic) ---
         // וודא שקבצי הקול נמצאים בתיקייה 'sounds' באותה רמה כמו קובץ ה-HTML
@@ -606,6 +735,14 @@
         // --- Utility Functions ---
         function getRandomInt(min, max) {
             return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
         }
 
         function generatePlayerNumber() {
@@ -621,78 +758,74 @@
         // --- Game Logic ---
         function generateQuestion() {
             questionStartTime = Date.now(); 
-            const operation = selectedOperations[getRandomInt(0, selectedOperations.length - 1)];
-            let num1, num2, answer;
+            let num1, num2, answer, operation, opSymbol;
+            let questionString;
+            let isValid = false;
             let attempts = 0;
-            const maxGenerationAttempts = 200; 
-            const maxOpVal = maxOperandValue; 
+            const maxGenerationAttempts = 300; // Increased attempts to find unique questions
 
             do {
                 attempts++;
-                answer = getRandomInt(1, 10); // התשובה תמיד בין 1 ל-10
+                operation = selectedOperations[getRandomInt(0, selectedOperations.length - 1)];
+                num1 = getRandomInt(1, maxQuestionValue);
+                num2 = getRandomInt(1, maxQuestionValue);
+                isValid = true; // Assume valid until proven otherwise
 
                 switch (operation) {
                     case 'add':
-                        // num1 from 1 up to maxOpVal. num2 is answer - num1.
-                        // Ensure num1 allows num2 to be valid (not zero or negative, and <= maxOpVal)
-                        num1 = getRandomInt(1, Math.min(maxOpVal, answer - 1));
-                        num2 = answer - num1;
-                        // Additional checks
-                        if (num1 + num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
+                        answer = num1 + num2;
+                        opSymbol = '+';
+                        if (num1 === 0 || num2 === 0 || answer > MAX_ANSWER_VALUE) isValid = false;
                         break;
                     case 'subtract':
-                        // num2 from 1 up to maxOpVal. num1 is answer + num2.
-                        num2 = getRandomInt(1, maxOpVal);
-                        num1 = answer + num2;
-                        // Additional checks
-                        if (num1 - num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
+                        // Ensure num1 >= num2 for positive answer
+                        if (num1 < num2) [num1, num2] = [num2, num1]; 
+                        answer = num1 - num2;
+                        opSymbol = '-';
+                        if (num2 === 0 || answer < 0 || answer > MAX_ANSWER_VALUE) isValid = false; // Prevent num-0 or negative answers
                         break;
                     case 'multiply':
-                        // answer = num1 * num2. num1, num2 <= maxOpVal.
-                        num1 = getRandomInt(1, Math.min(maxOpVal, answer)); 
-                        // Ensure num1 is a factor and num2 is within bounds
-                        if (answer % num1 !== 0) { 
-                            num1 = 0; // Not a factor, trigger re-generation
-                            break;
-                        }
-                        num2 = answer / num1;
-                        if (num1 * num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
-                            num1 = 0; // Invalid, trigger re-generation
-                        }
+                        // Limit operands for multiplication to keep answers within MAX_ANSWER_VALUE
+                        num1 = getRandomInt(1, Math.min(maxQuestionValue, Math.floor(MAX_ANSWER_VALUE / 2))); 
+                        num2 = getRandomInt(1, Math.min(maxQuestionValue, Math.floor(MAX_ANSWER_VALUE / num1) || 1)); // Ensure num2 makes sense
+                        answer = num1 * num2;
+                        opSymbol = 'x'; 
+                        if (num1 === 1 || num2 === 1 || answer === 0 || answer > MAX_ANSWER_VALUE) isValid = false; // Avoid 1*X, 0, or too large
                         break;
                     case 'divide':
-                        // answer = num1 / num2. num1, num2 <= maxOpVal.
-                        num2 = getRandomInt(1, maxOpVal);
-                        num1 = answer * num2;
-                        // Additional checks: ensure num1 is within maxOpVal, num2 is not zero, and no remainder after division.
-                        if (num1 / num2 !== answer || num1 > maxOpVal || num2 > maxOpVal || num1 <= 0 || num2 <= 0) {
-                            num1 = 0; // Invalid, trigger re-generation
+                        // Ensure answer is integer and num1, num2 are within range
+                        opSymbol = '÷'; 
+                        answer = getRandomInt(1, Math.min(maxQuestionValue, Math.floor(MAX_ANSWER_VALUE / 2))); // Target answer
+                        num2 = getRandomInt(1, Math.min(maxQuestionValue, Math.floor(MAX_ANSWER_VALUE / answer) || 1)); // Divisor
+                        num1 = answer * num2; // Dividend
+                        
+                        // Check for valid division properties
+                        if (num1 > maxQuestionValue || num2 > maxQuestionValue || num2 === 0 || num1 % num2 !== 0 || num1 === 0 || answer === 1) {
+                           isValid = false; // Fail if outside range, division by zero, or not integer result, or trivial X/X=1
                         }
                         break;
                 }
-            // Continue loop if conditions are not met or generation failed
-            } while ((num1 <= 0 || num2 <= 0 || num1 > maxOpVal || num2 > maxOpVal || answer < 1 || answer > 10) && attempts < maxGenerationAttempts);
+                
+                // Formulate a unique string for the question
+                questionString = `${num1}${opSymbol}${num2}`;
 
-            // Fallback for extreme cases (should be rare with this logic)
+            } while (!isValid || askedQuestions.has(questionString) && attempts < maxGenerationAttempts);
+
+            // Fallback if unable to generate a unique valid question after many attempts
             if (attempts >= maxGenerationAttempts) {
-                console.warn("Could not generate a suitable question within limits. Defaulting to 1+1=2.");
-                num1 = 1; num2 = 1; operation = 'add'; answer = 2;
-                currentQuestion = { num1, num2, operation, answer }; 
-            } else {
-                currentQuestion = { num1, num2, operation, answer };
+                console.warn("Could not generate a unique suitable question within limits. Recycling questions or defaulting.");
+                // If we ran out of unique questions, clear the set and try again, or use a default.
+                // For simplicity, we can just allow duplicates if unique ones are exhausted.
+                // Or, as a last resort, set a very basic default question.
+                if (!isValid) { // If even the last attempt wasn't valid, force a simple one
+                    num1 = 10; num2 = 5; operation = 'add'; answer = 15; opSymbol = '+';
+                    questionString = `${num1}${opSymbol}${num2}`;
+                }
             }
             
-            let opSymbol;
-            switch (operation) {
-                case 'add': opSymbol = '+'; break;
-                case 'subtract': opSymbol = '-'; break;
-                case 'multiply': opSymbol = '*'; break;
-                case 'divide': opSymbol = '/'; break;
-            }
+            currentQuestion = { num1, num2, operation, answer, opSymbol }; 
+            askedQuestions.add(questionString); // Add to the set of asked questions
+
             questionDisplay.textContent = `${num1} ${opSymbol} ${num2} = ?`; 
             incorrectAttempts = 0;
             livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
@@ -700,13 +833,33 @@
             document.querySelectorAll('.bridge-tile').forEach(tile => {
                 tile.classList.remove('correct-feedback', 'wrong-feedback');
             });
+            createBridgeTiles(); // Re-create tiles for new answers
         }
 
         function createBridgeTiles() {
             bridgeContainer.innerHTML = ''; 
-            // סדר המספרים כפי שמופיע בתמונה: 1-5 בשורה ראשונה, 6-10 בשנייה
-            const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
-            numbers.forEach(num => {
+            const correctAnswer = currentQuestion.answer;
+            const answers = new Set(); // Use a Set to ensure unique answers
+            answers.add(correctAnswer);
+
+            // Generate 9 unique distractors
+            while (answers.size < 10) { // We need 10 tiles total
+                let distractor;
+                // Generate distractors around the correct answer, but not too close
+                // Avoid 0, negatives, and excessively large numbers outside MAX_ANSWER_VALUE
+                const minVal = Math.max(1, correctAnswer - getRandomInt(5, 15)); 
+                const maxVal = Math.min(MAX_ANSWER_VALUE, correctAnswer + getRandomInt(5, 15)); 
+
+                distractor = getRandomInt(minVal, maxVal);
+
+                if (distractor !== correctAnswer) {
+                    answers.add(distractor);
+                }
+            }
+
+            const shuffledAnswers = shuffleArray(Array.from(answers));
+
+            shuffledAnswers.forEach(num => {
                 const tile = document.createElement('div');
                 tile.classList.add('bridge-tile');
                 tile.textContent = num;
@@ -812,19 +965,19 @@
             }
             
             totalStages = parseInt(bridgeLengthInput.value);
-            maxOperandValue = parseInt(maxOperandValueInput.value); 
+            maxQuestionValue = parseInt(maxQuestionValueInput.value); 
             
             totalStagesDisplay.textContent = totalStages;
             currentStage = 1;
             currentStageDisplay.textContent = currentStage;
             gameSummary = []; 
+            askedQuestions.clear(); // Clear questions for a new game
 
             startScreen.classList.add('hidden');
             gameScreen.classList.remove('hidden');
 
             createProgressIndicator(); 
-            createBridgeTiles();
-            generateQuestion();
+            generateQuestion(); // This will also call createBridgeTiles()
         }
 
         function displaySummaryTable(isWin) {
@@ -838,7 +991,7 @@
                 const attemptsCell = row.insertCell();
                 const timeCell = row.insertCell();
 
-                stageCell.textContent = index + 1; 
+                stageCell.textContent = entry.stage; 
                 questionCell.textContent = entry.question;
                 answerCell.textContent = entry.correctAnswer;
                 attemptsCell.textContent = entry.attempts;
@@ -847,20 +1000,22 @@
                 if (entry.failed) {
                     row.style.backgroundColor = 'rgba(231, 76, 60, 0.2)'; 
                     answerCell.classList.add('incorrect-answer-cell');
-                    attemptsCell.style.color = '#e74c3c'; 
+                    attemptsCell.style.color = 'var(--feedback-wrong)'; 
                 } else {
                     answerCell.classList.add('correct-answer-cell');
-                    attemptsCell.style.color = '#2ecc71'; 
+                    attemptsCell.style.color = 'var(--feedback-correct)'; 
                 }
             });
 
             // הודעת מוטיבציה
             if (isWin) {
                 motivationalMessage.textContent = "כל הכבוד! הצלחת לחצות את הגשר בכישרון ובמהירות! אתה אלוף אמיתי!";
-                motivationalMessage.style.color = '#2ecc71';
+                motivationalMessage.style.color = 'var(--feedback-correct)';
+                motivationalMessage.style.textShadow = '0 0 10px var(--feedback-correct)';
             } else {
                 motivationalMessage.textContent = "אל דאגה! גם בדרך להצלחה יש נפילות. תמיד אפשר לנסות שוב ולנצח בפעם הבאה!";
-                motivationalMessage.style.color = '#e74c3c';
+                motivationalMessage.style.color = 'var(--feedback-wrong)';
+                motivationalMessage.style.textShadow = '0 0 10px var(--feedback-wrong)';
             }
         }
 
@@ -871,12 +1026,12 @@
 
             if (isWin) {
                 endMessage.textContent = "מזל טוב! חצית את הגשר!";
-                endMessage.style.color = '#2ecc71'; 
+                endMessage.classList.add('win'); // Add class for win styling
                 endStats.textContent = `פתרת בהצלחה את כל ${totalStages} השלבים.`;
                 winSound.play();
             } else {
                 endMessage.textContent = "הודחת מהמשחק!";
-                endMessage.style.color = '#e74c3c'; 
+                endMessage.classList.remove('win'); // Remove win class if previously set
                 endStats.textContent = `לא הצלחת לעבור את שלב ${currentStage} מתוך ${totalStages}.`;
             }
             displaySummaryTable(isWin); 
@@ -887,6 +1042,7 @@
             incorrectAttempts = 0;
             currentQuestion = {};
             gameSummary = []; 
+            askedQuestions.clear(); // Clear questions set for new game
 
             // איפוס UI למסך ההתחלה 
             opAdd.checked = true;
@@ -895,8 +1051,8 @@
             opDivide.checked = false;
             bridgeLengthInput.value = 5;
             bridgeLengthDisplay.textContent = 5;
-            maxOperandValueInput.value = 10;
-            maxOperandValueDisplay.textContent = 10;
+            maxQuestionValueInput.value = 20; // Reset to default
+            maxQuestionValueDisplay.textContent = 20; // Reset to default
 
             livesCounterDisplay.textContent = `${MAX_INCORRECT_ATTEMPTS} / ${MAX_INCORRECT_ATTEMPTS}`;
             
@@ -924,8 +1080,8 @@
             bridgeLengthDisplay.textContent = bridgeLengthInput.value;
         });
 
-        maxOperandValueInput.addEventListener('input', () => { 
-            maxOperandValueDisplay.textContent = maxOperandValueInput.value;
+        maxQuestionValueInput.addEventListener('input', () => { 
+            maxQuestionValueDisplay.textContent = maxQuestionValueInput.value;
         });
 
 
