@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק לוח הכפל המקסים!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <link href="https://fonts3.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #6a0572; /* סגול כהה */
+            --secondary-color: #f7931e; /* כתום חי */
+            --accent-color: #00bcd4; /* טורקיז */
+            --background-gradient: linear-gradient(135deg, #f0f2f5 0%, #e0e6ed 100%);
+            --correct-color: #4CAF50; /* ירוק */
+            --wrong-color: #f44336; /* אדום */
+            --text-color: #333;
+            --light-text-color: #eee;
+            --panel-bg: #ffffff;
+            --border-radius-large: 20px;
+            --border-radius-small: 10px;
+            --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --box-shadow-heavy: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        body {
+            font-family: 'Varela Round', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--background-gradient);
+            display: flex; /* נשאר כדי לאפשר מיקום מרכזי */
+            flex-direction: column; /* מאפשר לתוכן להיערם ולדחוף את גובה ה-body */
+            /* justify-content: center; -- הוסר, מיקום עכשיו עם margin: auto */
+            /* align-items: center; -- הוסר, מיקום עכשיו עם margin: auto */
+            min-height: 100vh; /* מבטיח שה-body תמיד יהיה לפחות בגובה מסך מלא */
+            color: var(--text-color);
+            /* overflow: hidden; -- הוסר! זה מה שמנע את הגלילה */
+            position: relative; /* נשמר עבור מיקום הקונפטי */
+        }
+
+        .game-container {
+            background-color: var(--panel-bg);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--box-shadow-heavy);
+            padding: 40px;
+            text-align: center;
+            max-width: 900px;
+            width: 95%;
+            box-sizing: border-box;
+            position: relative;
+            /* overflow: hidden; -- הוסר! גם מפה כדי לאפשר גלילת תוכן ארוך */
+            border: 5px solid var(--primary-color);
+            margin: auto; /* ממקם את הקונטיינר במרכז אנכית ואופקית כאשר יש מספיק מקום */
+            flex-shrink: 0; /* מונע מהקונטיינר להתכווץ על מסכים קטנים מדי */
+            padding-bottom: 50px; /* הוספה קטנה כדי לתת רווח מתחת לכפתור "שחק שוב" */
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            font-family: 'Rubik', sans-serif;
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: var(--secondary-color);
+        }
+
+        .screen {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Setup Screen --- */
+        .setup-option {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .setup-option label {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .setup-option input[type="number"] {
+            padding: 12px 20px;
+            border: 2px solid var(--accent-color);
+            border-radius: var(--border-radius-small);
+            font-size: 1.2em;
+            text-align: center;
+            width: 150px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            -moz-appearance: textfield; /* Firefox */
+        }
+        .setup-option input[type="number"]::-webkit-outer-spin-button,
+        .setup-option input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+
+        .setup-option input[type="number"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(247, 147, 30, 0.2);
+        }
+
+        .avatar-selection {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-item {
+            cursor: pointer;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            border: 4px solid transparent;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow-light);
+            filter: grayscale(80%);
+            opacity: 0.7;
+        }
+
+        .avatar-item.selected {
+            border-color: var(--secondary-color);
+            transform: scale(1.1);
+            box-shadow: 0 0 0 8px rgba(247, 147, 30, 0.3), var(--box-shadow-heavy);
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+        .avatar-item:hover:not(.selected) {
+            transform: scale(1.05);
+            border-color: var(--accent-color);
+            filter: grayscale(30%);
+            opacity: 0.9;
+        }
+
+        .game-button {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            border-radius: var(--border-radius-large);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow-light);
+            margin-top: 30px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .game-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow-heavy);
+        }
+
+        .game-button:active {
+            transform: translateY(0);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .error-message {
+            color: var(--wrong-color);
+            margin-top: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .error-message.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Game Screen --- */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed var(--accent-color);
+        }
+
+        .game-header .player-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            border: 3px solid var(--secondary-color);
+            box-shadow: var(--box-shadow-light);
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .game-header .game-progress {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .question-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .question-text {
+            font-size: 4em;
+            font-weight: bold;
+            color: var(--primary-color);
+            min-height: 1.5em; /* Prevent layout shift */
+            transition: transform 0.3s ease, color 0.3s ease;
+            animation: scaleIn 0.5s ease-out;
+            direction: ltr; /* Ensure math symbols are LTR */
+        }
+
+        .answer-input {
+            padding: 15px 25px;
+            border: 3px solid var(--accent-color);
+            border-radius: var(--border-radius-small);
+            font-size: 2em;
+            text-align: center;
+            width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.1);
+            color: var(--text-color);
+            font-family: 'Rubik', sans-serif;
+            font-weight: bold;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 6px rgba(247, 147, 30, 0.3);
+        }
+
+        .feedback-message {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-top: -20px;
+            min-height: 1.5em;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .feedback-message.correct {
+            color: var(--correct-color);
+            animation: popIn 0.5s ease-out forwards;
+        }
+
+        .feedback-message.wrong {
+            color: var(--wrong-color);
+            animation: shake 0.5s ease-out forwards;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        /* --- Results Screen --- */
+        #results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px; /* Space between rows */
+            margin-top: 30px;
+            box-shadow: var(--box-shadow-light);
+            border-radius: var(--border-radius-large);
+            /* overflow: hidden; -- הוסר מכאן, כדי לאפשר גלילה רגילה של התוכן */
+        }
+
+        #results-table th, #results-table td {
+            padding: 15px;
+            text-align: center;
+        }
+
+        #results-table th {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            font-size: 1.1em;
+            font-family: 'Rubik', sans-serif;
+            letter-spacing: 0.5px;
+            position: sticky; /* נשאר כדי שהכותרת תידבק למעלה בזמן גלילה של הטבלה עצמה אם היא תגולל בנפרד (כאן - הדף כולו גולל) */
+            top: 0;
+            z-index: 1;
+        }
+
+        #results-table td {
+            background-color: var(--panel-bg);
+            border-bottom: 1px dashed #e0e0e0;
+            font-size: 1em;
+        }
+        
+        #results-table tr {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #results-table tr:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #results-table tbody tr:nth-child(even) td {
+            background-color: #f8f8f8;
+        }
+        
+        #results-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .play-again-button {
+            margin-top: 40px;
+            background-color: var(--secondary-color);
+        }
+
+        .play-again-button:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.1); opacity: 0; }
+            60% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        @keyframes correct-feedback {
+            0% { transform: scale(1); background-color: transparent; }
+            50% { transform: scale(1.1); background-color: var(--correct-color); }
+            100% { transform: scale(1); background-color: transparent; }
+        }
+
+        @keyframes wrong-feedback {
+            0% { transform: scale(1); background-color: transparent; }
+            50% { transform: scale(1.1); background-color: var(--wrong-color); }
+            100% { transform: scale(1); background-color: transparent; }
+        }
+
+        .answer-input.correct {
+            animation: correct-feedback 0.6s ease;
+        }
+
+        .answer-input.wrong {
+            animation: wrong-feedback 0.6s ease;
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed; /* שונה ל-fixed כדי שלא יפריע לגלילה של הדף */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color); /* Default color */
+            animation: fall 3s linear infinite;
+            border-radius: 50%;
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- מסך הגדרות -->
+        <div id="setup-screen" class="screen active">
+            <h1>ברוכים הבאים למשחק הכפל המקסים! ✨</h1>
+            
+            <div class="setup-option">
+                <label for="max-result">עד איזה תוצאה יהיו התרגילים? (10-200)</label>
+                <input type="number" id="max-result" value="100" min="10" max="200">
+            </div>
+
+            <div class="setup-option">
+                <label for="num-questions">כמה שאלות יהיו במשחק? (5-20)</label>
+                <input type="number" id="num-questions" value="10" min="5" max="20">
+            </div>
+
+            <div class="setup-option">
+                <label>בחר אוואטר למשחק:</label>
+                <div class="avatar-selection">
+                    <div class="avatar-item selected" data-avatar="😎">😎</div>
+                    <div class="avatar-item" data-avatar="🤩">🤩</div>
+                    <div class="avatar-item" data-avatar="🤠">🤠</div>
+                    <div class="avatar-item" data-avatar="🤖">🤖</div>
+                    <div class="avatar-item" data-avatar="🥳">🥳</div>
+                </div>
+            </div>
+            
+            <p id="setup-error" class="error-message"></p>
+            <button id="start-game-btn" class="game-button">התחל לשחק!</button>
+        </div>
+
+        <!-- מסך המשחק -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="player-avatar" id="player-avatar-display">😎</div>
+                <div class="game-progress">שאלה <span id="current-question-num">1</span> מתוך <span id="total-questions-num">10</span></div>
+            </div>
+            
+            <div class="question-area">
+                <div id="question-text" class="question-text"></div>
+                <input type="number" id="answer-input" class="answer-input" placeholder="התשובה שלך" autofocus>
+                <div id="feedback-message" class="feedback-message"></div>
+                <button id="submit-answer-btn" class="game-button">שלח תשובה</button>
+            </div>
+            <div class="timer">זמן לשאלה: <span id="question-timer">0</span> שניות</div>
+        </div>
+
+        <!-- מסך תוצאות -->
+        <div id="results-screen" class="screen">
+            <h2>🎉 כל הכבוד! אלה התוצאות שלך 🎉</h2>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>שאלה</th>
+                        <th>תשובה נכונה</th>
+                        <th>זמן שלקח (שניות)</th>
+                        <th>מספר ניסיונות</th>
+                        <th>פירוט ניסיונות</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- תוצאות יוצגו כאן על ידי JavaScript -->
+                </tbody>
+            </table>
+            <button id="play-again-btn" class="game-button play-again-button">שחק שוב!</button>
+        </div>
+    </div>
+
+    <!-- Audio for feedback -->
+    <audio id="correct-sound" src="https://www.soundjay.com/buttons/beep-07a.mp3" preload="auto"></audio>
+    <audio id="wrong-sound" src="https://www.soundjay.com/buttons/beep-09.mp3" preload="auto"></audio>
+
+    <script>
+        // --- DOM Elements ---
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const resultsScreen = document.getElementById('results-screen');
+
+        const maxResultInput = document.getElementById('max-result');
+        const numQuestionsInput = document.getElementById('num-questions');
+        const avatarSelectionDiv = document.querySelector('.avatar-selection');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const setupError = document.getElementById('setup-error');
+
+        const playerAvatarDisplay = document.getElementById('player-avatar-display');
+        const currentQuestionNumSpan = document.getElementById('current-question-num');
+        const totalQuestionsNumSpan = document.getElementById('total-questions-num');
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const submitAnswerBtn = document.getElementById('submit-answer-btn');
+        const questionTimerSpan = document.getElementById('question-timer');
+
+        const resultsTableBody = document.querySelector('#results-table tbody');
+        const playAgainBtn = document.getElementById('play-again-btn');
+
+        const correctSound = document.getElementById('correct-sound');
+        const wrongSound = document.getElementById('wrong-sound');
+
+        // --- Game State ---
+        let gameState = {
+            maxResult: 100,
+            numQuestions: 10, // This will be updated to actual generated count
+            selectedAvatar: '😎',
+            questions: [],
+            currentQuestionIndex: 0,
+            questionStartTime: 0,
+            questionTimerInterval: null
+        };
+
+        // --- Utility Functions ---
+        function showScreen(screenId) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            // Clear feedback and input when switching screens
+            feedbackMessage.classList.remove('correct', 'wrong');
+            feedbackMessage.textContent = '';
+            answerInput.classList.remove('correct', 'wrong');
+            answerInput.value = '';
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuestions() {
+            const generatedQuestions = new Set();
+            gameState.questions = [];
+            let attempts = 0;
+            const maxAttemptsFactor = 10; // Max attempts per question to avoid infinite loop
+            const totalMaxAttempts = gameState.numQuestions * maxAttemptsFactor;
+
+            while (gameState.questions.length < gameState.numQuestions && attempts < totalMaxAttempts) {
+                attempts++;
+                const num1 = getRandomInt(1, 12);
+                // Ensure num2 results in a product within maxResult
+                const maxNum2 = Math.floor(gameState.maxResult / num1);
+                if (maxNum2 === 0) continue; // Skip if num1 is too large for maxResult
+
+                const num2 = getRandomInt(1, maxNum2);
+
+                // Optional: Skip very simple questions (adjust as needed for difficulty)
+                if (num1 === 1 || num2 === 1) { // Skip 1xN or Nx1
+                     if (num1 * num2 <= 12 && gameState.questions.length < gameState.numQuestions * 0.5) {
+                         // Allow some simple ones if we're struggling to fill up questions for small maxResult
+                         // but not too many, and only for small results (e.g. up to 12)
+                     } else {
+                        continue;
+                     }
+                }
+                
+                const questionString = `${num1}x${num2}`;
+                // Avoid duplicates by checking both orders (e.g., 2x3 and 3x2)
+                if (!generatedQuestions.has(questionString) && !generatedQuestions.has(`${num2}x${num1}`)) { 
+                    gameState.questions.push({
+                        num1: num1,
+                        num2: num2,
+                        answer: num1 * num2,
+                        attempts: [],
+                        timeTaken: 0
+                    });
+                    generatedQuestions.add(questionString);
+                }
+            }
+            // Shuffle the questions to ensure randomness
+            for (let i = gameState.questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [gameState.questions[i], gameState.questions[j]] = [gameState.questions[j], gameState.questions[i]];
+            }
+        }
+
+        function updateQuestionTimer() {
+            const elapsed = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+            questionTimerSpan.textContent = elapsed;
+        }
+
+        function startQuestionTimer() {
+            gameState.questionStartTime = Date.now();
+            questionTimerSpan.textContent = '0';
+            clearInterval(gameState.questionTimerInterval); // Clear any existing interval
+            gameState.questionTimerInterval = setInterval(updateQuestionTimer, 1000);
+        }
+
+        function stopQuestionTimer() {
+            clearInterval(gameState.questionTimerInterval);
+            // Time for current question is recorded when correct answer is given
+        }
+
+        function playSound(isCorrect) {
+            if (isCorrect) {
+                correctSound.currentTime = 0; // Rewind to start
+                correctSound.play();
+            } else {
+                wrongSound.currentTime = 0; // Rewind to start
+                wrongSound.play();
+            }
+        }
+
+        function createConfetti() {
+            const confettiContainer = document.createElement('div');
+            confettiContainer.className = 'confetti-container';
+            document.body.appendChild(confettiContainer);
+
+            const colors = ['#f7931e', '#00bcd4', '#4CAF50', '#9c27b0', '#FFEB3B'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.opacity = Math.random() * 0.8 + 0.2;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => {
+                confettiContainer.remove();
+            }, 3000); // Remove confetti after animation
+        }
+
+        // --- Game Flow ---
+        function startGame() {
+            gameState.currentQuestionIndex = 0;
+            // First, generate questions based on initial settings
+            generateQuestions();
+
+            // Update the total number of questions based on what was actually generated
+            gameState.numQuestions = gameState.questions.length;
+
+            // Handle case where no questions could be generated with current settings
+            if (gameState.numQuestions === 0) {
+                setupError.textContent = 'לא ניתן ליצור שאלות עם ההגדרות הנוכחיות. נסה טווח תוצאות גדול יותר או מספר שאלות קטן יותר.';
+                setupError.classList.add('active');
+                showScreen('setup-screen'); // Go back to setup screen
+                return;
+            }
+
+            playerAvatarDisplay.textContent = gameState.selectedAvatar;
+            totalQuestionsNumSpan.textContent = gameState.numQuestions; // Update display with actual number
+            showScreen('game-screen');
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (gameState.currentQuestionIndex >= gameState.numQuestions) {
+                endGame();
+                return;
+            }
+
+            const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
+            currentQuestionNumSpan.textContent = gameState.currentQuestionIndex + 1;
+            questionText.textContent = `${currentQuestion.num1} x ${currentQuestion.num2} = ?`;
+            answerInput.value = '';
+            answerInput.focus();
+            feedbackMessage.textContent = '';
+            feedbackMessage.classList.remove('correct', 'wrong');
+            answerInput.classList.remove('correct', 'wrong');
+            
+            startQuestionTimer();
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(answerInput.value);
+            const currentQuestion = gameState.questions[gameState.currentQuestionIndex];
+            const isCorrect = userAnswer === currentQuestion.answer;
+            const attemptTime = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+            
+            // Record the attempt details
+            currentQuestion.attempts.push({
+                answer: userAnswer,
+                isCorrect: isCorrect,
+                time: attemptTime
+            });
+
+            if (isNaN(userAnswer)) {
+                feedbackMessage.textContent = 'אנא הזן מספר!';
+                feedbackMessage.classList.add('wrong');
+                answerInput.classList.add('wrong');
+                playSound(false);
+                setTimeout(() => {
+                    feedbackMessage.classList.remove('wrong');
+                    answerInput.classList.remove('wrong');
+                }, 800);
+                return;
+            }
+
+            if (isCorrect) {
+                stopQuestionTimer(); // Stop timer for this question
+                currentQuestion.timeTaken = attemptTime; // Record the total time for the correct answer
+                feedbackMessage.textContent = 'נכון מאוד! 🎉';
+                feedbackMessage.classList.add('correct');
+                answerInput.classList.add('correct');
+                playSound(true);
+                setTimeout(() => {
+                    gameState.currentQuestionIndex++;
+                    displayQuestion();
+                }, 1000); // Wait a bit for feedback to be seen
+            } else {
+                feedbackMessage.textContent = 'נסה שוב... 🤔';
+                feedbackMessage.classList.add('wrong');
+                answerInput.classList.add('wrong');
+                playSound(false);
+                answerInput.value = ''; // Clear input for next attempt
+                setTimeout(() => {
+                    feedbackMessage.classList.remove('wrong');
+                    answerInput.classList.remove('wrong');
+                }, 800); // Clear feedback after animation
+            }
+        }
+
+        function endGame() {
+            stopQuestionTimer(); // Ensure timer is stopped if game ends
+            showScreen('results-screen');
+            populateResultsTable();
+            createConfetti(); // Yay!
+        }
+
+        function populateResultsTable() {
+            resultsTableBody.innerHTML = ''; // Clear previous results
+
+            gameState.questions.forEach((q, index) => { // Added index for question number display
+                const row = resultsTableBody.insertRow();
+
+                row.insertCell().textContent = `${index + 1}. ${q.num1} x ${q.num2}`; // Display question number
+                row.insertCell().textContent = q.answer;
+                row.insertCell().textContent = q.timeTaken;
+                row.insertCell().textContent = q.attempts.length;
+
+                const attemptsCell = row.insertCell();
+                q.attempts.forEach((attempt, attemptIndex) => {
+                    const status = attempt.isCorrect ? '✔' : '❌';
+                    const attemptText = `ניסיון ${attemptIndex + 1}: ${attempt.answer} (${status}, ${attempt.time} שנ')`;
+                    const p = document.createElement('p');
+                    p.textContent = attemptText;
+                    p.style.margin = '5px 0';
+                    p.style.color = attempt.isCorrect ? varcss('correct-color') : varcss('wrong-color');
+                    p.style.fontWeight = 'bold';
+                    attemptsCell.appendChild(p);
+                });
+            });
+        }
+        
+        // Helper to get CSS variable values
+        function varcss(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(`--${name}`);
+        }
+
+        // --- Event Listeners ---
+        avatarSelectionDiv.addEventListener('click', (e) => {
+            if (e.target.classList.contains('avatar-item')) {
+                document.querySelectorAll('.avatar-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                e.target.classList.add('selected');
+                gameState.selectedAvatar = e.target.dataset.avatar;
+            }
+        });
+
+        startGameBtn.addEventListener('click', () => {
+            const maxResult = parseInt(maxResultInput.value);
+            const numQuestions = parseInt(numQuestionsInput.value);
+
+            let isValid = true;
+            let errorMessage = '';
+
+            if (maxResult < 10 || maxResult > 200 || isNaN(maxResult)) {
+                isValid = false;
+                errorMessage += 'תוצאה מקסימלית חייבת להיות בין 10 ל-200. ';
+            }
+            if (numQuestions < 5 || numQuestions > 20 || isNaN(numQuestions)) {
+                isValid = false;
+                errorMessage += 'מספר השאלות חייב להיות בין 5 ל-20. ';
+            }
+
+            if (isValid) {
+                gameState.maxResult = maxResult;
+                // Temporarily set numQuestions for generation, it will be updated later
+                gameState.numQuestions = numQuestions; 
+                setupError.classList.remove('active');
+                startGame();
+            } else {
+                setupError.textContent = errorMessage;
+                setupError.classList.add('active');
+            }
+        });
+
+        submitAnswerBtn.addEventListener('click', checkAnswer);
+
+        answerInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent default form submission if any
+                checkAnswer();
+            }
+        });
+
+        playAgainBtn.addEventListener('click', () => {
+            // Reset game state to initial values from input fields
+            gameState.maxResult = parseInt(maxResultInput.value); 
+            gameState.numQuestions = parseInt(numQuestionsInput.value); // Will be adjusted by startGame
+            gameState.currentQuestionIndex = 0;
+            gameState.questions = []; // Clear old questions
+
+            showScreen('setup-screen');
+        });
+
+        // Initialize screen on load
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('setup-screen');
+        });
+    </script>
+</body>
+</html>
