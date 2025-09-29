@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>גיבורי ישר המספרים</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #ecf0f1;
+            font-size: 18px;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #game-container {
+            width: 90%;
+            max-width: 650px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c3e50;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            border: 5px solid #FFD700;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1::before, h1::after {
+            content: '🔢'; /* סמל ישר המספרים */
+            color: #f1c40f;
+            margin: 0 15px;
+        }
+
+        .hidden { display: none; }
+        
+        #progress-container {
+            width: 100%;
+            background-color: #bdc3c7;
+            border-radius: 15px;
+            margin: 25px auto;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #95a5a6;
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(to right, #f1c40f, #f39c12);
+            border-radius: 13px;
+            text-align: center;
+            line-height: 30px;
+            color: #2c3e50;
+            font-weight: bold;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #score {
+            font-size: 26px;
+            color: #2980b9;
+            margin: 15px 0;
+            font-weight: 700;
+        }
+
+        #question-number {
+            font-size: 22px;
+            color: #8e44ad;
+        }
+
+        #question {
+            font-size: 60px;
+            color: #c0392b;
+            margin: 30px 0;
+            font-weight: 700;
+            animation: newQuestionPop 0.5s ease;
+        }
+
+        @keyframes newQuestionPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        /* סגנון לרווח הריק בשאלה */
+        #question .blank-space {
+            display: inline-block;
+            width: 70px; /* רוחב גדול יותר לרווח */
+            height: 1.2em; /* גובה כמו השורה */
+            vertical-align: middle;
+            border-bottom: 4px solid #c0392b; /* קו עבה יותר */
+            margin: 0 10px; /* רווח מהצדדים */
+        }
+
+        #answer {
+            width: 150px;
+            padding: 12px;
+            font-size: 20px;
+            border: 3px solid #3498db;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        #answer:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+            outline: none;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            border-bottom: 4px solid #96281b;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+            border-bottom-width: 2px;
+        }
+
+        #feedback {
+            font-size: 22px;
+            margin-top: 20px;
+            font-weight: 700;
+            min-height: 28px;
+        }
+
+        #summary {
+            animation: summaryAppear 1s ease-out;
+        }
+
+        @keyframes summaryAppear {
+             from { opacity: 0; transform: translateY(30px); }
+             to { opacity: 1; transform: translateY(0); }
+        }
+
+        #summary h2 {
+            font-size: 40px;
+            color: #27ae60;
+        }
+        
+        #summary-table {
+            margin: 30px auto;
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #summary-table th, #summary-table td {
+            border: 2px solid #2980b9;
+            padding: 15px;
+            text-align: center;
+        }
+
+        #summary-table th {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            font-size: 20px;
+        }
+
+        #summary-table td {
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        #summary-table tr:nth-child(even) {
+            background-color: #ecf0f1;
+        }
+        
+        #summary-message {
+            font-size: 22px;
+            color: #2c3e50;
+            margin: 30px 0;
+            line-height: 1.7;
+            background: #e8f8f5;
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px dashed #1abc9c;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <h1>גיבורי ישר המספרים</h1>
+        
+        <div id="game-area">
+            <div id="progress-container">
+                <div id="progress-bar">0%</div>
+            </div>
+            <p id="score">ניקוד: 0</p>
+            <p id="question-number"></p>
+            <p id="question"></p>
+            <input type="number" id="answer" placeholder="התשובה שלך" onkeyup="if(event.keyCode === 13) checkAnswer()">
+            <br>
+            <button onclick="checkAnswer()">שחרר את הכוח!</button>
+            <p id="feedback"></p>
+        </div>
+
+        <div id="summary" class="hidden">
+            <h2>משימה הושלמה, את/ה גיבור/ת על!</h2>
+            <table id="summary-table">
+                <thead>
+                    <tr><th>שאלה</th><th>האתגר</th><th>תשובתך</th><th>תקינות</th><th>זמן (שניות)</th></tr>
+                </thead>
+                <tbody id="summary-body"></tbody>
+            </table>
+            <div id="summary-message">
+                כל הכבוד על המאמץ וההשקעה! השלמת את משימת ישר המספרים כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את "שריר המוח" והופך את כוח העל שלך במתמטיקה לחזק עוד יותר! אבא ואמא גאים בך מאוד על הנחישות והרצון להצליח!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NUM_OF_QUESTIONS = 10; // מספר השאלות במשחק - שונה ל-10
+        let questions = []; // מערך לשמירת השאלות
+        let currentQuestion = 0; // אינדקס השאלה הנוכחית
+        let startTime; // זמן תחילת השאלה
+        let score = 0; // ניקוד השחקן
+        let questionDetails = []; // פרטי כל שאלה לסיכום
+
+        // פונקציית עזר למספר שלם אקראי בטווח
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // סוג שאלה 1: מספר בין שני מספרים (A < ___ < B) או (B > ___ > A)
+        function generateBetweenNumbers() {
+            let A, B, gap;
+
+            // בחירת קנה מידה למספרים (קטן, בינוני, גדול)
+            const scale = getRandomInt(1, 3); 
+
+            if (scale === 1) { // מספרים קטנים, לדוגמה: 2 < ___ < 9
+                A = getRandomInt(1, 15);
+                gap = getRandomInt(4, 10);
+            } else if (scale === 2) { // מספרים בינוניים, לדוגמה: 40 < ___ < 50
+                A = getRandomInt(10, 90);
+                A = Math.floor(A / 10) * 10; // עיגול לעשרות עגולות
+                gap = getRandomInt(10, 25);
+            } else { // מספרים גדולים, לדוגמה: 120 < ___ < 200
+                A = getRandomInt(100, 800);
+                A = Math.floor(A / 10) * 10; // עיגול לעשרות עגולות
+                gap = getRandomInt(30, 150);
+            }
+
+            B = A + gap;
+
+            // וודא שיש לפחות מספר שלם אחד בין A ל-B
+            if (B - A <= 1) { 
+                return generateBetweenNumbers(); // צור שאלה חדשה אם הפער קטן מדי
+            }
+
+            let questionStr;
+            const useGreaterThanSigns = getRandomInt(0, 1) === 1; // 50% סיכוי להשתמש בסימני '>'
+
+            // תמיד נשמור את המספר הקטן ב-smallerNum ואת הגדול ב-largerNum עבור פונקציית הולידציה
+            const smallerNum = Math.min(A, B);
+            const largerNum = Math.max(A, B);
+
+            if (useGreaterThanSigns) {
+                // הצגה כ-largerNum > ___ > smallerNum (לדוגמה: 550 > ___ > 500)
+                questionStr = `${largerNum} > <span class="blank-space"></span> > ${smallerNum}`;
+            } else {
+                // הצגה כ-smallerNum < ___ < largerNum (לדוגמה: 500 < ___ < 550)
+                questionStr = `${smallerNum} < <span class="blank-space"></span> < ${largerNum}`;
+            }
+            
+            // פונקציית הבדיקה תמיד תתבסס על המספרים האמיתיים (קטן וגדול)
+            const validator = (ans) => ans > smallerNum && ans < largerNum; 
+            
+            return { questionStr, validator };
+        }
+
+        // סוג שאלה 2: מספר קטן ממספר נתון (___ < A)
+        function generateLessThan() {
+            let A = getRandomInt(20, 1000);
+            A = Math.floor(A / 10) * 10; // עיגול לעשרות עגולות
+
+            const questionStr = `<span class="blank-space"></span> < ${A}`;
+            const validator = (ans) => ans < A;
+
+            return { questionStr, validator };
+        }
+
+        // סוג שאלה 3: מספר גדול ממספר נתון (A < ___)
+        function generateGreaterThan() {
+            let A = getRandomInt(20, 1000);
+            A = Math.floor(A / 10) * 10; // עיגול לעשרות עגולות
+
+            const questionStr = `${A} < <span class="blank-space"></span>`;
+            const validator = (ans) => ans > A;
+
+            return { questionStr, validator };
+        }
+
+        // פונקציה לבחירה וייצור שאלה אקראית
+        function generateQuestion() {
+            const type = getRandomInt(1, 3); // 1: בין מספרים, 2: קטן מ-, 3: גדול מ-
+            if (type === 1) {
+                return generateBetweenNumbers();
+            } else if (type === 2) {
+                return generateLessThan();
+            } else {
+                return generateGreaterThan();
+            }
+        }
+
+        // התחלת המשחק
+        function startGame() {
+            questions = []; // איפוס שאלות
+            currentQuestion = 0;
+            score = 0;
+            questionDetails = [];
+            document.getElementById("score").innerText = `ניקוד: 0`;
+            document.getElementById("game-area").classList.remove("hidden");
+            document.getElementById("summary").classList.add("hidden");
+
+            for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
+                let newQ;
+                let isUnique = false;
+                // וודא שאין שאלות כפולות (לפי ייצוג המחרוזת של השאלה)
+                let attempts = 0;
+                while (!isUnique && attempts < 50) { // ניסיונות מקסימליים למניעת לולאה אינסופית
+                    newQ = generateQuestion();
+                    if (!questions.some(q => q.questionStr === newQ.questionStr)) {
+                        isUnique = true;
+                    }
+                    attempts++;
+                }
+                questions.push(newQ);
+            }
+            updateProgress();
+            nextQuestion();
+        }
+
+        // יצירת אפקט קונפטי
+        function createConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#e74c3c', '#f1c40f', '#3498db', '#ffffff'],
+                    shapes: ['star', 'circle']
+                });
+            }
+        }
+
+        // הצגת השאלה הבאה
+        function nextQuestion() {
+            if (currentQuestion >= questions.length) {
+                showSummary(); // סיום המשחק והצגת סיכום
+                return;
+            }
+            
+            // איפוס אנימציה לשאלה חדשה
+            document.getElementById("question").style.animation = 'none';
+            void document.getElementById("question").offsetWidth; // הפעלת reflow
+            document.getElementById("question").style.animation = 'newQuestionPop 0.5s ease';
+
+            document.getElementById("question-number").innerText = `משימה ${currentQuestion + 1} מתוך ${NUM_OF_QUESTIONS}`;
+            document.getElementById("question").innerHTML = questions[currentQuestion].questionStr;
+            document.getElementById("answer").value = "";
+            document.getElementById("answer").focus();
+            document.getElementById("feedback").innerText = "";
+            startTime = new Date();
+        }
+
+        // בדיקת התשובה של המשתמש
+        function checkAnswer() {
+            const answerInput = document.getElementById("answer");
+            let userAnswer = parseInt(answerInput.value);
+
+            if (isNaN(userAnswer)) {
+                document.getElementById("feedback").innerText = "יש להקליד תשובה מספרית, גיבור/ה!";
+                document.getElementById("feedback").style.color = "#e74c3c";
+                return;
+            }
+
+            const currentQ = questions[currentQuestion];
+            const isCorrect = currentQ.validator(userAnswer); // בדיקת התשובה באמצעות פונקציית הולידציה של השאלה
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+            
+            // שמירת פרטי השאלה לסיכום
+            questionDetails.push({
+                questionStr: currentQ.questionStr,
+                userAnswer: userAnswer,
+                isCorrect: isCorrect,
+                time: timeTaken
+            });
+
+            if (isCorrect) {
+                score += 10 + (timeTaken < 10 ? 5 : 0); // בונוס על מהירות
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+
+                createConfetti();
+                document.getElementById("feedback").innerText = "מעולה! התשובה שלך מתאימה!";
+                document.getElementById("feedback").style.color = "#27ae60";
+                
+                currentQuestion++;
+                updateProgress();
+                setTimeout(nextQuestion, 1500); // עיכוב להנאה מההצלחה
+            } else {
+                document.getElementById("feedback").innerText = "לא בדיוק... נסה/י שוב!";
+                document.getElementById("feedback").style.color = "#c0392b";
+                answerInput.style.animation = 'shake 0.5s'; // אנימציית "ניעור" לשדה הקלט
+                setTimeout(() => answerInput.style.animation = '', 500);
+            }
+        }
+
+        // עדכון פס ההתקדמות
+        function updateProgress() {
+            let progress = (currentQuestion / NUM_OF_QUESTIONS) * 100;
+            document.getElementById("progress-bar").style.width = progress + "%";
+            document.getElementById("progress-bar").innerText = Math.round(progress) + "%";
+        }
+
+        // הצגת סיכום המשחק
+        function showSummary() {
+            document.getElementById("game-area").classList.add("hidden");
+            
+            let summaryBody = document.getElementById("summary-body");
+            summaryBody.innerHTML = "";
+            questionDetails.forEach((detail, i) => {
+                // המרה של HTML Entities בחזרה למספרים כדי להציג את השאלה המקורית בטבלה
+                const displayQuestion = detail.questionStr.replace(/&lt;/g, '<').replace(/&gt;/g, '>'); 
+                const correctnessEmoji = detail.isCorrect ? '✅' : '❌'; // אימוג'י לתקינות התשובה
+                let row = `<tr><td>${i + 1}</td><td>${displayQuestion}</td><td>${detail.userAnswer}</td><td>${correctnessEmoji}</td><td>${detail.time}</td></tr>`;
+                summaryBody.innerHTML += row;
+            });
+            document.getElementById("summary").classList.remove("hidden");
+            updateProgress(); // וודא שפס ההתקדמות מלא בסיום
+
+            // קונפטי חגיגי לסיום
+            const duration = 5 * 1000;
+            const animationEnd = Date.now() + duration;
+            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+              return Math.random() * (max - min) + min;
+            }
+
+            const interval = setInterval(function() {
+              const timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) {
+                return clearInterval(interval);
+              }
+
+              const particleCount = 50 * (timeLeft / duration);
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#e74c3c', '#f1c40f'] }));
+              confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#3498db', '#ffffff'] }));
+            }, 250);
+        }
+
+        document.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
