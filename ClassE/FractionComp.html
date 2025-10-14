@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>גיבורי השברים</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script> <!-- Added SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
@@ -243,6 +243,7 @@
             flex-shrink: 0; /* Prevent shrinking */
             pointer-events: none; /* Make sure symbol doesn't interfere with dragging */
             user-select: none; /* Prevent text selection */
+            cursor: default; /* Explicitly state it's not interactive */
         }
 
         /* NEW: Styles for the bottom fraction pool (source) */
@@ -490,6 +491,7 @@
             <div id="summary-message">
                 כל הכבוד על המאמץ וההשקעה! השלמת את משימת השברים כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את "שריר המוח" והופך את כוח העל שלך במתמטיקה לחזק עוד יותר! אבא ואמא גאים בך מאוד על הנחישות והרצון להצליח!
             </div>
+            <button onclick="location.reload()">שחק שוב!</button>
         </div>
     </div>
 
@@ -506,16 +508,15 @@
                 if (denominator === 0) {
                     throw new Error("Denominator cannot be zero.");
                 }
-                // Ensure denominator is always positive (for positive fractions only as per requirement)
+                // Ensure denominator is always positive
                 if (denominator < 0) { 
                     numerator *= -1;
                     denominator *= -1;
                 }
 
-                // Convert mixed to improper for internal consistency during construction
+                // Convert mixed to improper for internal consistency
                 let totalNumerator = numerator;
                 if (whole !== 0) {
-                    // For positive fractions, simply add whole to numerator (W N/D -> (W*D+N)/D)
                     totalNumerator = whole * denominator + numerator;
                 }
 
@@ -539,11 +540,16 @@
                 return this.numerator / this.denominator;
             }
 
-            // NEW: Method to decide how to display the fraction string
+            // NEW: Remainder getter to check if the fraction simplifies to a whole number
+            get remainder() {
+                return Math.abs(this.numerator) % this.denominator;
+            }
+
+            // Method to decide how to display the fraction string (can be improper N/D or mixed W N/D)
             toDisplayString() {
                 if (this.numerator === 0) return "0";
                 
-                let absNumerator = Math.abs(this.numerator); // All fractions are positive
+                let absNumerator = Math.abs(this.numerator);
                 const whole = Math.floor(absNumerator / this.denominator);
                 const remainder = absNumerator % this.denominator;
                 
@@ -554,17 +560,16 @@
                 if (absNumerator < this.denominator) { // It's a proper fraction (e.g., 1/2)
                     return `${absNumerator}/${this.denominator}`;
                 } else { // It's an improper fraction (e.g., 7/2, 5/3)
-                    // Randomly decide to show as improper (N/D) or mixed (W N/D)
+                    // Randomly decide to show as improper (N/D) or mixed (W N/D) for variety
                     if (getRandomInt(0, 1) === 0) { // 50% chance for improper N/D display
-                        return `${absNumerator}/${this.denominator}`; // e.g., 7/2
+                        return `${absNumerator}/${this.denominator}`;
                     } else { // 50% chance for mixed W N/D display
-                        return `${whole} ${remainder}/${this.denominator}`; // e.g., 3 1/2
+                        return `${whole} ${remainder}/${this.denominator}`;
                     }
                 }
             }
 
-            // Original toMixedString (now used for canonical summary output if needed)
-            // It provides a consistent mixed number/proper fraction format for validation and summary
+            // Canonical representation: always proper or mixed number (e.g., 1/2, 3 1/2, 5)
             toMixedString() { 
                 if (this.numerator === 0) return "0";
                 const absNumerator = Math.abs(this.numerator);
@@ -575,37 +580,8 @@
                 return `${whole} ${remainder}/${this.denominator}`;
             }
 
-
             toString() { // For internal debugging or simple representation
                 return `${this.numerator}/${this.denominator}`;
-            }
-
-            // Static method to parse a string like "1/2", "3", "1 1/2" into a Fraction object
-            static parse(fractionString) {
-                fractionString = fractionString.trim();
-                if (!fractionString) throw new Error("Empty fraction string.");
-
-                if (fractionString.includes(' ')) { // Mixed number (e.g., "1 1/2")
-                    const parts = fractionString.split(' ');
-                    let whole = parseInt(parts[0]);
-                    const fracParts = parts[1].split('/');
-                    let num = parseInt(fracParts[0]);
-                    let den = parseInt(fracParts[1]);
-                    if (num >= den) {
-                        const newWhole = whole + Math.floor(num / den);
-                        const newNum = num % den;
-                        return new Fraction(newNum, den, newWhole);
-                    }
-                    return new Fraction(num, den, whole);
-                } else if (fractionString.includes('/')) { // Simple or improper fraction (e.g., "3/4" or "7/2")
-                    const parts = fractionString.split('/');
-                    let num = parseInt(parts[0]);
-                    let den = parseInt(parts[1]);
-                    return new Fraction(num, den);
-                } else { // Pure whole number (e.g., "5") - if somehow still generated or parsed
-                    let whole = parseInt(fractionString);
-                    return new Fraction(0, 1, whole); 
-                }
             }
         }
 
@@ -662,7 +638,7 @@
                 fracPartDiv.appendChild(denSpan);
 
                 containerElement.appendChild(fracPartDiv);
-            } else if (currentWholePart === "0" && !currentNumerator && !currentDenominator) { // Explicitly handle pure 0
+            } else if (currentWholePart === "0" && !currentNumerator && !currentDenominator) { // Explicitly handle pure 0 (though generateRandomFraction avoids this now)
                  const wholeSpan = document.createElement('span');
                  wholeSpan.className = 'whole-part';
                  wholeSpan.textContent = "0";
@@ -682,7 +658,7 @@
         let sortableTargetInstances = []; // To store SortableJS instance for the target slots (now an array)
 
         // Constants for fraction generation limits
-        const MAX_DENOMINATOR = 12;
+        const MAX_DENOMINATOR = 12; // Max denominator for fractions
         const MAX_NUMERATOR_FOR_IMPROPER = 25; // Max numerator value for improper fractions (e.g., 25/7)
         const MAX_WHOLE_FOR_MIXED = 5; // Max whole part for mixed numbers (e.g., 5 1/2)
 
@@ -691,67 +667,62 @@
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
-        // Function to generate a single random positive fraction (NO PURE WHOLE NUMBERS)
+        // Function to generate a single random positive fraction (NEVER a pure whole number like 3/1 or 4/2)
         function generateRandomFraction() {
-            let denominator = getRandomInt(2, MAX_DENOMINATOR);
+            let denominator;
             let numerator;
             let whole = 0;
+            let tempFrac;
+            let isWholeNumberResult;
+            let attempts = 0;
 
-            const fractionVarietyType = getRandomInt(1, 3); // 1: Proper, 2: Improper, 3: Mixed
+            do {
+                denominator = getRandomInt(2, MAX_DENOMINATOR); // Denominator always >= 2 to avoid X/1 issues for simplicity
+                const fractionVarietyType = getRandomInt(1, 3); // 1: Proper, 2: Improper, 3: Mixed
 
-            if (fractionVarietyType === 1) { // Proper fraction (e.g., 1/2, 3/4)
-                numerator = getRandomInt(1, denominator - 1);
-            } else if (fractionVarietyType === 2) { // Improper fraction (e.g., 5/3, 7/2)
-                // Ensure numerator is truly greater than denominator for improper
-                numerator = getRandomInt(denominator + 1, MAX_NUMERATOR_FOR_IMPROPER);
-            } else { // Mixed number (e.g., 1 1/2, 2 3/4)
-                whole = getRandomInt(1, MAX_WHOLE_FOR_MIXED);
-                // Ensure numerator for mixed part is always proper (N < D)
-                numerator = getRandomInt(1, denominator - 1); 
+                if (fractionVarietyType === 1) { // Proper fraction (e.g., 1/2, 3/4)
+                    numerator = getRandomInt(1, denominator - 1); // Ensures numerator < denominator and > 0
+                    whole = 0;
+                } else if (fractionVarietyType === 2) { // Improper fraction (e.g., 5/3, 7/2)
+                    numerator = getRandomInt(denominator + 1, MAX_NUMERATOR_FOR_IMPROPER); // Ensures numerator > denominator
+                    whole = 0;
+                } else { // Mixed number (e.m_data: 1 1/2, 2 3/4)
+                    whole = getRandomInt(1, MAX_WHOLE_FOR_MIXED);
+                    numerator = getRandomInt(1, denominator - 1); // Ensures numerator < denominator and > 0 for the fractional part
+                }
+                
+                // Construct a temporary Fraction object to check if it simplifies to a whole number
+                tempFrac = new Fraction(numerator, denominator, whole);
+                isWholeNumberResult = (tempFrac.remainder === 0); // Check if the simplified fraction has no remainder (i.e., is a whole number)
+
+                attempts++;
+            } while (isWholeNumberResult && attempts < 50); // Keep trying if it resulted in a whole number
+
+            // Fallback: If after many attempts it still simplifies to a whole number (highly unlikely now),
+            // force a simple proper fraction like 1/X
+            if (isWholeNumberResult) { 
+                console.warn("Could not generate a non-whole number fraction after many attempts. Forcing 1/D.");
+                return new Fraction(1, getRandomInt(2, MAX_DENOMINATOR));
             }
             
-            // Ensure result is not 0 (which can happen if numerator is 0 initially)
-            if (numerator === 0 && whole === 0) { // If it tried to make 0/X
-                numerator = getRandomInt(1, denominator - 1); // Force it to be a proper fraction
-            }
-
-            // All fractions are positive, as per requirement
-            return new Fraction(numerator, denominator, whole);
+            return tempFrac; // Return the successfully generated non-whole number fraction
         }
 
         // Generates a comparison question (f1 ___ f2)
         function generateComparisonQuestion() {
-            let f1, f2;
-            let type = getRandomInt(1, 3); // 1: same den, 2: same num, 3: general fractions
-
-            // Helper to generate a fraction ensuring it's not a pure whole number
-            const getNonWholeFraction = () => {
-                let frac;
-                let attempts = 0;
-                do {
-                    frac = generateRandomFraction();
-                    attempts++;
-                } while (frac.remainder === 0 && attempts < 10); // Re-generate if it simplifies to a whole number
-                
-                if (frac.remainder === 0) { // If still a whole number after attempts, force a simple proper fraction
-                    return new Fraction(1, getRandomInt(2, MAX_DENOMINATOR));
-                }
-                return frac;
-            };
-
-            f1 = getNonWholeFraction();
-            f2 = getNonWholeFraction();
+            let f1 = generateRandomFraction();
+            let f2 = generateRandomFraction();
 
             // Ensure fractions are not trivially identical for comparison
             let attempts = 0;
             while (f1.toDecimal() === f2.toDecimal() && attempts < 10) { 
-                f2 = getNonWholeFraction();
+                f2 = generateRandomFraction();
                 attempts++;
             }
             if (f1.toDecimal() === f2.toDecimal()) { // If still equal after many attempts, force them to be different
-                f2 = new Fraction(f2.numerator + 1, f2.denominator); // Smallest possible change
+                // Smallest possible change by incrementing numerator and re-simplifying
+                f2 = new Fraction(f2.numerator + 1, f2.denominator); 
             }
-
 
             let correctSymbol;
             if (f1.toDecimal() < f2.toDecimal()) correctSymbol = "<";
@@ -775,25 +746,11 @@
             const numFractions = 3; 
             let fractions = [];
             let decimalValues = new Set(); 
-
-            // Helper to generate a fraction ensuring it's not a pure whole number
-            const getNonWholeFraction = () => {
-                let frac;
-                let attempts = 0;
-                do {
-                    frac = generateRandomFraction();
-                    attempts++;
-                } while (frac.remainder === 0 && attempts < 10); // Re-generate if it simplifies to a whole number
-                
-                if (frac.remainder === 0) { // If still a whole number after attempts, force a simple proper fraction
-                    return new Fraction(1, getRandomInt(2, MAX_DENOMINATOR));
-                }
-                return frac;
-            };
-
+            
             while (fractions.length < numFractions) {
-                let newF = getNonWholeFraction(); 
+                let newF = generateRandomFraction(); 
                 let decimal = newF.toDecimal();
+                
                 // Ensure decimal value is not too close to another to avoid ambiguity
                 let isTooClose = false;
                 for (let val of decimalValues) {
@@ -811,7 +768,7 @@
             // Sort the fractions by their decimal value to get the correct order
             fractions.sort((a, b) => a.toDecimal() - b.toDecimal());
 
-            const correctOrderStrings = fractions.map(f => f.toDisplayString()); // Use toDisplayString for summary's correct answer representation
+            const correctOrderStrings = fractions.map(f => f.toMixedString()); // Use toMixedString for summary's correct answer representation
             const displayFractionsShuffled = [...fractions].sort(() => Math.random() - 0.5); // Shuffle actual Fraction objects for display
 
             const questionText = `סדרו את השברים הבאים מהקטן לגדול:`;
@@ -852,12 +809,14 @@
                 let isUnique = false;
                 let attempts = 0;
                 while (!isUnique && attempts < 50) { 
-                    newQ = generateGameQuestion();
-                    // For uniqueness check, use the consistent toMixedString format
-                    const newQDisplayStrings = newQ.displayFractions.map(f => typeof f === 'object' ? f.toMixedString() : f); 
+                    newQ = generateGameQuestion(); // This returns a question object (comparison or ordering)
+                    // For uniqueness check, use the consistent toMixedString format for all display fractions
+                    // This creates a canonical representation of the question's fractions for comparison
+                    const newQCanonicalDisplayStrings = newQ.displayFractions.map(f => f.toMixedString()).sort().join('|'); 
+                    
                     const isDuplicate = questions.some(q => 
                         q.type === newQ.type && 
-                        JSON.stringify(q.displayFractions.map(f => typeof f === 'object' ? f.toMixedString() : f)) === JSON.stringify(newQDisplayStrings)
+                        (q.displayFractions.map(f => f.toMixedString()).sort().join('|')) === newQCanonicalDisplayStrings
                     );
 
                     if (!isDuplicate) {
@@ -865,14 +824,14 @@
                     }
                     attempts++;
                     if (attempts >= 50 && !isUnique) { 
-                        console.warn("Could not generate a unique question after many attempts.");
-                        isUnique = true;
+                        console.warn("Could not generate a unique question after many attempts. Allowing duplicate.");
+                        isUnique = true; 
                     }
                 }
-                questions.push(newQ);
+                questions.push(newQ); // questions array should be full
             }
             updateProgress();
-            nextQuestion();
+            nextQuestion(); // This should then load the first question.
         }
 
         // Create confetti effect
@@ -890,43 +849,50 @@
 
         // Display the next question
         function nextQuestion() {
+            // console.log("--- nextQuestion START ---"); // Debugging line
+            // console.log("currentQuestionIndex:", currentQuestionIndex, "questions.length:", questions.length); // Debugging line
+
             if (currentQuestionIndex >= questions.length) {
+                // console.log("End of questions. Showing summary."); // Debugging line
                 showSummary();
                 return;
             }
 
             const currentQ = questions[currentQuestionIndex];
+            // console.log("Current question object:", currentQ); // Debugging line
+            // console.log("Question type:", currentQ.type); // Debugging line
             
             // Reset question display animation
             document.getElementById("question-display").style.animation = 'none';
             void document.getElementById("question-display").offsetWidth; 
             document.getElementById("question-display").style.animation = 'newQuestionPop 0.5s ease';
 
+            // Clear previous content and hide all interactive elements
             document.getElementById("question-number").innerText = `משימה ${currentQuestionIndex + 1} מתוך ${NUM_OF_QUESTIONS}`;
             document.getElementById("feedback").innerText = "";
-            document.getElementById("question-display").innerHTML = ''; // Clear comparison fraction content
-            document.getElementById("question-text-for-display").innerHTML = ''; // Clear question instruction text
+            document.getElementById("question-display").innerHTML = '';
+            document.getElementById("question-text-for-display").innerHTML = '';
 
-            // *** Ensure all interactive elements are hidden by default for a clean slate ***
             document.getElementById("comparison-buttons").classList.add("hidden");
             document.getElementById("ordering-area").classList.add("hidden");
-            document.getElementById("submit-button").classList.add("hidden"); 
+            document.getElementById("submit-button").classList.add("hidden"); // Ensure submit button is hidden by default
 
-            // Destroy previous SortableJS instances if they exist
+            // Destroy previous SortableJS instances
             if (sortablePoolInstance) {
                 sortablePoolInstance.destroy();
                 sortablePoolInstance = null;
             }
-            if (sortableTargetInstances.length > 0) { // Check if it's an array with instances
+            if (sortableTargetInstances.length > 0) { 
                 sortableTargetInstances.forEach(instance => instance.destroy());
-                sortableTargetInstances = []; // Reset the array
+                sortableTargetInstances = []; 
             }
-
 
             startTime = new Date();
 
             if (currentQ.type === 'comparison') {
+                // console.log("Handling comparison question."); // Debugging line
                 document.getElementById("question-text-for-display").textContent = currentQ.questionText;
+                // console.log("Question text set for display:", document.getElementById("question-text-for-display").textContent); // Debugging line
                 
                 const frac1Container = document.createElement('div');
                 frac1Container.className = 'fraction-container';
@@ -943,10 +909,12 @@
                 document.getElementById("question-display").appendChild(frac2Container);
 
                 document.getElementById("comparison-buttons").classList.remove("hidden");
-                // For comparison questions, buttons handle submission, general submit button remains hidden.
+                // console.log("Comparison buttons unhidden."); // Debugging line
             } else if (currentQ.type === 'ordering') {
+                // console.log("Handling ordering question."); // Debugging line
                 document.getElementById("question-text-for-display").textContent = currentQ.questionText;
-                
+                // console.log("Question text set for display:", document.getElementById("question-text-for-display").textContent); // Debugging line
+
                 const orderedSlotsVisualWrapper = document.getElementById('ordered-slots-visual-wrapper');
                 orderedSlotsVisualWrapper.innerHTML = ''; // Clear previous content
 
@@ -983,42 +951,50 @@
                     draggableItem.appendChild(fContainer);
                     fractionPool.appendChild(draggableItem); // Items start in the pool
                 });
+                // console.log("Draggable items added to pool. Pool child count:", fractionPool.children.length); // Debugging line
 
-                // Initialize SortableJS for the pool (source)
-                sortablePoolInstance = Sortable.create(fractionPool, {
-                    group: {
-                        name: 'fractions',
-                        pull: 'clone', // Items are cloned from the pool
-                        put: false
-                    },
-                    animation: 150,
-                    sort: false, // Items in the pool are not internally sortable
-                    ghostClass: 'sortable-ghost'
-                });
 
-                // Initialize SortableJS for each drop slot (target)
-                sortableTargetInstances = []; // Reset array
-                dropSlotElements.forEach(slot => {
-                    sortableTargetInstances.push(Sortable.create(slot, {
+                try {
+                    sortablePoolInstance = Sortable.create(fractionPool, {
                         group: {
                             name: 'fractions',
-                            pull: true, // Allow pulling out from a slot (e.g., to move to another slot or back to pool)
-                            put: true,   // Allow putting into this slot
+                            pull: true, // Allow dragging items OUT of the pool (moves item, does not clone)
+                            put: true   // Allow putting items back INTO the pool
                         },
                         animation: 150,
-                        sort: false, // No internal sorting WITHIN a single slot (as it should only contain one item)
-                        ghostClass: 'sortable-ghost',
-                        onMove: function (evt, originalEvent) {
-                            // Prevents dropping into a slot if it already contains an item
-                            // This ensures each slot holds max 1 item.
-                            return evt.related.children.length === 0;
-                        }
-                    }));
-                });
+                        sort: true, // Items in the pool can be reordered (optional, but good for tidiness)
+                        ghostClass: 'sortable-ghost'
+                    });
+
+                    sortableTargetInstances = []; // Reset array
+                    dropSlotElements.forEach(slot => {
+                        sortableTargetInstances.push(Sortable.create(slot, {
+                            group: {
+                                name: 'fractions',
+                                pull: true, // Allow pulling out from a slot (e.g., to move to another slot or back to pool)
+                                put: true,   // Allow putting into this slot
+                            },
+                            animation: 150,
+                            sort: false, // No internal sorting WITHIN a single slot (as it should only contain one item)
+                            ghostClass: 'sortable-ghost',
+                            onMove: function (evt, originalEvent) {
+                                // Prevents dropping into a slot if it already contains an item, ensuring 1 item per slot.
+                                // If the item is dragged from *another* slot to this one, it's a "move" operation where
+                                // the source slot becomes empty and the target slot gets the item.
+                                return evt.related.children.length === 0;
+                            }
+                        }));
+                    });
+                    // console.log("SortableJS instances created."); // Debugging line
+                } catch (e) {
+                    console.error("Error initializing SortableJS:", e); // Crucial for debugging SortableJS issues
+                }
 
                 document.getElementById("ordering-area").classList.remove("hidden");
-                document.getElementById("submit-button").classList.remove("hidden"); // Show general submit for ordering
+                document.getElementById("submit-button").classList.remove("hidden");
+                // console.log("Ordering area and submit button unhidden."); // Debugging line
             }
+            // console.log("--- nextQuestion END ---"); // Debugging line
         }
 
         // Handle comparison question answer
@@ -1030,7 +1006,7 @@
 
             questionDetails.push({
                 type: 'comparison',
-                questionText: `${currentQ.f1.toDisplayString()} ___ ${currentQ.f2.toDisplayString()}`, // Use toDisplayString for summary
+                questionText: `${currentQ.f1.toMixedString()} ___ ${currentQ.f2.toMixedString()}`, // Use toMixedString for summary
                 userAnswer: userSymbol,
                 correctAnswer: currentQ.correctAnswer,
                 isCorrect: isCorrect,
@@ -1048,8 +1024,11 @@
                 updateProgress();
                 setTimeout(nextQuestion, 1500);
             } else {
-                document.getElementById("feedback").innerText = `לא בדיוק... התשובה הנכונה הייתה: ${currentQ.correctAnswer}`;
+                document.getElementById("feedback").innerText = `לא בדיוק... נסה/י שוב!`; // Changed: no correct answer revealed
                 document.getElementById("feedback").style.color = "#c0392b";
+                // Optional: shake the comparison buttons or question area for incorrect answer
+                document.getElementById("question-display").style.animation = 'shake 0.5s';
+                setTimeout(() => document.getElementById("question-display").style.animation = '', 500);
             }
         }
 
@@ -1103,9 +1082,9 @@
 
             questionDetails.push({
                 type: 'ordering',
-                questionText: `סדר את: ${currentQ.displayFractions.map(f => f.toDisplayString()).join(', ')}`, // Use toDisplayString for summary
-                userAnswer: userAnswerStrings.join(', '),
-                correctAnswer: currentQ.correctAnswer, // This is already using toDisplayString
+                questionText: `סדר את: ${currentQ.displayFractions.map(f => f.toMixedString()).join(', ')}`, // Use toMixedString for summary
+                userAnswer: userAnswerStrings.join(', '), // User's answer as displayed
+                correctAnswer: currentQ.correctAnswer, // This is already using toMixedString
                 isCorrect: isCorrect,
                 time: timeTaken
             });
@@ -1121,9 +1100,9 @@
                 updateProgress();
                 setTimeout(nextQuestion, 1500);
             } else {
-                document.getElementById("feedback").innerText = `לא בדיוק... הסדר הנכונה היה: ${currentQ.correctAnswer}. נסה/י שוב!`;
+                document.getElementById("feedback").innerText = `לא בדיוק... נסה/י שוב!`; // Changed: no correct answer revealed
                 document.getElementById("feedback").style.color = "#c0392b";
-                dropSlotElements.forEach(slot => { // Shake all filled slots on incorrect answer
+                dropSlotElements.forEach(slot => { // Shake all filled items on incorrect answer
                     if (slot.children.length === 1) {
                         slot.children[0].style.animation = 'shake 0.5s'; // Shake the item itself
                         setTimeout(() => slot.children[0].style.animation = '', 500);
@@ -1138,6 +1117,7 @@
             if (currentQ && currentQ.type === 'ordering') {
                 checkOrderingAnswer();
             } else {
+                // This branch should ideally not be hit if submit-button is properly hidden for comparison questions.
                 document.getElementById("feedback").innerText = "אנא בחר/י סימן השוואה, גיבור/ה!";
                 document.getElementById("feedback").style.color = "#e74c3c";
             }
