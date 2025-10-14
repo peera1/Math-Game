@@ -130,8 +130,9 @@
             font-size: 24px;
             color: var(--primary-color);
         }
+        /* שינוי: הגדלת גודל הגופן של השאלה */
         #question {
-            font-size: 60px;
+            font-size: 72px; /* הוגדל מ-60px ל-72px */
             color: var(--text-color);
             margin: 10px 0;
             font-weight: bold;
@@ -272,21 +273,36 @@
         const answerInput = document.getElementById("answer");
         const feedbackEl = document.getElementById("feedback");
 
-        // *** שינוי: הפונקציה יוצרת רק תרגילי חיבור ***
-        function generateQuestion() {
+        // פונקציה ליצירת תרגיל חיבור בודד
+        function generateSingleAdditionQuestion() {
             let num1 = Math.floor(Math.random() * 11);
-            let num2 = Math.floor(Math.random() * (11 - num1));
+            let num2 = Math.floor(Math.random() * (11 - num1)); // מבטיח ש-num1 + num2 יהיה בין 0 ל-10
             let questionStr = `${num1} + ${num2} =`;
             let answer = num1 + num2;
             return { questionStr, answer };
         }
 
-        // *** שינוי: הפונקציה הזו מפעילה את המשחק ***
+        // פונקציה זו מפעילה את המשחק ומוודאת שאלות ייחודיות
         function startGame() {
             questions = [];
-            for (let i = 0; i < TOTAL_QUESTIONS; i++) {
-                questions.push(generateQuestion());
+            const usedQuestionStrings = new Set(); // משמש לאחסון מחרוזות שאלות שכבר נוצרו
+            let count = 0;
+            // לולאה ליצירת שאלות ייחודיות
+            while (count < TOTAL_QUESTIONS) {
+                let newQuestion = generateSingleAdditionQuestion();
+                // בודקים אם מחרוזת השאלה כבר קיימת
+                if (!usedQuestionStrings.has(newQuestion.questionStr)) {
+                    questions.push(newQuestion);
+                    usedQuestionStrings.add(newQuestion.questionStr);
+                    count++;
+                }
+                // הגנה מפני לולאה אינסופית במקרה שנגמרות שאלות ייחודיות אפשריות (לא סביר עם TOTAL_QUESTIONS=10)
+                if (count > TOTAL_QUESTIONS * 2 && count < TOTAL_QUESTIONS) {
+                    console.warn("לא ניתן ליצור מספיק שאלות ייחודיות. חלקן עשויות לחזור על עצמן.");
+                    break; 
+                }
             }
+
             currentQuestion = 0;
             score = 0;
             questionDetails = [];
@@ -302,7 +318,7 @@
             }
             const questionContainer = document.getElementById("question-container");
             questionContainer.style.animation = 'none';
-            void questionContainer.offsetWidth;
+            void questionContainer.offsetWidth; // Force reflow
             questionContainer.style.animation = 'pop-in 0.5s ease-out';
 
             document.getElementById("question-number").innerText = `שאלה ${currentQuestion + 1} מתוך ${TOTAL_QUESTIONS}`;
@@ -418,7 +434,7 @@
             }`;
         document.head.appendChild(styleSheet);
         
-        // *** שינוי: מפעיל את המשחק אוטומטית כשהדף נטען ***
+        // מפעיל את המשחק אוטומטית כשהדף נטען
         document.addEventListener('DOMContentLoaded', startGame);
     </script>
 </body>
