@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Mario Math! 🍄</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka One', cursive;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            border: 8px solid #8B4513;
+            border-radius: 30px;
+            padding: 40px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.4),
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                inset 0 -2px 0 rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.05) 35px, rgba(255,255,255,0.05) 70px);
+            animation: shimmer 3s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(-100%, -100%) rotate(45deg); }
+            100% { transform: translate(100%, 100%) rotate(45deg); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #FFD700;
+            text-shadow: 
+                4px 4px 0px #C21807,
+                8px 8px 0px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h2 {
+            font-size: 2.2em;
+            color: #FFD700;
+            text-shadow: 3px 3px 0px #C21807;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .game-screen {
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .config-section {
+            background: rgba(255,255,255,0.2);
+            border: 4px solid #FFF;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .config-section h3 {
+            color: #FFF;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0px #C21807;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            color: #FFF;
+            font-size: 1.2em;
+            text-shadow: 1px 1px 0px #C21807;
+        }
+
+        .checkbox-container input {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            margin-right: 12px;
+            accent-color: #FFD700;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: 3px solid #FFF;
+            border-radius: 10px;
+            font-size: 1.3em;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            outline: none;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.9);
+        }
+
+        input[type="number"]:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 15px rgba(255,215,0,0.6);
+            transform: scale(1.05);
+        }
+
+        .main-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 18px 40px;
+            border: 4px solid #2E7D32;
+            border-radius: 20px;
+            font-size: 1.5em;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 
+                0 8px 0 #2E7D32,
+                0 12px 15px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 20px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+        }
+
+        .main-button:hover:not(:active) {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 10px 0 #2E7D32,
+                0 15px 20px rgba(0,0,0,0.4);
+        }
+
+        .main-button:active {
+            transform: translateY(4px);
+            box-shadow: 
+                0 2px 0 #2E7D32,
+                0 6px 10px rgba(0,0,0,0.2);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            padding: 15px 20px;
+            border-radius: 15px;
+            border: 3px solid #FF8C00;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .level-indicator, .money-display {
+            font-size: 1.4em;
+            color: #C21807;
+            text-shadow: 2px 2px 0px #FFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .level-indicator {
+            font-size: 1.2em;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: #8B4513;
+            border: 3px solid #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+            transition: width 0.5s ease;
+            box-shadow: inset -2px 0 5px rgba(0,0,0,0.2);
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #87CEEB 0%, #E0F6FF 100%);
+            border: 5px solid #000;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 8px 0 rgba(0,0,0,0.3),
+                inset 0 2px 5px rgba(255,255,255,0.5);
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #question-text {
+            font-size: 3.2em;
+            color: #C21807;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px #000;
+            direction: ltr;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        #answer-input {
+            width: 70%;
+            max-width: 200px;
+            padding: 15px;
+            font-size: 2em;
+            text-align: center;
+            border: 4px solid #000;
+            border-radius: 12px;
+            outline: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #FFF;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+        }
+
+        #answer-input:focus {
+            border-color: #FFD700;
+            box-shadow: 
+                0 4px 0 rgba(0,0,0,0.2),
+                0 0 20px rgba(255,215,0,0.6);
+            transform: scale(1.05);
+        }
+
+        .feedback-message {
+            font-size: 1.8em;
+            margin-top: 15px;
+            height: 1.5em;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .feedback-message.correct {
+            color: #4CAF50;
+            animation: correctBounce 0.6s ease;
+        }
+
+        .feedback-message.incorrect {
+            color: #C21807;
+            animation: wrongShake 0.4s ease;
+        }
+
+        @keyframes correctBounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            25% { transform: translateY(-10px) scale(1.1); }
+            50% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes wrongShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        #summary-screen h2 {
+            font-size: 2.8em;
+            margin-bottom: 20px;
+        }
+
+        #summary-screen p {
+            font-size: 1.4em;
+            color: #FFF;
+            text-shadow: 2px 2px 0px #C21807;
+            margin-bottom: 25px;
+        }
+
+        #summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
+        }
+
+        #summary-table th, #summary-table td {
+            padding: 12px;
+            text-align: center;
+            font-size: 0.95em;
+            border-bottom: 2px solid #333;
+            color: #000;
+        }
+
+        #summary-table th {
+            background: #FFD700;
+            color: #C21807;
+            font-weight: bold;
+            text-shadow: 1px 1px 0px #FFF;
+        }
+
+        #summary-table tbody tr:nth-child(even) {
+            background: rgba(255,215,0,0.2);
+        }
+
+        #summary-table tbody tr:hover {
+            background: rgba(255,215,0,0.4);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 1.8em; }
+            .game-container { padding: 25px; }
+            #question-text { font-size: 2.2em; }
+            #answer-input { font-size: 1.6em; width: 80%; }
+            .main-button { font-size: 1.2em; padding: 14px 30px; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8em; }
+            .game-container { padding: 15px; }
+            #question-text { font-size: 1.8em; }
+            #answer-input { font-size: 1.4em; }
+        }
+
+        .pipe {
+            display: inline-block;
+            animation: pipePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pipePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🍄 SUPER MARIO MATH! 🍄</h1>
+
+        <!-- Config Screen -->
+        <div id="config-screen" class="game-screen active">
+            <h2>Choose Your Level!</h2>
+            <div class="config-section">
+                <h3>📐 Select Math Operations:</h3>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-add" checked>
+                    <span>Addition (+)</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-sub">
+                    <span>Subtraction (-)</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-mul">
+                    <span>Multiplication (×)</span>
+                </label>
+                <label class="checkbox-container">
+                    <input type="checkbox" id="op-div">
+                    <span>Division (÷)</span>
+                </label>
+            </div>
+            <div class="config-section">
+                <h3>🎯 Maximum Number in Problems:</h3>
+                <input type="number" id="max-number" value="20" min="1" max="1000">
+            </div>
+            <center>
+                <button id="start-game-btn" class="main-button">🚀 LET'S GO! 🚀</button>
+            </center>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="game-screen">
+            <div class="game-header">
+                <div class="level-indicator">Stage <span id="current-level">1</span>/<span id="total-levels">10</span></div>
+                <div class="money-display">
+                    💰 <span id="current-winnings">0</span>
+                </div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="game-progress-bar"></div>
+            </div>
+
+            <div class="question-box">
+                <p id="question-text">? = ?</p>
+                <input type="number" id="answer-input" placeholder="Answer" autofocus>
+                <button id="submit-answer-btn" class="main-button">JUMP!</button>
+                <div id="feedback-message" class="feedback-message"></div>
+            </div>
+        </div>
+
+        <!-- Summary Screen -->
+        <div id="summary-screen" class="game-screen">
+            <h2>🏆 YOU WIN! 🏆</h2>
+            <p id="final-message"></p>
+            <h3 style="color: #FFF; text-shadow: 2px 2px 0px #C21807;">Performance Summary:</h3>
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Correct</th>
+                        <th>Your Answer</th>
+                        <th>Time (s)</th>
+                        <th>Tries</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <center>
+                <button id="restart-game-btn" class="main-button">🔄 PLAY AGAIN! 🔄</button>
+            </center>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const configScreen = document.getElementById('config-screen');
+            const gameScreen = document.getElementById('game-screen');
+            const summaryScreen = document.getElementById('summary-screen');
+
+            const opAdd = document.getElementById('op-add');
+            const opSub = document.getElementById('op-sub');
+            const opMul = document.getElementById('op-mul');
+            const opDiv = document.getElementById('op-div');
+            const maxNumberInput = document.getElementById('max-number');
+            const startGameBtn = document.getElementById('start-game-btn');
+
+            const currentLevelSpan = document.getElementById('current-level');
+            const totalLevelsSpan = document.getElementById('total-levels');
+            const currentWinningsSpan = document.getElementById('current-winnings');
+            const gameProgressBar = document.getElementById('game-progress-bar');
+            const questionText = document.getElementById('question-text');
+            const answerInput = document.getElementById('answer-input');
+            const submitAnswerBtn = document.getElementById('submit-answer-btn');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            const finalMessage = document.getElementById('final-message');
+            const summaryTableBody = document.querySelector('#summary-table tbody');
+            const restartGameBtn = document.getElementById('restart-game-btn');
+
+            const gameConfig = {
+                operators: ['+'],
+                maxOperandValue: 20,
+                totalLevels: 10,
+                moneyPerLevel: [100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 1000000]
+            };
+
+            let currentLevel = 0;
+            let currentWinnings = 0;
+            let currentQuestion = null;
+            let questionStartTime = 0;
+            let gameLog = [];
+
+            const showScreen = (screenToShow) => {
+                [configScreen, gameScreen, summaryScreen].forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                screenToShow.classList.add('active');
+            };
+
+            const getRandomInt = (min, max) => {
+                if (min > max) return min;
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            };
+
+            const generateQuestion = () => {
+                const selectedOps = gameConfig.operators;
+                if (selectedOps.length === 0) {
+                    alert('Select at least one operation!');
+                    return null;
+                }
+
+                const maxVal = gameConfig.maxOperandValue;
+                const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
+                let num1, num2, answer;
+
+                switch (operator) {
+                    case '+':
+                        num1 = getRandomInt(0, maxVal);
+                        num2 = getRandomInt(0, maxVal);
+                        answer = num1 + num2;
+                        return { problem: `${num1} + ${num2}`, answer: answer, op: '+' };
+                    case '-':
+                        num1 = getRandomInt(0, maxVal);
+                        num2 = getRandomInt(0, num1);
+                        answer = num1 - num2;
+                        return { problem: `${num1} - ${num2}`, answer: answer, op: '-' };
+                    case '*':
+                        num1 = getRandomInt(0, maxVal);
+                        num2 = getRandomInt(0, maxVal);
+                        answer = num1 * num2;
+                        return { problem: `${num1} × ${num2}`, answer: answer, op: '*' };
+                    case '/':
+                        let dividend, divisor, quotient;
+                        let attempts = 0;
+                        do {
+                            divisor = getRandomInt(1, maxVal);
+                            quotient = getRandomInt(1, maxVal);
+                            dividend = quotient * divisor;
+                            attempts++;
+                        } while ((dividend > maxVal || quotient > maxVal) && attempts < 500);
+                        
+                        if (attempts >= 500) {
+                            if (maxVal >= 2) { dividend = 4; divisor = 2; quotient = 2; }
+                            else { dividend = 1; divisor = 1; quotient = 1; }
+                        }
+                        
+                        num1 = dividend;
+                        num2 = divisor;
+                        answer = quotient;
+                        return { problem: `${num1} ÷ ${num2}`, answer: answer, op: '/' };
+                }
+            };
+
+            const startGame = () => {
+                gameConfig.operators = [];
+                if (opAdd.checked) gameConfig.operators.push('+');
+                if (opSub.checked) gameConfig.operators.push('-');
+                if (opMul.checked) gameConfig.operators.push('*');
+                if (opDiv.checked) gameConfig.operators.push('/');
+
+                gameConfig.maxOperandValue = parseInt(maxNumberInput.value);
+
+                if (gameConfig.operators.length === 0) {
+                    alert('Select at least one operation!');
+                    return;
+                }
+                
+                if (isNaN(gameConfig.maxOperandValue) || gameConfig.maxOperandValue < 1) {
+                    alert('Enter a valid maximum number (minimum 1).');
+                    return;
+                }
+
+                currentLevel = 0;
+                currentWinnings = 0;
+                gameLog = [];
+                showScreen(gameScreen);
+                nextQuestion();
+            };
+
+            const nextQuestion = () => {
+                currentLevel++;
+                if (currentLevel > gameConfig.totalLevels) {
+                    endGame();
+                    return;
+                }
+
+                currentQuestion = generateQuestion();
+                if (!currentQuestion) {
+                    showScreen(configScreen);
+                    return;
+                }
+
+                questionText.textContent = currentQuestion.problem;
+                answerInput.value = '';
+                answerInput.focus();
+                feedbackMessage.textContent = '';
+                feedbackMessage.className = 'feedback-message';
+
+                currentLevelSpan.textContent = currentLevel;
+                totalLevelsSpan.textContent = gameConfig.totalLevels;
+                currentWinningsSpan.textContent = currentWinnings;
+                updateProgressBar();
+                questionStartTime = Date.now();
+            };
+
+            const updateProgressBar = () => {
+                const progress = (currentLevel - 1) / gameConfig.totalLevels * 100;
+                gameProgressBar.style.width = `${progress}%`;
+            };
+
+            const checkAnswer = () => {
+                const userAnswer = parseInt(answerInput.value);
+                const correctAnswer = currentQuestion.answer;
+                const timeTaken = ((Date.now() - questionStartTime) / 1000).toFixed(1);
+
+                if (isNaN(userAnswer)) {
+                    feedbackMessage.textContent = 'Enter a number!';
+                    feedbackMessage.classList.add('incorrect');
+                    return;
+                }
+
+                let logEntry = gameLog.find(entry => entry.question === currentQuestion.problem);
+                if (!logEntry) {
+                    logEntry = {
+                        question: currentQuestion.problem,
+                        correctAnswer: correctAnswer,
+                        userAnswer: null,
+                        timeTaken: 0,
+                        attempts: 0,
+                        status: 'Incorrect'
+                    };
+                    gameLog.push(logEntry);
+                }
+
+                logEntry.attempts++;
+                logEntry.userAnswer = userAnswer;
+
+                if (userAnswer === correctAnswer) {
+                    feedbackMessage.textContent = '⭐ CORRECT! ⭐';
+                    feedbackMessage.classList.add('correct');
+                    currentWinnings = gameConfig.moneyPerLevel[currentLevel - 1];
+                    currentWinningsSpan.textContent = currentWinnings;
+
+                    logEntry.status = 'Correct';
+                    logEntry.timeTaken = timeTaken;
+
+                    setTimeout(() => nextQuestion(), 1500);
+                } else {
+                    feedbackMessage.textContent = '❌ TRY AGAIN! ❌';
+                    feedbackMessage.classList.add('incorrect');
+                    answerInput.value = '';
+                }
+            };
+
+            const endGame = () => {
+                showScreen(summaryScreen);
+                finalMessage.textContent = `You collected ${currentWinnings} coins! You're a SUPER STAR! ⭐`;
+                displaySummary();
+            };
+
+            const displaySummary = () => {
+                summaryTableBody.innerHTML = '';
+                gameLog.forEach(entry => {
+                    const row = summaryTableBody.insertRow();
+                    row.insertCell().textContent = entry.question;
+                    row.insertCell().textContent = entry.correctAnswer;
+                    row.insertCell().textContent = entry.userAnswer !== null ? entry.userAnswer : '-';
+                    row.insertCell().textContent = entry.timeTaken > 0 ? entry.timeTaken : '-';
+                    row.insertCell().textContent = entry.attempts;
+                    
+                    const statusCell = row.insertCell();
+                    statusCell.textContent = entry.status === 'Correct' ? '✓' : '✗';
+                    statusCell.style.color = entry.status === 'Correct' ? '#4CAF50' : '#C21807';
+                    statusCell.style.fontWeight = 'bold';
+                    statusCell.style.fontSize = '1.2em';
+                });
+            };
+
+            startGameBtn.addEventListener('click', startGame);
+            submitAnswerBtn.addEventListener('click', checkAnswer);
+            answerInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkAnswer();
+            });
+            restartGameBtn.addEventListener('click', () => {
+                currentLevel = 0;
+                currentWinnings = 0;
+                gameLog = [];
+                answerInput.value = '';
+                feedbackMessage.textContent = '';
+                feedbackMessage.className = 'feedback-message';
+                updateProgressBar();
+                showScreen(configScreen);
+            });
+
+            showScreen(configScreen);
+            updateProgressBar();
+        });
+    </script>
+</body>
+</html>
