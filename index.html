@@ -80,7 +80,7 @@
 
         h1 {
             color: var(--primary-gradient-start);
-            margin-bottom: 20px; /* Reduced margin */
+            margin-bottom: 20px;
             font-size: 2.8rem;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
             background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
@@ -88,7 +88,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* עיצוב לפסקת הפתיחה החדשה */
         .intro-text {
             font-size: 1.1rem;
             color: #555;
@@ -172,7 +171,7 @@
         .blue { background: linear-gradient(to right, #3B4F7D, #6B728E); }
         .green { background: linear-gradient(to right, #355E3B, #7D9D72); }
         .yellow { background: linear-gradient(to right, #F4A261, #E9C46A); }
-        .red { background: linear-gradient(to right, #8B1E3F, #C84767); } /* צבע מתאים לדיונון */
+        .red { background: linear-gradient(to right, #8B1E3F, #C84767); }
         .pink { background: linear-gradient(to right, #A63C6D, #D47B9A); }
         .coral { background: linear-gradient(to right, #D76A03, #F89F5B); }
         .purple { background: linear-gradient(to right, #4A235A, #8E44AD); }
@@ -186,7 +185,6 @@
         .orange { background: linear-gradient(to right, #ff9800, #ffeb3b); }
         .science-blue { background: linear-gradient(to right, #0077b6, #00b4d8); }
         .maroon { background: linear-gradient(to right, #800000, #b22222); }
-
 
         .grade-section {
             margin-bottom: 30px;
@@ -230,7 +228,6 @@
         
         <h1>ברוכים הבאים ללומדת החשבון!</h1>
         
-        <!-- פסקת פתיחה חדשה ומורחבת ל-SEO -->
         <p class="intro-text">
             מחפשים דרך מהנה, חינמית ויעילה לילדכם ללמוד ולתרגל חשבון? 
             הגעתם למקום הנכון! לומדת החשבון מציעה מגוון עצום של 
@@ -241,10 +238,9 @@
         </p>
 
         <div class="buttons-container">
-            <!-- START: סקשן חדש - משחקי חשבון כלליים ובהתאמה אישית -->
+            <!-- סקשן חדש - משחקי חשבון כלליים ובהתאמה אישית -->
             <div class="grade-section">
                 <h2>משחקי חשבון כלליים ובהתאמה אישית</h2>
-                <!-- הוספת כפתור למשחק לוח הכפל -->
                 <button class="button purple" onclick="openLinkWithConfetti('GenericGames/לוח הכפל.html')">
                     <i class="fas fa-times"></i> משחק לוח הכפל
                 </button>
@@ -264,7 +260,6 @@
                     <i class="fas fa-puzzle-piece"></i> הרפתקת פאזל
                 </button>
             </div>
-            <!-- END: סקשן חדש - משחקי חשבון כלליים ובהתאמה אישית -->
 
             <!-- כיתה א -->
             <div class="grade-section">
@@ -355,6 +350,9 @@
                 <button class="button teal" onclick="openLinkWithConfetti('ClassE/FractionComp.html')">
                     <i class="fas fa-balance-scale"></i> השוואת וסידור שברים
                 </button>
+                <button class="button maroon" onclick="openLinkWithConfetti('ClassE/October25ExamePrep.html')">
+                    <i class="fas fa-graduation-cap"></i> הכנה למבחן 1 - שברים כיתה ה
+                </button>
             </div>
         </div>
 
@@ -373,7 +371,6 @@
             });
 
             setTimeout(() => {
-                // פותח בטאב חדש
                 window.open(url, '_blank'); 
             }, 500);
         }
