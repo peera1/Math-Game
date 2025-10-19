@@ -412,10 +412,20 @@
         }
 
         function generateMixedNumber(minWhole = 0, maxWhole = 5) {
-            const denominators = [2, 3, 4, 5, 6, 8, 10, 12];
+            const denominators = [2, 3, 4, 5, 6, 8, 10];
             const d = denominators[generateRandomInt(0, denominators.length - 1)];
             return {
                 w: generateRandomInt(minWhole, maxWhole),
+                n: generateRandomInt(1, d - 1),
+                d: d
+            };
+        }
+
+        function generateSimpleFraction() {
+            const denominators = [2, 3, 4, 5, 6, 8, 10];
+            const d = denominators[generateRandomInt(0, denominators.length - 1)];
+            return {
+                w: 0,
                 n: generateRandomInt(1, d - 1),
                 d: d
             };
@@ -466,9 +476,15 @@
             const op1 = operations[Math.random() > 0.5 ? 0 : 1];
             const op2 = operations[Math.random() > 0.5 ? 0 : 1];
 
-            let f1 = generateMixedNumber(1, 5);
-            let f2 = generateMixedNumber(0, 5);
-            let f3 = generateMixedNumber(0, 5);
+            // תערובת של שברים מעורבים ובודדים
+            const fractionTypes = ['mixed', 'simple'];
+            const type1 = fractionTypes[Math.random() > 0.5 ? 0 : 1];
+            const type2 = fractionTypes[Math.random() > 0.5 ? 0 : 1];
+            const type3 = fractionTypes[Math.random() > 0.5 ? 0 : 1];
+
+            let f1 = type1 === 'mixed' ? generateMixedNumber(1, 4) : generateSimpleFraction();
+            let f2 = type2 === 'mixed' ? generateMixedNumber(0, 3) : generateSimpleFraction();
+            let f3 = type3 === 'mixed' ? generateMixedNumber(0, 3) : generateSimpleFraction();
 
             if (op1 === '-' && !isBigger(f1, f2)) [f1, f2] = [f2, f1];
 
