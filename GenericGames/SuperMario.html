@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Mario Math! 🍄</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Super Mario Math! 🍄</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&amp;display=swap" rel="stylesheet"/>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -400,86 +401,80 @@
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>🍄 SUPER MARIO MATH! 🍄</h1>
-
-        <!-- Config Screen -->
-        <div id="config-screen" class="game-screen active">
-            <h2>Choose Your Level!</h2>
-            <div class="config-section">
-                <h3>📐 Select Math Operations:</h3>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="op-add" checked>
-                    <span>Addition (+)</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="op-sub">
-                    <span>Subtraction (-)</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="op-mul">
-                    <span>Multiplication (×)</span>
-                </label>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="op-div">
-                    <span>Division (÷)</span>
-                </label>
-            </div>
-            <div class="config-section">
-                <h3>🎯 Maximum Number in Problems:</h3>
-                <input type="number" id="max-number" value="20" min="1" max="1000">
-            </div>
-            <center>
-                <button id="start-game-btn" class="main-button">🚀 LET'S GO! 🚀</button>
-            </center>
-        </div>
-
-        <!-- Game Screen -->
-        <div id="game-screen" class="game-screen">
-            <div class="game-header">
-                <div class="level-indicator">Stage <span id="current-level">1</span>/<span id="total-levels">10</span></div>
-                <div class="money-display">
+<div class="game-container">
+<h1>🍄 SUPER MARIO MATH! 🍄</h1>
+<!-- Config Screen -->
+<div class="game-screen active" id="config-screen">
+<h2>Choose Your Level!</h2>
+<div class="config-section">
+<h3>📐 Select Math Operations:</h3>
+<label class="checkbox-container">
+<input checked="" id="op-add" type="checkbox"/>
+<span>Addition (+)</span>
+</label>
+<label class="checkbox-container">
+<input id="op-sub" type="checkbox"/>
+<span>Subtraction (-)</span>
+</label>
+<label class="checkbox-container">
+<input id="op-mul" type="checkbox"/>
+<span>Multiplication (×)</span>
+</label>
+<label class="checkbox-container">
+<input id="op-div" type="checkbox"/>
+<span>Division (÷)</span>
+</label>
+</div>
+<div class="config-section">
+<h3>🎯 Maximum Answer Value:</h3>
+<input id="max-number" max="1000" min="1" type="number" value="20"/>
+</div>
+<center>
+<button class="main-button" id="start-game-btn">🚀 LET'S GO! 🚀</button>
+</center>
+</div>
+<!-- Game Screen -->
+<div class="game-screen" id="game-screen">
+<div class="game-header">
+<div class="level-indicator">Stage <span id="current-level">1</span>/<span id="total-levels">10</span></div>
+<div class="money-display">
                     💰 <span id="current-winnings">0</span>
-                </div>
-            </div>
-            
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="game-progress-bar"></div>
-            </div>
-
-            <div class="question-box">
-                <p id="question-text">? = ?</p>
-                <input type="number" id="answer-input" placeholder="Answer" autofocus>
-                <button id="submit-answer-btn" class="main-button">JUMP!</button>
-                <div id="feedback-message" class="feedback-message"></div>
-            </div>
-        </div>
-
-        <!-- Summary Screen -->
-        <div id="summary-screen" class="game-screen">
-            <h2>🏆 YOU WIN! 🏆</h2>
-            <p id="final-message"></p>
-            <h3 style="color: #FFF; text-shadow: 2px 2px 0px #C21807;">Performance Summary:</h3>
-            <table id="summary-table">
-                <thead>
-                    <tr>
-                        <th>Question</th>
-                        <th>Correct</th>
-                        <th>Your Answer</th>
-                        <th>Time (s)</th>
-                        <th>Tries</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <center>
-                <button id="restart-game-btn" class="main-button">🔄 PLAY AGAIN! 🔄</button>
-            </center>
-        </div>
-    </div>
-
-    <script>
+</div>
+</div>
+<div class="progress-bar-container">
+<div class="progress-bar" id="game-progress-bar"></div>
+</div>
+<div class="question-box">
+<p id="question-text">? = ?</p>
+<input autofocus="" id="answer-input" placeholder="Answer" type="number"/>
+<button class="main-button" id="submit-answer-btn">JUMP!</button>
+<div class="feedback-message" id="feedback-message"></div>
+</div>
+</div>
+<!-- Summary Screen -->
+<div class="game-screen" id="summary-screen">
+<h2>🏆 YOU WIN! 🏆</h2>
+<p id="final-message"></p>
+<h3 style="color: #FFF; text-shadow: 2px 2px 0px #C21807;">Performance Summary:</h3>
+<table id="summary-table">
+<thead>
+<tr>
+<th>Question</th>
+<th>Correct</th>
+<th>Your Answer</th>
+<th>Time (s)</th>
+<th>Tries</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<center>
+<button class="main-button" id="restart-game-btn">🔄 PLAY AGAIN! 🔄</button>
+</center>
+</div>
+</div>
+<script>
         document.addEventListener('DOMContentLoaded', () => {
             const configScreen = document.getElementById('config-screen');
             const gameScreen = document.getElementById('game-screen');
@@ -537,44 +532,34 @@
                     return null;
                 }
 
-                const maxVal = gameConfig.maxOperandValue;
+                const maxAnswer = gameConfig.maxOperandValue;
                 const operator = selectedOps[getRandomInt(0, selectedOps.length - 1)];
                 let num1, num2, answer;
 
                 switch (operator) {
                     case '+':
-                        num1 = getRandomInt(0, maxVal);
-                        num2 = getRandomInt(0, maxVal);
-                        answer = num1 + num2;
+                        answer = getRandomInt(1, maxAnswer);
+                        num1 = getRandomInt(0, answer);
+                        num2 = answer - num1;
                         return { problem: `${num1} + ${num2}`, answer: answer, op: '+' };
                     case '-':
-                        num1 = getRandomInt(0, maxVal);
-                        num2 = getRandomInt(0, num1);
-                        answer = num1 - num2;
+                        answer = getRandomInt(0, maxAnswer);
+                        num1 = getRandomInt(answer, maxAnswer);
+                        num2 = num1 - answer;
                         return { problem: `${num1} - ${num2}`, answer: answer, op: '-' };
                     case '*':
-                        num1 = getRandomInt(0, maxVal);
-                        num2 = getRandomInt(0, maxVal);
-                        answer = num1 * num2;
+                        answer = getRandomInt(1, maxAnswer);
+                        const factors = [];
+                        for (let i = 1; i <= Math.min(answer, Math.floor(Math.sqrt(answer)) + 10); i++) {
+                            if (answer % i === 0) factors.push(i);
+                        }
+                        num1 = factors[getRandomInt(0, factors.length - 1)];
+                        num2 = answer / num1;
                         return { problem: `${num1} × ${num2}`, answer: answer, op: '*' };
                     case '/':
-                        let dividend, divisor, quotient;
-                        let attempts = 0;
-                        do {
-                            divisor = getRandomInt(1, maxVal);
-                            quotient = getRandomInt(1, maxVal);
-                            dividend = quotient * divisor;
-                            attempts++;
-                        } while ((dividend > maxVal || quotient > maxVal) && attempts < 500);
-                        
-                        if (attempts >= 500) {
-                            if (maxVal >= 2) { dividend = 4; divisor = 2; quotient = 2; }
-                            else { dividend = 1; divisor = 1; quotient = 1; }
-                        }
-                        
-                        num1 = dividend;
-                        num2 = divisor;
-                        answer = quotient;
+                        answer = getRandomInt(1, maxAnswer);
+                        num2 = getRandomInt(1, Math.max(1, Math.min(10, maxAnswer)));
+                        num1 = answer * num2;
                         return { problem: `${num1} ÷ ${num2}`, answer: answer, op: '/' };
                 }
             };
@@ -724,5 +709,32 @@
             updateProgressBar();
         });
     </script>
-</body>
+<script>
+function generateProblem(maxAnswer) {
+    let a, b, op, result;
+    const ops = ['+', '-', '*', '/'];
+    do {
+        a = Math.floor(Math.random() * maxAnswer) + 1;
+        b = Math.floor(Math.random() * maxAnswer) + 1;
+        op = ops[Math.floor(Math.random() * ops.length)];
+        switch(op) {
+            case '+': result = a + b; break;
+            case '-': result = a - b; break;
+            case '*': result = a * b; break;
+            case '/': result = b !== 0 ? a / b : maxAnswer + 1; break;
+        }
+    } while (result > maxAnswer || result < 0 || !Number.isInteger(result));
+    return `${a} ${op} ${b} = ?`;
+}
+
+// Example usage: generate a problem with max answer 100
+document.addEventListener("DOMContentLoaded", function() {
+    const maxAnswer = 100;
+    const problem = generateProblem(maxAnswer);
+    const container = document.body;
+    const p = document.createElement("p");
+    p.textContent = problem;
+    container.appendChild(p);
+});
+</script></body>
 </html>
