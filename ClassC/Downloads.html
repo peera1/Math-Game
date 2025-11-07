@@ -108,6 +108,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -137,6 +138,16 @@
 
         .btn-download:hover {
             background: #e0e0e0;
+        }
+
+        .btn-pages {
+            background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
+            color: white;
+        }
+
+        .btn-pages:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(82, 183, 136, 0.4);
         }
 
         .loading {
@@ -268,14 +279,25 @@
             return filename.split('.').pop().toUpperCase();
         }
 
+        function isHtmlFile(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ['html', 'htm'].includes(ext);
+        }
+
         function canViewInBrowser(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            const viewableTypes = ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf'];
+            const viewableTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf'];
             return viewableTypes.includes(ext);
         }
 
         function handleView(downloadUrl) {
             window.open(downloadUrl, '_blank');
+        }
+
+        function handleViewHtml(filePath) {
+            // יצירת נתיב GitHub Pages
+            const githubPagesUrl = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${filePath}`;
+            window.open(githubPagesUrl, '_blank');
         }
 
         function handleDownload(downloadUrl, fileName) {
@@ -318,6 +340,7 @@
 
                 grid.innerHTML = fileItems.map(file => {
                     const canView = canViewInBrowser(file.name);
+                    const isHtml = isHtmlFile(file.name);
                     
                     return `
                         <div class="file-card">
@@ -325,13 +348,17 @@
                             <div class="file-name">${file.name}</div>
                             <div class="file-type">${getFileType(file.name)}</div>
                             <div class="file-actions">
-                                ${canView ? `
+                                ${isHtml ? `
+                                    <button class="btn btn-pages" onclick="handleViewHtml('${file.path}')">
+                                        צפה בדף 🌐
+                                    </button>
+                                ` : canView ? `
                                     <button class="btn btn-view" onclick="handleView('${file.download_url}')">
-                                        צפה
+                                        צפה 👁️
                                     </button>
                                 ` : ''}
                                 <button class="btn btn-download" onclick="handleDownload('${file.download_url}', '${file.name}')">
-                                    הורד
+                                    הורד ⬇️
                                 </button>
                             </div>
                         </div>
