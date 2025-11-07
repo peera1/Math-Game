@@ -23,6 +23,24 @@
             margin: 0 auto;
         }
 
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
         header {
             background: white;
             border-radius: 15px;
@@ -86,23 +104,54 @@
             color: #888;
             font-size: 0.9em;
             text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            font-weight: bold;
         }
 
         .download-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            margin-top: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
         }
 
         .download-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .view-btn {
+            background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
+            color: white;
+        }
+
+        .view-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(82, 183, 136, 0.4);
+        }
+
+        .pages-btn {
+            background: linear-gradient(135deg, #f77f00 0%, #fcbf49 100%);
+            color: white;
+        }
+
+        .pages-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(247, 127, 0, 0.4);
         }
 
         .loading {
@@ -136,11 +185,17 @@
             .files-grid {
                 grid-template-columns: 1fr;
             }
+
+            .back-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <button class="back-btn" onclick="goBack()">← חזרה</button>
+        
         <header>
             <h1>📚 קבצים להורדה</h1>
             <p class="subtitle">דפי עבודה ומשימות - כיתה ה'</p>
@@ -179,13 +234,54 @@
                 'jpg': '🖼️',
                 'jpeg': '🖼️',
                 'png': '🖼️',
-                'gif': '🖼️'
+                'gif': '🖼️',
+                'webp': '🖼️',
+                'svg': '🖼️'
             };
             return icons[ext] || '📄';
         }
 
         function getFileType(filename) {
             return filename.split('.').pop().toUpperCase();
+        }
+
+        function isHtmlFile(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ['html', 'htm'].includes(ext);
+        }
+
+        function canViewInBrowser(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const viewableTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf'];
+            return viewableTypes.includes(ext);
+        }
+
+        function handleView(downloadUrl) {
+            window.open(downloadUrl, '_blank');
+        }
+
+        function handleViewHtml(filePath) {
+            // יצירת נתיב GitHub Pages
+            const githubPagesUrl = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${filePath}`;
+            window.open(githubPagesUrl, '_blank');
+        }
+
+        function handleDownload(downloadUrl, fileName) {
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = fileName;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '../index.html';
+            }
         }
 
         async function loadFiles() {
@@ -208,16 +304,32 @@
                 }
 
                 container.className = 'files-grid';
-                container.innerHTML = fileItems.map(file => `
-                    <a href="${file.download_url}" download="${file.name}" class="file-card">
-                        <div class="file-icon">${getFileIcon(file.name)}</div>
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-type">${getFileType(file.name)}</div>
-                        <button class="download-btn" onclick="event.preventDefault(); window.open('${file.download_url}', '_blank');">
-                            הורד קובץ ⬇️
-                        </button>
-                    </a>
-                `).join('');
+                container.innerHTML = fileItems.map(file => {
+                    const canView = canViewInBrowser(file.name);
+                    const isHtml = isHtmlFile(file.name);
+                    
+                    return `
+                        <div class="file-card">
+                            <div class="file-icon">${getFileIcon(file.name)}</div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-type">${getFileType(file.name)}</div>
+                            <div class="file-actions">
+                                ${isHtml ? `
+                                    <button class="btn pages-btn" onclick="handleViewHtml('${file.path}')">
+                                        צפה בדף 🌐
+                                    </button>
+                                ` : canView ? `
+                                    <button class="btn view-btn" onclick="handleView('${file.download_url}')">
+                                        צפה 👁️
+                                    </button>
+                                ` : ''}
+                                <button class="btn download-btn" onclick="handleDownload('${file.download_url}', '${file.name}')">
+                                    הורד ⬇️
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
 
             } catch (error) {
                 container.innerHTML = `
