@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן שברים</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+            .page-break { page-break-before: always; }
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: white;
+        }
+        
+        h1 {
+            text-align: center;
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        h2 {
+            background-color: #f0f0f0;
+            padding: 8px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            font-size: 16px;
+        }
+        
+        .question {
+            margin: 15px 0;
+            line-height: 2.2;
+        }
+        
+        .answer-line {
+            border-bottom: 1px solid #333;
+            display: inline-block;
+            min-width: 100px;
+            margin: 0 5px;
+        }
+        
+        .short-line {
+            min-width: 60px;
+        }
+        
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            vertical-align: middle;
+            text-align: center;
+            margin: 0 5px;
+            font-size: 16px;
+            line-height: 1.2;
+        }
+        
+        .fraction .numerator {
+            border-bottom: 2px solid #000;
+            padding: 2px 8px;
+            min-width: 25px;
+        }
+        
+        .fraction .denominator {
+            padding: 2px 8px;
+            min-width: 25px;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .print-button:hover {
+            background-color: #45a049;
+        }
+        
+        .work-space {
+            height: 80px;
+            border: 1px dashed #ccc;
+            margin: 10px 0;
+        }
+        
+        .circle-diagram {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 10px 15px;
+        }
+        
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">🖨️ הדפס מבחן</button>
+    
+    <h1>מבחן בנושא: שברים</h1>
+    
+    <div class="header-info">
+        <span>שם התלמיד/ה: <span class="answer-line" style="min-width: 200px;"></span></span>
+        <span>כיתה: <span class="answer-line short-line"></span></span>
+        <span>תאריך: <span class="answer-line short-line"></span></span>
+    </div>
+
+    <!-- חלק א': מספרים טבעיים -->
+    <div class="section">
+        <h2>חלק א': מספרים טבעיים (15 נקודות)</h2>
+        <p><strong>כתוב/כתבי את המספרים הבאים:</strong></p>
+        
+        <div class="question">
+            <strong>נושאים א-ב:</strong> עמודים 109-138
+        </div>
+        
+        <div class="question">
+            1. כתוב את המספר: מאה ושלושים וחמש
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            2. כתוב במילים: 247
+            <br>תשובה: <span class="answer-line" style="min-width: 250px;"></span>
+        </div>
+        
+        <div class="question">
+            3. מה ערך הספרה 5 במספר 1,582?
+            <br>תשובה: <span class="answer-line"></span>
+        </div>
+        
+        <div class="question">
+            4. סדר מהקטן לגדול: 456, 465, 445, 454
+            <br>תשובה: <span class="answer-line" style="min-width: 300px;"></span>
+        </div>
+    </div>
+
+    <!-- חלק ב': כתיבת מספרים בספרות ובמילים -->
+    <div class="section">
+        <h2>חלק ב': כתיבת מספרים בספרות ובמילים (10 נקודות)</h2>
+        
+        <div class="question">
+            1. כתוב בספרות: תשע מאות ארבעים ושתיים
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            2. כתוב במילים: 1,036
+            <br>תשובה: <span class="answer-line" style="min-width: 300px;"></span>
+        </div>
+        
+        <div class="question">
+            3. כתוב בספרות: אלף ושבע
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+    </div>
+
+    <!-- חלק ג': חיבור וחיסור בתאונך -->
+    <div class="section">
+        <h2>חלק ג': חיבור וחיסור בתאונך (20 נקודות)</h2>
+        <p><strong>פתור/פתרי בכתב בתאונך:</strong></p>
+        
+        <div class="exercise-grid">
+            <div>
+                <div class="question">1. 456 + 287 = </div>
+                <div class="work-space"></div>
+            </div>
+            <div>
+                <div class="question">2. 634 - 278 = </div>
+                <div class="work-space"></div>
+            </div>
+        </div>
+        
+        <div class="exercise-grid">
+            <div>
+                <div class="question">3. 845 + 389 = </div>
+                <div class="work-space"></div>
+            </div>
+            <div>
+                <div class="question">4. 1,000 - 456 = </div>
+                <div class="work-space"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- חלק ד': חיבור וחיסור עם נעלמים -->
+    <div class="section">
+        <h2>חלק ד': חיבור וחיסור עם נעלמים (15 נקודות)</h2>
+        <p><strong>מצא/מצאי את המספר החסר:</strong></p>
+        
+        <div class="question">
+            1. 345 + ____ = 600
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            2. ____ - 234 = 456
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            3. 789 - ____ = 345
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            4. ____ + 567 = 1,000
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+    </div>
+
+    <!-- חלק ה': מספרים על ישר המספרים -->
+    <div class="section">
+        <h2>חלק ה': מספרים על ישר המספרים (10 נקודות)</h2>
+        
+        <div class="question">
+            <p>סמן/סמני על ישר המספרים את המספרים: 120, 135, 145</p>
+            <svg width="100%" height="80" style="border: 1px solid #ddd;">
+                <line x1="50" y1="40" x2="650" y2="40" stroke="black" stroke-width="2"/>
+                <line x1="50" y1="35" x2="50" y2="45" stroke="black" stroke-width="2"/>
+                <text x="50" y="60" text-anchor="middle">100</text>
+                <line x1="350" y1="35" x2="350" y2="45" stroke="black" stroke-width="2"/>
+                <text x="350" y="60" text-anchor="middle">125</text>
+                <line x1="650" y1="35" x2="650" y2="45" stroke="black" stroke-width="2"/>
+                <text x="650" y="60" text-anchor="middle">150</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- חלק ו': עיגול מספרים -->
+    <div class="section">
+        <h2>חלק ו': עיגול מספרים (10 נקודות)</h2>
+        
+        <div class="question">
+            1. עגל למאה הקרובה: 456 ≈ <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            2. עגל לעשרה הקרובה: 783 ≈ <span class="answer-line short-line"></span>
+        </div>
+        
+        <div class="question">
+            3. עגל למאה הקרובה: 1,248 ≈ <span class="answer-line short-line"></span>
+        </div>
+    </div>
+
+    <!-- חלק ז': חיבור וחיסור בחוצה -->
+    <div class="section">
+        <h2>חלק ז': חיבור וחיסור בחוצה (חיצונית) (15 נקודות)</h2>
+        <p><strong>פתור/פתרי בשיטת החוצה:</strong></p>
+        
+        <div class="question">
+            1. 456 + 287 = 
+            <div class="work-space"></div>
+        </div>
+        
+        <div class="question">
+            2. 823 - 365 = 
+            <div class="work-space"></div>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- חלק ח': שברים - נושאים א-ד -->
+    <div class="section">
+        <h2>חלק ח': שברים - יסודות (עמודים 4-49) (25 נקודות)</h2>
+        
+        <p><strong>א. משמעות השבר:</strong></p>
+        <div class="question">
+            1. צבע <span class="fraction"><span class="numerator">1</span><span class="denominator">4</span></span> מהעיגול:
+            <div class="circle-diagram"></div>
+            <div class="circle-diagram"></div>
+        </div>
+        
+        <div class="question">
+            2. איזה חלק של הריבוע מצויר? (ריבוע מחולק ל-8, 3 חלקים מצוירים)
+            <br>תשובה: <span class="answer-line short-line"></span>
+        </div>
+        
+        <p><strong>ב. השוואת שברים:</strong></p>
+        <div class="question">
+            3. שים את הסימן המתאים: < , > , =
+            <br><span class="fraction"><span class="numerator">1</span><span class="denominator">3</span></span> _____ <span class="fraction"><span class="numerator">1</span><span class="denominator">4</span></span>
+        </div>
+        
+        <div class="question">
+            4. <span class="fraction"><span class="numerator">2</span><span class="denominator">5</span></span> _____ <span class="fraction"><span class="numerator">3</span><span class="denominator">5</span></span>
+        </div>
+        
+        <div class="question">
+            5. <span class="fraction"><span class="numerator">1</span><span class="denominator">2</span></span> _____ <span class="fraction"><span class="numerator">2</span><span class="denominator">4</span></span>
+        </div>
+        
+        <p><strong>ג. השבר כחלק השלם:</strong></p>
+        <div class="question">
+            6. מה השבר שחסר כדי להשלים ל-1?
+            <br><span class="fraction"><span class="numerator">2</span><span class="denominator">7</span></span> + <span class="answer-line short-line"></span> = 1
+        </div>
+        
+        <div class="question">
+            7. <span class="fraction"><span class="numerator">5</span><span class="denominator">8</span></span> + <span class="answer-line short-line"></span> = 1
+        </div>
+        
+        <p><strong>ד. שברים על ישר המספרים:</strong></p>
+        <div class="question">
+            8. סמן על ישר המספרים: <span class="fraction"><span class="numerator">1</span><span class="denominator">2</span></span> , <span class="fraction"><span class="numerator">3</span><span class="denominator">4</span></span>
+            <svg width="100%" height="80" style="border: 1px solid #ddd;">
+                <line x1="50" y1="40" x2="650" y2="40" stroke="black" stroke-width="2"/>
+                <line x1="50" y1="35" x2="50" y2="45" stroke="black" stroke-width="2"/>
+                <text x="50" y="60" text-anchor="middle">0</text>
+                <line x1="650" y1="35" x2="650" y2="45" stroke="black" stroke-width="2"/>
+                <text x="650" y="60" text-anchor="middle">1</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- חלק ט': שברים מדומים ומעורבים -->
+    <div class="section">
+        <h2>חלק ט': שברים מדומים ומעורבים (20 נקודות)</h2>
+        
+        <div class="question">
+            1. המר לשבר מעורב: <span class="fraction"><span class="numerator">7</span><span class="denominator">3</span></span> = <span class="answer-line"></span>
+        </div>
+        
+        <div class="question">
+            2. המר לשבר מדומה: 2<span class="fraction"><span class="numerator">1</span><span class="denominator">4</span></span> = <span class="answer-line"></span>
+        </div>
+        
+        <div class="question">
+            3. המר לשבר מעורב: <span class="fraction"><span class="numerator">11</span><span class="denominator">5</span></span> = <span class="answer-line"></span>
+        </div>
+        
+        <div class="question">
+            4. המר לשבר מדומה: 3<span class="fraction"><span class="numerator">2</span><span class="denominator">3</span></span> = <span class="answer-line"></span>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; font-size: 18px; font-weight: bold;">
+        בהצלחה רבה! 📐
+    </div>
+    
+    <div style="text-align: center; margin-top: 10px; color: #666;">
+        סה"כ: 140 נקודות
+    </div>
+</body>
+</html>
