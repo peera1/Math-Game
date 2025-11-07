@@ -139,12 +139,22 @@
             background: #e0e0e0;
         }
 
-        .empty-state {
+        .loading {
             text-align: center;
             color: white;
             font-size: 1.3em;
             padding: 60px 20px;
             background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .error {
+            text-align: center;
+            color: white;
+            font-size: 1.3em;
+            padding: 60px 20px;
+            background: rgba(255, 100, 100, 0.3);
             border-radius: 15px;
             backdrop-filter: blur(10px);
         }
@@ -219,87 +229,63 @@
         </div>
 
         <div class="files-grid" id="filesGrid">
+            <div class="loading">טוען קבצים...</div>
         </div>
     </div>
 
     <script>
-        // רשימת הקבצים - עדכן את זה עם הקבצים שלך
-        const files = [
-            { 
-                name: 'מבחן לוגמה 1 - מעיין - תחילת שנה.html', 
-                type: 'html',
-                path: 'Files/מבחן לוגמה 1 - מעיין - תחילת שנה.html'
-            },
-            { 
-                name: 'מבחן מעיין - חומר - פתח ד.jpeg', 
-                type: 'image',
-                path: 'Files/מבחן מעיין - חומר - פתח ד.jpeg'
-            }
-        ];
+        const GITHUB_USER = 'peera1';
+        const GITHUB_REPO = 'Math-Game';
+        const FOLDER_PATH = 'ClassC/Files';
+        const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FOLDER_PATH}`;
 
-        function getFileIcon(type) {
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
             const icons = {
-                html: '🌐',
-                image: '🖼️',
-                pdf: '📄',
-                doc: '📝',
-                video: '🎥',
-                audio: '🎵',
-                zip: '🗜️',
-                default: '📎'
+                'pdf': '📄',
+                'doc': '📝',
+                'docx': '📝',
+                'txt': '📃',
+                'html': '🌐',
+                'htm': '🌐',
+                'xls': '📊',
+                'xlsx': '📊',
+                'ppt': '📊',
+                'pptx': '📊',
+                'zip': '📦',
+                'rar': '📦',
+                'jpg': '🖼️',
+                'jpeg': '🖼️',
+                'png': '🖼️',
+                'gif': '🖼️',
+                'webp': '🖼️',
+                'svg': '🖼️'
             };
-            return icons[type] || icons.default;
+            return icons[ext] || '📄';
         }
 
         function getFileType(filename) {
+            return filename.split('.').pop().toUpperCase();
+        }
+
+        function canViewInBrowser(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            const typeMap = {
-                html: 'html',
-                htm: 'html',
-                jpg: 'image',
-                jpeg: 'image',
-                png: 'image',
-                gif: 'image',
-                svg: 'image',
-                webp: 'image',
-                pdf: 'pdf',
-                doc: 'doc',
-                docx: 'doc',
-                mp4: 'video',
-                webm: 'video',
-                mp3: 'audio',
-                wav: 'audio',
-                zip: 'zip',
-                rar: 'zip'
-            };
-            return typeMap[ext] || 'default';
+            const viewableTypes = ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf'];
+            return viewableTypes.includes(ext);
         }
 
-        function canViewInBrowser(type) {
-            return ['html', 'image', 'pdf'].includes(type);
+        function handleView(downloadUrl) {
+            window.open(downloadUrl, '_blank');
         }
 
-        function handleView(filePath) {
-            try {
-                window.open(filePath, '_blank');
-            } catch (error) {
-                alert('לא ניתן לפתוח את הקובץ');
-            }
-        }
-
-        function handleDownload(filePath, fileName) {
-            try {
-                const a = document.createElement('a');
-                a.href = filePath;
-                a.download = fileName;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            } catch (error) {
-                // אם ההורדה הישירה לא עובדת, פתח בטאב חדש
-                window.open(filePath, '_blank');
-            }
+        function handleDownload(downloadUrl, fileName) {
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = fileName;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function goBack() {
@@ -310,41 +296,61 @@
             }
         }
 
-        function renderFiles() {
+        async function loadFiles() {
             const grid = document.getElementById('filesGrid');
             
-            if (files.length === 0) {
-                grid.innerHTML = '<div class="empty-state">אין קבצים להצגה</div>';
-                return;
-            }
-
-            grid.innerHTML = files.map(file => {
-                const type = getFileType(file.name);
-                const icon = getFileIcon(type);
-                const canView = canViewInBrowser(type);
+            try {
+                const response = await fetch(API_URL);
                 
-                return `
-                    <div class="file-card">
-                        <div class="file-icon">${icon}</div>
-                        <div class="file-name">${file.name}</div>
-                        <div class="file-type">${type.toUpperCase()}</div>
-                        <div class="file-actions">
-                            ${canView ? `
-                                <button class="btn btn-view" onclick="handleView('${file.path}')">
-                                    צפה
+                if (!response.ok) {
+                    throw new Error('לא ניתן לטעון את הקבצים');
+                }
+
+                const files = await response.json();
+                
+                // סנן רק קבצים (לא תיקיות)
+                const fileItems = files.filter(item => item.type === 'file');
+
+                if (fileItems.length === 0) {
+                    grid.innerHTML = '<div class="error">לא נמצאו קבצים בתיקייה</div>';
+                    return;
+                }
+
+                grid.innerHTML = fileItems.map(file => {
+                    const canView = canViewInBrowser(file.name);
+                    
+                    return `
+                        <div class="file-card">
+                            <div class="file-icon">${getFileIcon(file.name)}</div>
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-type">${getFileType(file.name)}</div>
+                            <div class="file-actions">
+                                ${canView ? `
+                                    <button class="btn btn-view" onclick="handleView('${file.download_url}')">
+                                        צפה
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-download" onclick="handleDownload('${file.download_url}', '${file.name}')">
+                                    הורד
                                 </button>
-                            ` : ''}
-                            <button class="btn btn-download" onclick="handleDownload('${file.path}', '${file.name}')">
-                                הורד
-                            </button>
+                            </div>
                         </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                grid.innerHTML = `
+                    <div class="error">
+                        ❌ שגיאה בטעינת הקבצים<br>
+                        ${error.message}
                     </div>
                 `;
-            }).join('');
+                console.error('Error loading files:', error);
+            }
         }
 
         // טעינת הקבצים בעת טעינת הדף
-        renderFiles();
+        loadFiles();
     </script>
 </body>
 </html>
