@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>קבצים להורדה - כיתה ג'</title>
+    <title>קבצים להורדה - כיתה ה'</title>
     <style>
         * {
             margin: 0;
@@ -21,24 +21,6 @@
         .container {
             max-width: 900px;
             margin: 0 auto;
-        }
-
-        .back-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
         }
 
         header {
@@ -123,23 +105,6 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .view-btn {
-            background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.8em;
-        }
-
-        .view-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(82, 183, 136, 0.4);
-        }
-
         .loading {
             text-align: center;
             color: white;
@@ -171,20 +136,14 @@
             .files-grid {
                 grid-template-columns: 1fr;
             }
-
-            .back-btn {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button class="back-btn" onclick="goBack()">← חזרה</button>
-        
         <header>
             <h1>📚 קבצים להורדה</h1>
-            <p class="subtitle">דפי עבודה ומשימות - כיתה ג'</p>
+            <p class="subtitle">דפי עבודה ומשימות - כיתה ה'</p>
         </header>
 
         <div id="filesContainer" class="loading">
@@ -199,7 +158,7 @@
     <script>
         const GITHUB_USER = 'peera1';
         const GITHUB_REPO = 'Math-Game';
-        const FOLDER_PATH = 'ClassC/Files';
+        const FOLDER_PATH = 'ClassE/Files';
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FOLDER_PATH}`;
 
         function getFileIcon(filename) {
@@ -220,28 +179,13 @@
                 'jpg': '🖼️',
                 'jpeg': '🖼️',
                 'png': '🖼️',
-                'gif': '🖼️',
-                'webp': '🖼️'
+                'gif': '🖼️'
             };
             return icons[ext] || '📄';
         }
 
         function getFileType(filename) {
             return filename.split('.').pop().toUpperCase();
-        }
-
-        function canViewInBrowser(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            const viewableTypes = ['html', 'htm', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
-            return viewableTypes.includes(ext);
-        }
-
-        function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = '../index.html';
-            }
         }
 
         async function loadFiles() {
@@ -264,25 +208,16 @@
                 }
 
                 container.className = 'files-grid';
-                container.innerHTML = fileItems.map(file => {
-                    const canView = canViewInBrowser(file.name);
-                    
-                    return `
-                        <div class="file-card">
-                            <div class="file-icon">${getFileIcon(file.name)}</div>
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-type">${getFileType(file.name)}</div>
-                            ${canView ? `
-                                <button class="view-btn" onclick="window.open('${file.download_url}', '_blank');">
-                                    צפה 👁️
-                                </button>
-                            ` : ''}
-                            <button class="download-btn" onclick="downloadFile('${file.download_url}', '${file.name}')">
-                                הורד קובץ ⬇️
-                            </button>
-                        </div>
-                    `;
-                }).join('');
+                container.innerHTML = fileItems.map(file => `
+                    <a href="${file.download_url}" download="${file.name}" class="file-card">
+                        <div class="file-icon">${getFileIcon(file.name)}</div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-type">${getFileType(file.name)}</div>
+                        <button class="download-btn" onclick="event.preventDefault(); window.open('${file.download_url}', '_blank');">
+                            הורד קובץ ⬇️
+                        </button>
+                    </a>
+                `).join('');
 
             } catch (error) {
                 container.innerHTML = `
@@ -293,16 +228,6 @@
                 `;
                 console.error('Error loading files:', error);
             }
-        }
-
-        function downloadFile(url, filename) {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
         }
 
         loadFiles();
