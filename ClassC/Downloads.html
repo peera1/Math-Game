@@ -149,6 +149,27 @@
             backdrop-filter: blur(10px);
         }
 
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            z-index: 1000;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -179,10 +200,18 @@
             .files-grid {
                 grid-template-columns: 1fr;
             }
+
+            .back-btn {
+                position: static;
+                margin-bottom: 20px;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <button class="back-btn" onclick="goBack()">← חזרה</button>
+    
     <div class="container">
         <div class="header">
             <h1>📚 קבצי כיתה ג׳</h1>
@@ -190,19 +219,22 @@
         </div>
 
         <div class="files-grid" id="filesGrid">
-            <div class="empty-state">
-                טוען קבצים...
-            </div>
         </div>
     </div>
 
     <script>
-        const filesPath = 'Math-Game/ClassC/Files/';
-        
-        // רשימת הקבצים (תוכל לעדכן את זה או לקרוא מה-API)
+        // רשימת הקבצים - עדכן את זה עם הקבצים שלך
         const files = [
-            { name: 'מבחן לוגמה 1 - מעיין - תחילת שנה.html', type: 'html' },
-            { name: 'מבחן מעיין - חומר - פתח ד.jpeg', type: 'image' }
+            { 
+                name: 'מבחן לוגמה 1 - מעיין - תחילת שנה.html', 
+                type: 'html',
+                path: 'Files/מבחן לוגמה 1 - מעיין - תחילת שנה.html'
+            },
+            { 
+                name: 'מבחן מעיין - חומר - פתח ד.jpeg', 
+                type: 'image',
+                path: 'Files/מבחן מעיין - חומר - פתח ד.jpeg'
+            }
         ];
 
         function getFileIcon(type) {
@@ -247,19 +279,35 @@
             return ['html', 'image', 'pdf'].includes(type);
         }
 
-        function handleView(filename) {
-            const fullPath = filesPath + filename;
-            window.open(fullPath, '_blank');
+        function handleView(filePath) {
+            try {
+                window.open(filePath, '_blank');
+            } catch (error) {
+                alert('לא ניתן לפתוח את הקובץ');
+            }
         }
 
-        function handleDownload(filename) {
-            const fullPath = filesPath + filename;
-            const a = document.createElement('a');
-            a.href = fullPath;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+        function handleDownload(filePath, fileName) {
+            try {
+                const a = document.createElement('a');
+                a.href = filePath;
+                a.download = fileName;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (error) {
+                // אם ההורדה הישירה לא עובדת, פתח בטאב חדש
+                window.open(filePath, '_blank');
+            }
+        }
+
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '../index.html';
+            }
         }
 
         function renderFiles() {
@@ -282,11 +330,11 @@
                         <div class="file-type">${type.toUpperCase()}</div>
                         <div class="file-actions">
                             ${canView ? `
-                                <button class="btn btn-view" onclick="handleView('${file.name}')">
+                                <button class="btn btn-view" onclick="handleView('${file.path}')">
                                     צפה
                                 </button>
                             ` : ''}
-                            <button class="btn btn-download" onclick="handleDownload('${file.name}')">
+                            <button class="btn btn-download" onclick="handleDownload('${file.path}', '${file.name}')">
                                 הורד
                             </button>
                         </div>
