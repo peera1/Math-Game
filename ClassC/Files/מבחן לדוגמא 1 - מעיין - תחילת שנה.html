@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן מתמטיקה</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none; }
+            .page-break { page-break-before: always; }
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+            background: white;
+        }
+        
+        h1 {
+            text-align: center;
+            border-bottom: 3px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        h2 {
+            background-color: #f0f0f0;
+            padding: 8px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 5px 5px 0 0;
+            font-size: 16px;
+        }
+        
+        .question {
+            margin: 10px 0;
+            line-height: 2;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        td, th {
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .answer-line {
+            border-bottom: 1px solid #333;
+            display: inline-block;
+            min-width: 200px;
+            margin: 0 5px;
+        }
+        
+        .short-line {
+            min-width: 80px;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .print-button:hover {
+            background-color: #45a049;
+        }
+        
+        .angle-space {
+            height: 80px;
+            border: 1px dashed #ccc;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button no-print" onclick="window.print()">🖨️ הדפס מבחן</button>
+    
+    <h1>מבחן בהלן נושאים למבחן</h1>
+    
+    <div class="header-info">
+        <span>שם התלמיד/ה: <span class="answer-line"></span></span>
+        <span>תאריך: <span class="answer-line short-line"></span></span>
+    </div>
+
+    <div class="section">
+        <h2>חלק א': כתיבת מספרים במילים (20 נקודות)</h2>
+        <p><strong>כתוב/כתבי את המספרים הבאים במילים:</strong></p>
+        <div class="question">1. 347 - <span class="answer-line"></span></div>
+        <div class="question">2. 1,582 - <span class="answer-line"></span></div>
+        <div class="question">3. 6,029 - <span class="answer-line"></span></div>
+        <div class="question">4. 999 - <span class="answer-line"></span></div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ב': הגדלה העשרונית עד 1000 (25 נקודות)</h2>
+        <p><strong>השלם/השלימי את הטבלאות:</strong></p>
+        
+        <p><strong>משפחת המאות:</strong></p>
+        <table>
+            <tr>
+                <th>מספר</th>
+                <th>+100</th>
+                <th>+100</th>
+                <th>+100</th>
+            </tr>
+            <tr>
+                <td>250</td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <p><strong>משפחת העשרות:</strong></p>
+        <table>
+            <tr>
+                <th>מספר</th>
+                <th>+10</th>
+                <th>+10</th>
+                <th>+10</th>
+                <th>+10</th>
+            </tr>
+            <tr>
+                <td>763</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+        
+        <p><strong>שאלות:</strong></p>
+        <div class="question">1. 400 + 300 = <span class="answer-line short-line"></span></div>
+        <div class="question">2. 670 + 20 = <span class="answer-line short-line"></span></div>
+        <div class="question">3. 890 + 110 = <span class="answer-line short-line"></span></div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ג': השוואת מספרים, זוגיים ואי-זוגיים (20 נקודות)</h2>
+        
+        <p><strong>א. שים/שימי את הסימן המתאים: &lt; , &gt; , =</strong></p>
+        <div class="question">1. 456 _____ 465</div>
+        <div class="question">2. 782 _____ 728</div>
+        <div class="question">3. 999 _____ 1000</div>
+        <div class="question">4. 550 _____ 550</div>
+        
+        <p><strong>ב. סמן/סמני V ליד המספרים הזוגיים:</strong></p>
+        <div class="question">234 ____ | 567 ____ | 890 ____ | 431 ____</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="section">
+        <h2>חלק ד': חיבור וחיסור עם ובלי הסבת הספרות (25 נקודות)</h2>
+        <p><strong>פתור/פתרי בכתב:</strong></p>
+        
+        <p><strong>חיבור:</strong></p>
+        <div class="question">1. 345 + 287 = <span class="answer-line short-line"></span></div>
+        <div style="height: 60px;"></div>
+        
+        <div class="question">2. 564 + 378 = <span class="answer-line short-line"></span></div>
+        <div style="height: 60px;"></div>
+        
+        <p><strong>חיסור:</strong></p>
+        <div class="question">3. 621 - 347 = <span class="answer-line short-line"></span></div>
+        <div style="height: 60px;"></div>
+        
+        <div class="question">4. 800 - 456 = <span class="answer-line short-line"></span></div>
+        <div style="height: 60px;"></div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ה': כפל וחילוק (15 נקודות)</h2>
+        <p><strong>פתור/פתרי:</strong></p>
+        <div class="question">1. 7 × 8 = <span class="answer-line short-line"></span></div>
+        <div class="question">2. 9 × 6 = <span class="answer-line short-line"></span></div>
+        <div class="question">3. 56 ÷ 7 = <span class="answer-line short-line"></span></div>
+        <div class="question">4. 81 ÷ 9 = <span class="answer-line short-line"></span></div>
+        <div class="question">5. 12 × 5 = <span class="answer-line short-line"></span></div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ו': משוואות כפליות (15 נקודות)</h2>
+        <p><strong>מצא/מצאי את המספר החסר:</strong></p>
+        <div class="question">1. ____ × 4 = 24</div>
+        <div class="question">2. 7 × ____ = 63</div>
+        <div class="question">3. ____ × 9 = 45</div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ז': שאלות מילוליות - חיבורות וכפליות (25 נקודות)</h2>
+        <p><strong>פתור/פתרי את הבעיות הבאות. כתוב/כתבי פעולת חשבון ופתרון:</strong></p>
+        
+        <div class="question">
+            <strong>1.</strong> בכיתה יש 8 שורות של כסאות. בכל שורה יש 6 כסאות. כמה כסאות יש בכיתה?
+            <br><br>
+            פעולה: <span class="answer-line"></span>
+            <br>
+            תשובה: <span class="answer-line"></span>
+        </div>
+        <br>
+        
+        <div class="question">
+            <strong>2.</strong> לדני היו 450 חרוזים. הוא קיבל עוד 275 חרוזים. כמה חרוזים יש לו עכשיו?
+            <br><br>
+            פעולה: <span class="answer-line"></span>
+            <br>
+            תשובה: <span class="answer-line"></span>
+        </div>
+        <br>
+        
+        <div class="question">
+            <strong>3.</strong> בחנות היו 600 פרחים. מכרו 348 פרחים. כמה פרחים נשארו?
+            <br><br>
+            פעולה: <span class="answer-line"></span>
+            <br>
+            תשובה: <span class="answer-line"></span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ח': חישובי שטח במלבן (15 נקודות)</h2>
+        <p><strong>חשב/חשבי את שטח המלבנים:</strong></p>
+        
+        <div class="question">
+            <strong>1.</strong> מלבן באורך 9 ס"מ ורוחב 5 ס"מ
+            <br><br>
+            שטח = <span class="answer-line short-line"></span> ס"מ רבועים
+        </div>
+        <br>
+        
+        <div class="question">
+            <strong>2.</strong> מלבן באורך 12 מטר ורוחב 7 מטר
+            <br><br>
+            שטח = <span class="answer-line short-line"></span> מטר רבועים
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>חלק ט': זיהוי סוגי זוויות (10 נקודות)</h2>
+        <p><strong>כתוב/כתבי ליד כל זווית את סוגה (חדה / ישרה / קהה):</strong></p>
+        
+        <div class="question">1. זווית של 45 מעלות - <span class="answer-line"></span></div>
+        <div class="angle-space">מקום לציור זווית</div>
+        
+        <div class="question">2. זווית של 90 מעלות - <span class="answer-line"></span></div>
+        <div class="angle-space">מקום לציור זווית</div>
+        
+        <div class="question">3. זווית של 120 מעלות - <span class="answer-line"></span></div>
+        <div class="angle-space">מקום לציור זווית</div>
+    </div>
+
+    <div style="text-align: center; margin-top: 30px; font-size: 18px; font-weight: bold;">
+        בהצלחה! 🌟
+    </div>
+    
+    <div style="text-align: center; margin-top: 10px; color: #666;">
+        סה"כ נקודות: 170 (ציון מתוך 100 לפי המרה)
+    </div>
+</body>
+</html>
