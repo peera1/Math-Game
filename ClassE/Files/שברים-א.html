@@ -24,7 +24,7 @@
         .canvases { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 20px 0; align-items: center; }
         canvas { 
             border: 3px solid #0097a7; 
-            border-radius: 15px; 
+            border-radius: 50%; 
             background: #fff; 
         }
         .text { font-size: 1.3em; color: #004d40; margin: 15px 0; }
@@ -42,7 +42,7 @@
         #reload button { background: #9c27b0; font-size: 1.3em; padding: 15px 30px; }
         #reload button:hover { background: #7b1fa2; }
 
-        /* הצגת שבר אנכי – גם בשאלה וגם בהזנה */
+        /* הצגת שבר אנכי */
         .fraction-display, .fraction-input {
             display: inline-block;
             text-align: center;
@@ -71,7 +71,7 @@
     <p class="intro">
         תרגלי שברים בצורה כיפית ומגוונת!<br>
         סוגי שאלות: <br>
-        • זיהוי שבר מצויר (בצורה מוקטנת)<br>
+        • זיהוי שבר מצויר (בעיגול – כמו פיצה!)<br>
         • חיבור שברים (+)<br>
         • חיסור שברים (−)<br>
         בכל טעינה של הדף יופיעו 5 שאלות חדשות!
@@ -134,9 +134,6 @@
         }
 
         function createIdentificationQuestion(qNum) {
-            const shapes = ['circle', 'square', 'rectH', 'rectV'];
-            const shape = shapes[Math.floor(Math.random() * shapes.length)];
-
             let denominator = Math.floor(Math.random() * 11) + 2; // 2-12
             let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
 
@@ -155,12 +152,12 @@
             `;
             document.getElementById('questions').appendChild(div);
 
-            drawFraction(qNum, shape, numerator, denominator);
+            drawCircleFraction(qNum, numerator, denominator);
         }
 
         function createOperationQuestion(qNum, operation) {
             let den1 = Math.floor(Math.random() * 9) + 2;
-            let num1 = Math.floor(Math.random() * den1); // 0 עד den1-1
+            let num1 = Math.floor(Math.random() * den1);
             let den2 = Math.floor(Math.random() * 9) + 2;
             let num2 = Math.floor(Math.random() * den2);
 
@@ -185,9 +182,6 @@
 
             const opSign = operation === '+' ? '+' : '−';
 
-            const leftShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
-            const rightShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
-
             const div = document.createElement('div');
             div.className = 'question';
             div.innerHTML = `
@@ -210,11 +204,12 @@
             `;
             document.getElementById('questions').appendChild(div);
 
-            drawFraction(`Left${qNum}`, leftShape, num1, den1);
-            drawFraction(`Right${qNum}`, rightShape, num2, den2);
+            drawCircleFraction(`Left${qNum}`, num1, den1);
+            drawCircleFraction(`Right${qNum}`, num2, den2);
         }
 
-        function drawFraction(idPrefix, shape, num, den) {
+        // פונקציה ייעודית לציור שבר בעיגול בלבד
+        function drawCircleFraction(idPrefix, num, den) {
             const canvas = document.getElementById(`canvas${idPrefix}`);
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -226,72 +221,38 @@
             ctx.strokeStyle = '#006064';
             ctx.lineWidth = 4;
 
-            if (shape === 'circle') {
-                for (let i = 0; i < den; i++) {
-                    const angle1 = (i / den) * 2 * Math.PI - Math.PI / 2;
-                    const angle2 = ((i + 1) / den) * 2 * Math.PI - Math.PI / 2;
+            // ציור החלקים הצבועים
+            for (let i = 0; i < num; i++) {
+                const angle1 = (i / den) * 2 * Math.PI - Math.PI / 2;
+                const angle2 = ((i + 1) / den) * 2 * Math.PI - Math.PI / 2;
 
-                    ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.lineTo(centerX + size * Math.cos(angle1), centerY + size * Math.sin(angle1));
-                    ctx.arc(centerX, centerY, size, angle1, angle2);
-                    ctx.closePath();
-
-                    if (i < num) {
-                        ctx.fillStyle = '#ff9800';
-                        ctx.fill();
-                    }
-                    ctx.stroke();
-                }
                 ctx.beginPath();
-                ctx.arc(centerX, centerY, size, 0, 2 * Math.PI);
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + size * Math.cos(angle1), centerY + size * Math.sin(angle1));
+                ctx.arc(centerX, centerY, size, angle1, angle2);
+                ctx.closePath();
+                ctx.fillStyle = '#ff9800';
+                ctx.fill();
                 ctx.stroke();
-            } 
-            else if (shape === 'square') {
-                const cols = Math.ceil(Math.sqrt(den));
-                const rows = Math.ceil(den / cols);
-                const cellW = (size * 2) / cols;
-                const cellH = (size * 2) / rows;
-                const offsetX = centerX - size + (size*2 - cols*cellW)/2;
-                const offsetY = centerY - size + (size*2 - rows*cellH)/2;
+            }
 
-                let count = 0;
-                for (let r = 0; r < rows && count < den; r++) {
-                    for (let c = 0; c < cols && count < den; c++) {
-                        const x = offsetX + c * cellW;
-                        const y = offsetY + r * cellH;
-                        ctx.strokeRect(x, y, cellW, cellH);
-                        if (count < num) {
-                            ctx.fillStyle = '#4caf50';
-                            ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
-                        }
-                        count++;
-                    }
-                }
-                ctx.strokeRect(offsetX, offsetY, size*2, size*2);
+            // ציור הקווים של החלקים הלא צבועים (כדי שיראו את כל החלוקה)
+            for (let i = num; i < den; i++) {
+                const angle1 = (i / den) * 2 * Math.PI - Math.PI / 2;
+                const angle2 = ((i + 1) / den) * 2 * Math.PI - Math.PI / 2;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(centerX + size * Math.cos(angle1), centerY + size * Math.sin(angle1));
+                ctx.arc(centerX, centerY, size, angle1, angle2);
+                ctx.closePath();
+                ctx.stroke();
             }
-            else if (shape === 'rectH') {
-                const partW = (size * 2) / den;
-                for (let i = 0; i < den; i++) {
-                    const x = centerX - size + i * partW;
-                    ctx.strokeRect(x, centerY - size/2, partW, size);
-                    if (i < num) {
-                        ctx.fillStyle = '#e91e63';
-                        ctx.fillRect(x + 2, centerY - size/2 + 2, partW - 4, size - 4);
-                    }
-                }
-            }
-            else if (shape === 'rectV') {
-                const partH = (size * 2) / den;
-                for (let i = 0; i < den; i++) {
-                    const y = centerY - size + i * partH;
-                    ctx.strokeRect(centerX - size/2, y, size, partH);
-                    if (i < num) {
-                        ctx.fillStyle = '#9c27b0';
-                        ctx.fillRect(centerX - size/2 + 2, y + 2, size - 4, partH - 4);
-                    }
-                }
-            }
+
+            // ציור המעגל החיצוני
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, size, 0, 2 * Math.PI);
+            ctx.stroke();
         }
 
         function checkIdentification(qNum, correctNum, correctDen, correctHTML) {
