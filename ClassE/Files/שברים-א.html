@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לומדת שברים לכיתה ה' – כולל השוואת שברים 🌟</title>
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background: linear-gradient(to bottom, #e0f7fa, #ffffff); 
+            margin: 0; padding: 20px; 
+            text-align: center; 
+        }
+        h1 { color: #006064; margin-bottom: 10px; }
+        p.intro { font-size: 1.2em; color: #00796b; margin-bottom: 30px; }
+        .question { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 25px; 
+            margin: 30px auto; 
+            max-width: 700px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+        }
+        .canvases { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 20px 0; }
+        canvas { 
+            border: 3px solid #0097a7; 
+            border-radius: 15px; 
+            background: #fff; 
+        }
+        .text { font-size: 1.3em; color: #004d40; margin: 15px 0; }
+        .options { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
+        .option-btn { 
+            background: #e3f2fd; color: #01579b; padding: 15px 30px; 
+            font-size: 1.5em; border: 2px solid #029be5; border-radius: 15px; 
+            cursor: pointer; min-width: 100px; 
+        }
+        .option-btn:hover { background: #bbdefb; }
+        input { 
+            width: 140px; padding: 12px; font-size: 1.4em; text-align: center; 
+            border: 2px solid #00bcd4; border-radius: 10px; 
+        }
+        button.check-btn { 
+            background: #ff5722; color: white; border: none; padding: 12px 25px; 
+            font-size: 1.2em; border-radius: 10px; cursor: pointer; margin-top: 15px; 
+        }
+        button.check-btn:hover { background: #e64a19; }
+        .feedback { font-size: 1.4em; margin-top: 20px; font-weight: bold; }
+        .correct { color: #2e7d32; }
+        .incorrect { color: #c62828; }
+        #reload { margin: 40px; }
+        #reload button { background: #9c27b0; font-size: 1.3em; padding: 15px 30px; }
+        #reload button:hover { background: #7b1fa2; }
+    </style>
+</head>
+<body>
+    <h1>לומדת שברים לכיתה ה' – כולל השוואת שברים 🌟</h1>
+    <p class="intro">
+        תרגלי שברים בצורה כיפית!<br>
+        חלק מהשאלות: זיהוי שבר מצויר (בצורה מוקטנת).<br>
+        חלק מהשאלות: השוואת שברים – בחרי >, < או =.<br>
+        בכל טעינה של הדף יופיעו שאלות חדשות ומגוונות!
+    </p>
+
+    <div id="questions"></div>
+
+    <div id="reload">
+        <button onclick="location.reload()">שאלות חדשות! 🔄</button>
+    </div>
+
+    <script>
+        const NUM_QUESTIONS = 5;
+
+        function generateQuestions() {
+            const container = document.getElementById('questions');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= NUM_QUESTIONS; i++) {
+                // 60% סיכוי לשאלת זיהוי, 40% לשאלת השוואה
+                const isComparison = Math.random() < 0.4;
+
+                if (isComparison) {
+                    createComparisonQuestion(i);
+                } else {
+                    createIdentificationQuestion(i);
+                }
+            }
+        }
+
+        function createIdentificationQuestion(qNum) {
+            const shapes = ['circle', 'square', 'rectH', 'rectV'];
+            const shape = shapes[Math.floor(Math.random() * shapes.length)];
+
+            let denominator = Math.floor(Math.random() * 11) + 2; // 2-12
+            let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
+
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(numerator, denominator);
+            const reducedNum = numerator / divisor;
+            const reducedDen = denominator / divisor;
+            const answer = `\( {reducedNum}/ \){reducedDen}`;
+
+            const div = document.createElement('div');
+            div.className = 'question';
+            div.innerHTML = `
+                <h2>שאלה ${qNum}</h2>
+                <div class="text">כמה זה השבר הצבוע? (הזיני בצורה מוקטנת, למשל 1/2)</div>
+                <canvas id="canvas${qNum}" width="300" height="300"></canvas>
+                <input type="text" id="answer${qNum}" placeholder="?/??">
+                <button class="check-btn" onclick="checkIdentification(\( {qNum}, ' \){answer}')">בדוק</button>
+                <div id="feedback${qNum}" class="feedback"></div>
+            `;
+            document.getElementById('questions').appendChild(div);
+
+            drawFraction(qNum, shape, numerator, denominator);
+        }
+
+        function createComparisonQuestion(qNum) {
+            // יצירת שני שברים שונים
+            let den1 = Math.floor(Math.random() * 10) + 3; // 3-12
+            let num1 = Math.floor(Math.random() * (den1 - 1)) + 1;
+            let den2 = Math.floor(Math.random() * 10) + 3;
+            let num2 = Math.floor(Math.random() * (den2 - 1)) + 1;
+
+            // כדי שיהיה מעניין – לפעמים מכנים שונים, לפעמים אותו דבר
+            if (Math.random() < 0.3) den2 = den1;
+
+            const value1 = num1 / den1;
+            const value2 = num2 / den2;
+
+            let correctSign;
+            if (value1 > value2) correctSign = '>';
+            else if (value1 < value2) correctSign = '<';
+            else correctSign = '=';
+
+            const leftShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
+            const rightShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
+
+            const div = document.createElement('div');
+            div.className = 'question';
+            div.innerHTML = `
+                <h2>שאלה ${qNum}</h2>
+                <div class="text">השווי את השברים – בחרי את הסימן הנכון:</div>
+                <div class="canvases">
+                    <div>
+                        <canvas id="canvasLeft${qNum}" width="250" height="250"></canvas>
+                        <p style="font-size:1.4em; margin:10px;">\( {num1}/ \){den1}</p>
+                    </div>
+                    <div class="options">
+                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '>')">></button>
+                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '=')">=</button>
+                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '<')"><</button>
+                    </div>
+                    <div>
+                        <canvas id="canvasRight${qNum}" width="250" height="250"></canvas>
+                        <p style="font-size:1.4em; margin:10px;">\( {num2}/ \){den2}</p>
+                    </div>
+                </div>
+                <div id="feedback${qNum}" class="feedback"></div>
+            `;
+            document.getElementById('questions').appendChild(div);
+
+            drawFraction(`Left${qNum}`, leftShape, num1, den1);
+            drawFraction(`Right${qNum}`, rightShape, num2, den2);
+        }
+
+        function drawFraction(idPrefix, shape, num, den) {
+            const canvas = document.getElementById(`canvas${idPrefix}`);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const size = canvas.width <= 250 ? 100 : 120;
+
+            ctx.strokeStyle = '#006064';
+            ctx.lineWidth = 4;
+
+            if (shape === 'circle') {
+                for (let i = 0; i < den; i++) {
+                    const angle1 = (i / den) * 2 * Math.PI - Math.PI / 2;
+                    const angle2 = ((i + 1) / den) * 2 * Math.PI - Math.PI / 2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(centerX + size * Math.cos(angle1), centerY + size * Math.sin(angle1));
+                    ctx.arc(centerX, centerY, size, angle1, angle2);
+                    ctx.closePath();
+
+                    if (i < num) {
+                        ctx.fillStyle = '#ff9800';
+                        ctx.fill();
+                    }
+                    ctx.stroke();
+                }
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, size, 0, 2 * Math.PI);
+                ctx.stroke();
+            } 
+            else if (shape === 'square') {
+                const cols = Math.ceil(Math.sqrt(den));
+                const rows = Math.ceil(den / cols);
+                const cellW = (size * 2) / cols;
+                const cellH = (size * 2) / rows;
+                const offsetX = centerX - size + (size*2 - cols*cellW)/2;
+                const offsetY = centerY - size + (size*2 - rows*cellH)/2;
+
+                let count = 0;
+                for (let r = 0; r < rows && count < den; r++) {
+                    for (let c = 0; c < cols && count < den; c++) {
+                        const x = offsetX + c * cellW;
+                        const y = offsetY + r * cellH;
+                        ctx.strokeRect(x, y, cellW, cellH);
+                        if (count < num) {
+                            ctx.fillStyle = '#4caf50';
+                            ctx.fillRect(x + 2, y + 2, cellW - 4, cellH - 4);
+                        }
+                        count++;
+                    }
+                }
+                ctx.strokeRect(offsetX, offsetY, size*2, size*2);
+            }
+            else if (shape === 'rectH') {
+                const partW = (size * 2) / den;
+                for (let i = 0; i < den; i++) {
+                    const x = centerX - size + i * partW;
+                    ctx.strokeRect(x, centerY - size/2, partW, size);
+                    if (i < num) {
+                        ctx.fillStyle = '#e91e63';
+                        ctx.fillRect(x + 2, centerY - size/2 + 2, partW - 4, size - 4);
+                    }
+                }
+            }
+            else if (shape === 'rectV') {
+                const partH = (size * 2) / den;
+                for (let i = 0; i < den; i++) {
+                    const y = centerY - size + i * partH;
+                    ctx.strokeRect(centerX - size/2, y, size, partH);
+                    if (i < num) {
+                        ctx.fillStyle = '#9c27b0';
+                        ctx.fillRect(centerX - size/2 + 2, y + 2, size - 4, partH - 4);
+                    }
+                }
+            }
+        }
+
+        function checkIdentification(qNum, correct) {
+            const input = document.getElementById(`answer${qNum}`);
+            const feedback = document.getElementById(`feedback${qNum}`);
+            const user = input.value.trim().replace(/\s/g, '');
+
+            if (user === correct) {
+                feedback.textContent = 'כל הכבוד! נכון לגמרי! 🎉';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `לא בדיוק... התשובה הנכונה היא ${correct}. נסי שוב! 💪`;
+                feedback.className = 'feedback incorrect';
+            }
+        }
+
+        function checkComparison(qNum, button, chosenSign) {
+            // מצא את הסימן הנכון (חושב מחדש כדי לא לשמור במשתנה גלובלי)
+            const leftText = button.parentElement.previousElementSibling.querySelector('p').textContent;
+            const rightText = button.parentElement.nextElementSibling.querySelector('p').textContent;
+            const [num1, den1] = leftText.split('/').map(Number);
+            const [num2, den2] = rightText.split('/').map(Number);
+            const value1 = num1 / den1;
+            const value2 = num2 / den2;
+
+            let correctSign = value1 > value2 ? '>' : value1 < value2 ? '<' : '=';
+
+            const feedback = document.getElementById(`feedback${qNum}`);
+
+            if (chosenSign === correctSign) {
+                feedback.textContent = 'מעולה! נכון! 🌟';
+                feedback.className = 'feedback correct';
+                // הדגשת הכפתור הנכון
+                button.style.background = '#4caf50';
+                button.style.color = 'white';
+            } else {
+                feedback.textContent = `לא בדיוק... הסימן הנכון הוא ${correctSign}. נסי שוב!`;
+                feedback.className = 'feedback incorrect';
+                button.style.background = '#f44336';
+                button.style.color = 'white';
+            }
+        }
+
+        generateQuestions();
+    </script>
+</body>
+</html>
