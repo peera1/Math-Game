@@ -2,9 +2,324 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>קבצים להורדה - כיתה ה'</title>
     <style>
-        /* ...השאר את ה-CSS שלך כפי שהוא... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px 40px;
+            background: linear-gradient(to bottom, #f8f9ff, #ffffff);
+            border-bottom: 3px solid #e8eaf6;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 20px 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: right;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        th.sorted-asc::after {
+            content: ' ▲';
+            font-size: 0.8em;
+        }
+
+        th.sorted-desc::after {
+            content: ' ▼';
+            font-size: 0.8em;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(to left, #f8f9ff, #ffffff);
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 18px 15px;
+            text-align: right;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .file-icon {
+            font-size: 1.8em;
+            text-align: center;
+        }
+
+        .file-type {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .file-size {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .file-date {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .view-btn, .pages-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .view-btn:hover, .pages-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .error {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2em;
+            color: #e74c3c;
+            font-weight: 600;
+            background: #ffe8e8;
+            border-radius: 10px;
+            margin: 20px;
+        }
+
+        footer {
+            background: linear-gradient(to top, #f8f9ff, #ffffff);
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            border-top: 3px solid #e8eaf6;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .table-container {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9em;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85em;
+            }
+        }
+
+        /* אנימציות */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        tbody tr {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        tbody tr:nth-child(2) { animation-delay: 0.15s; }
+        tbody tr:nth-child(3) { animation-delay: 0.2s; }
+        tbody tr:nth-child(4) { animation-delay: 0.25s; }
+        tbody tr:nth-child(5) { animation-delay: 0.3s; }
+        tbody tr:nth-child(n+6) { animation-delay: 0.35s; }
     </style>
 </head>
 <body>
@@ -32,40 +347,58 @@
         let currentSort = { column: 'date', direction: 'desc' };
 
         function getFileIcon(filename) {
-            // ...הפונקציה שלך...
-            return '📄';
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': '📕', 'doc': '📘', 'docx': '📘', 'txt': '📄',
+                'xls': '📊', 'xlsx': '📊', 'csv': '📊',
+                'ppt': '📙', 'pptx': '📙',
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️',
+                'zip': '🗜️', 'rar': '🗜️', '7z': '🗜️',
+                'mp3': '🎵', 'wav': '🎵', 'mp4': '🎬', 'avi': '🎬',
+                'html': '🌐', 'htm': '🌐', 'css': '🎨', 'js': '⚙️'
+            };
+            return icons[ext] || '📄';
         }
+
         function getFileType(filename) {
             return filename.split('.').pop().toUpperCase();
         }
+
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
+
         function formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', {hour: '2-digit', minute: '2-digit'});
         }
+
         function canViewInBrowser(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             return ['jpg','jpeg','png','gif','webp','svg','pdf'].includes(ext);
         }
+
         function isHtmlFile(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             return ['html','htm'].includes(ext);
         }
+
         function handleView(url) { window.open(url, '_blank'); }
+
         function handleViewHtml(path) {
             const url = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${path}`;
             window.open(url, '_blank');
         }
+
         function handleDownload(url, name) {
             const a = document.createElement('a');
             a.href = url; a.download = name; a.style.display = 'none';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
+
         function goBack() {
             if (window.history.length > 1) window.history.back();
             else window.location.href = '../index.html';
@@ -177,7 +510,6 @@
                     const commitDate = await getFileCommitDate(file.path);
                     return {...file, lastModified: commitDate || new Date().toISOString()};
                 }));
-                // מיון ראשוני מהכי חדש לישן
                 filesData.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
                 renderTable();
                 updateStats();
