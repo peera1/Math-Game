@@ -44,6 +44,21 @@
         #reload { margin: 40px; }
         #reload button { background: #9c27b0; font-size: 1.3em; padding: 15px 30px; }
         #reload button:hover { background: #7b1fa2; }
+
+        /* חדש – הצגת שבר אנכי */
+        .fraction-display {
+            display: inline-block;
+            text-align: center;
+            font-size: 1.4em;
+            margin: 0 10px;
+        }
+        .fraction-display .num {
+            border-bottom: 3px solid #000;
+            padding: 5px 10px;
+        }
+        .fraction-display .den {
+            padding: 5px 10px;
+        }
     </style>
 </head>
 <body>
@@ -72,7 +87,7 @@
 
             for (let i = 1; i <= NUM_QUESTIONS; i++) {
                 const types = ['identify', 'add', 'subtract'];
-                const weights = [0.4, 0.3, 0.3]; // סיכויים גבוהים יותר לזיהוי
+                const weights = [0.4, 0.3, 0.3];
                 const rnd = Math.random();
                 let type;
                 if (rnd < weights[0]) type = 'identify';
@@ -89,6 +104,22 @@
             }
         }
 
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
+        }
+
+        function reduceFraction(num, den) {
+            const divisor = gcd(num, den);
+            return { num: num / divisor, den: den / divisor };
+        }
+
+        function createFractionHTML(num, den) {
+            return `<div class="fraction-display">
+                        <div class="num">${num}</div>
+                        <div class="den">${den}</div>
+                    </div>`;
+        }
+
         function createIdentificationQuestion(qNum) {
             const shapes = ['circle', 'square', 'rectH', 'rectV'];
             const shape = shapes[Math.floor(Math.random() * shapes.length)];
@@ -96,11 +127,8 @@
             let denominator = Math.floor(Math.random() * 11) + 2; // 2-12
             let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
 
-            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-            const divisor = gcd(numerator, denominator);
-            const reducedNum = numerator / divisor;
-            const reducedDen = denominator / divisor;
-            const answer = `\( {reducedNum}/ \){reducedDen}`;
+            const { num: reducedNum, den: reducedDen } = reduceFraction(numerator, denominator);
+            const correctHTML = createFractionHTML(reducedNum, reducedDen);
 
             const div = document.createElement('div');
             div.className = 'question';
@@ -109,7 +137,7 @@
                 <div class="text">כמה זה השבר הצבוע?<br>(הזיני בצורה מוקטנת, למשל 1/2)</div>
                 <canvas id="canvas${qNum}" width="300" height="300"></canvas>
                 <input type="text" id="answer${qNum}" placeholder="?/??">
-                <button class="check-btn" onclick="checkIdentification(\( {qNum}, ' \){answer}')">בדוק</button>
+                <button class="check-btn" onclick="checkIdentification(\( {qNum}, ' \){reducedNum}/\( {reducedDen}', ' \){correctHTML}')">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
@@ -118,16 +146,13 @@
         }
 
         function createOperationQuestion(qNum, operation) {
-            // מכנים בין 2-10 כדי שלא יהיה מסובך מדי
             let den1 = Math.floor(Math.random() * 9) + 2;
-            let num1 = Math.floor(Math.random() * den1); // כולל 0? לא, עד den1-1
+            let num1 = Math.floor(Math.random() * den1);
             let den2 = Math.floor(Math.random() * 9) + 2;
             let num2 = Math.floor(Math.random() * den2);
 
-            // כדי שיהיה מעניין – לפעמים מכנה משותף
             if (Math.random() < 0.4) den2 = den1;
 
-            // חישוב תוצאה
             let resultNum, resultDen;
             if (operation === '+') {
                 resultNum = num1 * den2 + num2 * den1;
@@ -135,20 +160,16 @@
             } else {
                 resultNum = num1 * den2 - num2 * den1;
                 resultDen = den1 * den2;
-                // לוודא שחיסור לא יוצא שלילי
                 if (resultNum < 0) {
-                    // החלפה
                     [num1, num2] = [num2, num1];
                     [den1, den2] = [den2, den1];
-                    resultNum = Math.abs(resultNum);
+                    resultNum = -resultNum;
                 }
             }
 
-            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
-            const divisor = gcd(resultNum, resultDen);
-            const reducedNum = resultNum / divisor;
-            const reducedDen = resultDen / divisor;
-            const answer = `\( {reducedNum}/ \){reducedDen}`;
+            const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
+            const correctHTML = createFractionHTML(reducedNum, reducedDen);
+            const correctText = `\( {reducedNum}/ \){reducedDen}`;
 
             const opSign = operation === '+' ? '+' : '−';
 
@@ -163,16 +184,16 @@
                 <div class="canvases">
                     <div>
                         <canvas id="canvasLeft${qNum}" width="250" height="250"></canvas>
-                        <p style="font-size:1.4em; margin:10px;">\( {num1}/ \){den1}</p>
+                        <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num1, den1)}</p>
                     </div>
                     <div class="math-sign">${opSign}</div>
                     <div>
                         <canvas id="canvasRight${qNum}" width="250" height="250"></canvas>
-                        <p style="font-size:1.4em; margin:10px;">\( {num2}/ \){den2}</p>
+                        <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num2, den2)}</p>
                     </div>
                 </div>
                 <input type="text" id="answer${qNum}" placeholder="?/??">
-                <button class="check-btn" onclick="checkOperation(\( {qNum}, ' \){answer}')">בדוק</button>
+                <button class="check-btn" onclick="checkOperation(\( {qNum}, ' \){correctText}', '${correctHTML}')">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
@@ -261,24 +282,24 @@
             }
         }
 
-        function checkIdentification(qNum, correct) {
-            checkTextAnswer(qNum, correct);
+        function checkIdentification(qNum, correctText, correctHTML) {
+            checkTextAnswer(qNum, correctText, correctHTML);
         }
 
-        function checkOperation(qNum, correct) {
-            checkTextAnswer(qNum, correct);
+        function checkOperation(qNum, correctText, correctHTML) {
+            checkTextAnswer(qNum, correctText, correctHTML);
         }
 
-        function checkTextAnswer(qNum, correct) {
+        function checkTextAnswer(qNum, correctText, correctHTML) {
             const input = document.getElementById(`answer${qNum}`);
             const feedback = document.getElementById(`feedback${qNum}`);
             const user = input.value.trim().replace(/\s/g, '');
 
-            if (user === correct) {
-                feedback.textContent = 'כל הכבוד! נכון לגמרי! 🎉';
+            if (user === correctText) {
+                feedback.innerHTML = 'כל הכבוד! נכון לגמרי! 🎉';
                 feedback.className = 'feedback correct';
             } else {
-                feedback.textContent = `לא בדיוק... התשובה הנכונה היא ${correct}. נסי שוב! 💪`;
+                feedback.innerHTML = `לא בדיוק... התשובה הנכונה היא ${correctHTML}. נסי שוב! 💪`;
                 feedback.className = 'feedback incorrect';
             }
         }
