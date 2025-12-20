@@ -29,10 +29,7 @@
         }
         .text { font-size: 1.3em; color: #004d40; margin: 15px 0; }
         .math-sign { font-size: 2em; font-weight: bold; color: #ff5722; margin: 0 20px; }
-        input { 
-            width: 140px; padding: 12px; font-size: 1.4em; text-align: center; 
-            border: 2px solid #00bcd4; border-radius: 10px; 
-        }
+        
         button.check-btn { 
             background: #ff5722; color: white; border: none; padding: 12px 25px; 
             font-size: 1.2em; border-radius: 10px; cursor: pointer; margin-top: 15px; 
@@ -45,19 +42,27 @@
         #reload button { background: #9c27b0; font-size: 1.3em; padding: 15px 30px; }
         #reload button:hover { background: #7b1fa2; }
 
-        /* חדש – הצגת שבר אנכי */
-        .fraction-display {
+        /* הצגת שבר אנכי – גם בשאלה וגם בהזנה */
+        .fraction-display, .fraction-input {
             display: inline-block;
             text-align: center;
-            font-size: 1.4em;
+            font-size: 1.6em;
             margin: 0 10px;
+            vertical-align: middle;
         }
-        .fraction-display .num {
+        .fraction-display .num, .fraction-input .num input {
             border-bottom: 3px solid #000;
             padding: 5px 10px;
         }
-        .fraction-display .den {
+        .fraction-display .den, .fraction-input .den input {
             padding: 5px 10px;
+        }
+        .fraction-input .num input, .fraction-input .den input {
+            width: 60px;
+            font-size: 1em;
+            text-align: center;
+            border: 2px solid #00bcd4;
+            border-radius: 6px;
         }
     </style>
 </head>
@@ -109,7 +114,8 @@
         }
 
         function reduceFraction(num, den) {
-            const divisor = gcd(num, den);
+            if (num === 0) return { num: 0, den: 1 };
+            const divisor = gcd(Math.abs(num), den);
             return { num: num / divisor, den: den / divisor };
         }
 
@@ -117,6 +123,13 @@
             return `<div class="fraction-display">
                         <div class="num">${num}</div>
                         <div class="den">${den}</div>
+                    </div>`;
+        }
+
+        function createFractionInput(qNum) {
+            return `<div class="fraction-input">
+                        <div class="num"><input type="text" id="num${qNum}" maxlength="3"></div>
+                        <div class="den"><input type="text" id="den${qNum}" maxlength="3"></div>
                     </div>`;
         }
 
@@ -134,10 +147,10 @@
             div.className = 'question';
             div.innerHTML = `
                 <h2>שאלה ${qNum}</h2>
-                <div class="text">כמה זה השבר הצבוע?<br>(הזיני בצורה מוקטנת, למשל 1/2)</div>
+                <div class="text">כמה זה השבר הצבוע?<br>(הזיני את המונה והמכנה בצורה מוקטנת)</div>
                 <canvas id="canvas${qNum}" width="300" height="300"></canvas>
-                <input type="text" id="answer${qNum}" placeholder="?/??">
-                <button class="check-btn" onclick="checkIdentification(\( {qNum}, ' \){reducedNum}/\( {reducedDen}', ' \){correctHTML}')">בדוק</button>
+                <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
+                <button class="check-btn" onclick="checkIdentification(${qNum}, ${reducedNum}, \( {reducedDen}, ' \){correctHTML}')">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
@@ -147,7 +160,7 @@
 
         function createOperationQuestion(qNum, operation) {
             let den1 = Math.floor(Math.random() * 9) + 2;
-            let num1 = Math.floor(Math.random() * den1);
+            let num1 = Math.floor(Math.random() * den1); // 0 עד den1-1
             let den2 = Math.floor(Math.random() * 9) + 2;
             let num2 = Math.floor(Math.random() * den2);
 
@@ -169,7 +182,6 @@
 
             const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
             const correctHTML = createFractionHTML(reducedNum, reducedDen);
-            const correctText = `\( {reducedNum}/ \){reducedDen}`;
 
             const opSign = operation === '+' ? '+' : '−';
 
@@ -192,8 +204,8 @@
                         <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num2, den2)}</p>
                     </div>
                 </div>
-                <input type="text" id="answer${qNum}" placeholder="?/??">
-                <button class="check-btn" onclick="checkOperation(\( {qNum}, ' \){correctText}', '${correctHTML}')">בדוק</button>
+                <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
+                <button class="check-btn" onclick="checkOperation(${qNum}, ${reducedNum}, \( {reducedDen}, ' \){correctHTML}')">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
@@ -282,20 +294,23 @@
             }
         }
 
-        function checkIdentification(qNum, correctText, correctHTML) {
-            checkTextAnswer(qNum, correctText, correctHTML);
+        function checkIdentification(qNum, correctNum, correctDen, correctHTML) {
+            checkFractionAnswer(qNum, correctNum, correctDen, correctHTML);
         }
 
-        function checkOperation(qNum, correctText, correctHTML) {
-            checkTextAnswer(qNum, correctText, correctHTML);
+        function checkOperation(qNum, correctNum, correctDen, correctHTML) {
+            checkFractionAnswer(qNum, correctNum, correctDen, correctHTML);
         }
 
-        function checkTextAnswer(qNum, correctText, correctHTML) {
-            const input = document.getElementById(`answer${qNum}`);
+        function checkFractionAnswer(qNum, correctNum, correctDen, correctHTML) {
+            const numInput = document.getElementById(`num${qNum}`);
+            const denInput = document.getElementById(`den${qNum}`);
             const feedback = document.getElementById(`feedback${qNum}`);
-            const user = input.value.trim().replace(/\s/g, '');
 
-            if (user === correctText) {
+            const userNum = numInput.value.trim();
+            const userDen = denInput.value.trim();
+
+            if (userNum === correctNum.toString() && userDen === correctDen.toString()) {
                 feedback.innerHTML = 'כל הכבוד! נכון לגמרי! 🎉';
                 feedback.className = 'feedback correct';
             } else {
