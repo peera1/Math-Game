@@ -88,10 +88,12 @@
 
     <script>
         const NUM_QUESTIONS = 5;
+        const correctAnswers = {}; // כאן נשמור את התשובות הנכונות לכל שאלה
 
         function generateQuestions() {
             const container = document.getElementById('questions');
             container.innerHTML = '';
+            correctAnswers = {};
 
             for (let i = 1; i <= NUM_QUESTIONS; i++) {
                 const types = ['identify', 'add', 'subtract'];
@@ -143,6 +145,8 @@
             const { num: reducedNum, den: reducedDen } = reduceFraction(numerator, denominator);
             const correctHTML = createFractionHTML(reducedNum, reducedDen);
 
+            correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML };
+
             const div = document.createElement('div');
             div.className = 'question';
             div.innerHTML = `
@@ -150,12 +154,15 @@
                 <div class="text">כמה זה השבר הצבוע?<br>(הזיני את המונה והמכנה בצורה מוקטנת)</div>
                 <canvas id="canvas${qNum}" width="300" height="300"></canvas>
                 <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
-                <button class="check-btn" id="btn\( {qNum}" onclick="checkFractionAnswer( \){qNum}, ${reducedNum}, \( {reducedDen}, ' \){correctHTML}')">בדוק</button>
+                <button class="check-btn" id="btn${qNum}">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
 
             drawCircleFraction(qNum, numerator, denominator);
+
+            // הוספת מאזין אירועים בצורה בטוחה
+            document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
         }
 
         function createOperationQuestion(qNum, operation) {
@@ -183,6 +190,8 @@
             const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
             const correctHTML = createFractionHTML(reducedNum, reducedDen);
 
+            correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML };
+
             const opSign = operation === '+' ? '+' : '−';
 
             const div = document.createElement('div');
@@ -202,13 +211,16 @@
                     </div>
                 </div>
                 <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
-                <button class="check-btn" id="btn\( {qNum}" onclick="checkFractionAnswer( \){qNum}, ${reducedNum}, \( {reducedDen}, ' \){correctHTML}')">בדוק</button>
+                <button class="check-btn" id="btn${qNum}">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
 
             drawCircleFraction(`Left${qNum}`, num1, den1);
             drawCircleFraction(`Right${qNum}`, num2, den2);
+
+            // הוספת מאזין אירועים
+            document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
         }
 
         function drawCircleFraction(idPrefix, num, den) {
@@ -254,30 +266,33 @@
             ctx.stroke();
         }
 
-        function checkFractionAnswer(qNum, correctNum, correctDen, correctHTML) {
+        function checkFractionAnswer(qNum) {
             const numInput = document.getElementById(`num${qNum}`);
             const denInput = document.getElementById(`den${qNum}`);
             const feedback = document.getElementById(`feedback${qNum}`);
             const button = document.getElementById(`btn${qNum}`);
 
-            const userNum = numInput.value.trim();
-            const userDen = denInput.value.trim();
+            const userNumStr = numInput.value.trim();
+            const userDenStr = denInput.value.trim();
 
-            // בדיקה אם השדות ריקים
-            if (userNum === '' || userDen === '') {
+            if (userNumStr === '' || userDenStr === '') {
                 feedback.innerHTML = 'אנא מלא/י את המונה והמכנה לפני הבדיקה 🙏';
                 feedback.className = 'feedback incorrect';
                 return;
             }
 
-            // בדיקה אם הקלט הוא מספרים תקינים
-            if (isNaN(userNum) || isNaN(userDen) || userDen == '0') {
+            const userNum = parseInt(userNumStr, 10);
+            const userDen = parseInt(userDenStr, 10);
+
+            if (isNaN(userNum) || isNaN(userDen) || userDen === 0) {
                 feedback.innerHTML = 'הקלד/י מספרים תקינים (מכנה לא יכול להיות 0)';
                 feedback.className = 'feedback incorrect';
                 return;
             }
 
-            if (parseInt(userNum) === correctNum && parseInt(userDen) === correctDen) {
+            const correct = correctAnswers[qNum];
+
+            if (userNum === correct.num && userDen === correct.den) {
                 feedback.innerHTML = 'כל הכבוד! נכון לגמרי! 🎉✅';
                 feedback.className = 'feedback correct';
                 button.textContent = 'נכון! ✅';
@@ -286,9 +301,8 @@
                 numInput.disabled = true;
                 denInput.disabled = true;
             } else {
-                feedback.innerHTML = `לא בדיוק... התשובה הנכונה היא ${correctHTML}. נסי שוב! 💪`;
+                feedback.innerHTML = `לא בדיוק... התשובה הנכונה היא ${correct.html}. נסי שוב! 💪`;
                 feedback.className = 'feedback incorrect';
-                // מאפשר ניסיון נוסף – לא נועלים את השדות
             }
         }
 
