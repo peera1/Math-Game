@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>לומדת שברים לכיתה ה' – כולל השוואת שברים 🌟</title>
+    <title>לומדת שברים לכיתה ה' – זיהוי, חיבור וחיסור 🌟</title>
     <style>
         body { 
             font-family: 'Arial', sans-serif; 
@@ -21,20 +21,14 @@
             max-width: 700px; 
             box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
         }
-        .canvases { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 20px 0; }
+        .canvases { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin: 20px 0; align-items: center; }
         canvas { 
             border: 3px solid #0097a7; 
             border-radius: 15px; 
             background: #fff; 
         }
         .text { font-size: 1.3em; color: #004d40; margin: 15px 0; }
-        .options { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; }
-        .option-btn { 
-            background: #e3f2fd; color: #01579b; padding: 15px 30px; 
-            font-size: 1.5em; border: 2px solid #029be5; border-radius: 15px; 
-            cursor: pointer; min-width: 100px; 
-        }
-        .option-btn:hover { background: #bbdefb; }
+        .math-sign { font-size: 2em; font-weight: bold; color: #ff5722; margin: 0 20px; }
         input { 
             width: 140px; padding: 12px; font-size: 1.4em; text-align: center; 
             border: 2px solid #00bcd4; border-radius: 10px; 
@@ -53,12 +47,14 @@
     </style>
 </head>
 <body>
-    <h1>לומדת שברים לכיתה ה' – כולל השוואת שברים 🌟</h1>
+    <h1>לומדת שברים לכיתה ה' 🌟</h1>
     <p class="intro">
-        תרגלי שברים בצורה כיפית!<br>
-        חלק מהשאלות: זיהוי שבר מצויר (בצורה מוקטנת).<br>
-        חלק מהשאלות: השוואת שברים – בחרי >, < או =.<br>
-        בכל טעינה של הדף יופיעו שאלות חדשות ומגוונות!
+        תרגלי שברים בצורה כיפית ומגוונת!<br>
+        סוגי שאלות: <br>
+        • זיהוי שבר מצויר (בצורה מוקטנת)<br>
+        • חיבור שברים (+)<br>
+        • חיסור שברים (−)<br>
+        בכל טעינה של הדף יופיעו 5 שאלות חדשות!
     </p>
 
     <div id="questions"></div>
@@ -75,13 +71,20 @@
             container.innerHTML = '';
 
             for (let i = 1; i <= NUM_QUESTIONS; i++) {
-                // 60% סיכוי לשאלת זיהוי, 40% לשאלת השוואה
-                const isComparison = Math.random() < 0.4;
+                const types = ['identify', 'add', 'subtract'];
+                const weights = [0.4, 0.3, 0.3]; // סיכויים גבוהים יותר לזיהוי
+                const rnd = Math.random();
+                let type;
+                if (rnd < weights[0]) type = 'identify';
+                else if (rnd < weights[0] + weights[1]) type = 'add';
+                else type = 'subtract';
 
-                if (isComparison) {
-                    createComparisonQuestion(i);
-                } else {
+                if (type === 'identify') {
                     createIdentificationQuestion(i);
+                } else if (type === 'add') {
+                    createOperationQuestion(i, '+');
+                } else {
+                    createOperationQuestion(i, '−');
                 }
             }
         }
@@ -103,7 +106,7 @@
             div.className = 'question';
             div.innerHTML = `
                 <h2>שאלה ${qNum}</h2>
-                <div class="text">כמה זה השבר הצבוע? (הזיני בצורה מוקטנת, למשל 1/2)</div>
+                <div class="text">כמה זה השבר הצבוע?<br>(הזיני בצורה מוקטנת, למשל 1/2)</div>
                 <canvas id="canvas${qNum}" width="300" height="300"></canvas>
                 <input type="text" id="answer${qNum}" placeholder="?/??">
                 <button class="check-btn" onclick="checkIdentification(\( {qNum}, ' \){answer}')">בדוק</button>
@@ -114,23 +117,40 @@
             drawFraction(qNum, shape, numerator, denominator);
         }
 
-        function createComparisonQuestion(qNum) {
-            // יצירת שני שברים שונים
-            let den1 = Math.floor(Math.random() * 10) + 3; // 3-12
-            let num1 = Math.floor(Math.random() * (den1 - 1)) + 1;
-            let den2 = Math.floor(Math.random() * 10) + 3;
-            let num2 = Math.floor(Math.random() * (den2 - 1)) + 1;
+        function createOperationQuestion(qNum, operation) {
+            // מכנים בין 2-10 כדי שלא יהיה מסובך מדי
+            let den1 = Math.floor(Math.random() * 9) + 2;
+            let num1 = Math.floor(Math.random() * den1); // כולל 0? לא, עד den1-1
+            let den2 = Math.floor(Math.random() * 9) + 2;
+            let num2 = Math.floor(Math.random() * den2);
 
-            // כדי שיהיה מעניין – לפעמים מכנים שונים, לפעמים אותו דבר
-            if (Math.random() < 0.3) den2 = den1;
+            // כדי שיהיה מעניין – לפעמים מכנה משותף
+            if (Math.random() < 0.4) den2 = den1;
 
-            const value1 = num1 / den1;
-            const value2 = num2 / den2;
+            // חישוב תוצאה
+            let resultNum, resultDen;
+            if (operation === '+') {
+                resultNum = num1 * den2 + num2 * den1;
+                resultDen = den1 * den2;
+            } else {
+                resultNum = num1 * den2 - num2 * den1;
+                resultDen = den1 * den2;
+                // לוודא שחיסור לא יוצא שלילי
+                if (resultNum < 0) {
+                    // החלפה
+                    [num1, num2] = [num2, num1];
+                    [den1, den2] = [den2, den1];
+                    resultNum = Math.abs(resultNum);
+                }
+            }
 
-            let correctSign;
-            if (value1 > value2) correctSign = '>';
-            else if (value1 < value2) correctSign = '<';
-            else correctSign = '=';
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(resultNum, resultDen);
+            const reducedNum = resultNum / divisor;
+            const reducedDen = resultDen / divisor;
+            const answer = `\( {reducedNum}/ \){reducedDen}`;
+
+            const opSign = operation === '+' ? '+' : '−';
 
             const leftShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
             const rightShape = ['circle', 'square', 'rectH', 'rectV'][Math.floor(Math.random() * 4)];
@@ -139,22 +159,20 @@
             div.className = 'question';
             div.innerHTML = `
                 <h2>שאלה ${qNum}</h2>
-                <div class="text">השווי את השברים – בחרי את הסימן הנכון:</div>
+                <div class="text">חשבי את התוצאה (בצורה מוקטנת):</div>
                 <div class="canvases">
                     <div>
                         <canvas id="canvasLeft${qNum}" width="250" height="250"></canvas>
                         <p style="font-size:1.4em; margin:10px;">\( {num1}/ \){den1}</p>
                     </div>
-                    <div class="options">
-                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '>')">></button>
-                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '=')">=</button>
-                        <button class="option-btn" onclick="checkComparison(${qNum}, this, '<')"><</button>
-                    </div>
+                    <div class="math-sign">${opSign}</div>
                     <div>
                         <canvas id="canvasRight${qNum}" width="250" height="250"></canvas>
                         <p style="font-size:1.4em; margin:10px;">\( {num2}/ \){den2}</p>
                     </div>
                 </div>
+                <input type="text" id="answer${qNum}" placeholder="?/??">
+                <button class="check-btn" onclick="checkOperation(\( {qNum}, ' \){answer}')">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
             document.getElementById('questions').appendChild(div);
@@ -244,6 +262,14 @@
         }
 
         function checkIdentification(qNum, correct) {
+            checkTextAnswer(qNum, correct);
+        }
+
+        function checkOperation(qNum, correct) {
+            checkTextAnswer(qNum, correct);
+        }
+
+        function checkTextAnswer(qNum, correct) {
             const input = document.getElementById(`answer${qNum}`);
             const feedback = document.getElementById(`feedback${qNum}`);
             const user = input.value.trim().replace(/\s/g, '');
@@ -254,33 +280,6 @@
             } else {
                 feedback.textContent = `לא בדיוק... התשובה הנכונה היא ${correct}. נסי שוב! 💪`;
                 feedback.className = 'feedback incorrect';
-            }
-        }
-
-        function checkComparison(qNum, button, chosenSign) {
-            // מצא את הסימן הנכון (חושב מחדש כדי לא לשמור במשתנה גלובלי)
-            const leftText = button.parentElement.previousElementSibling.querySelector('p').textContent;
-            const rightText = button.parentElement.nextElementSibling.querySelector('p').textContent;
-            const [num1, den1] = leftText.split('/').map(Number);
-            const [num2, den2] = rightText.split('/').map(Number);
-            const value1 = num1 / den1;
-            const value2 = num2 / den2;
-
-            let correctSign = value1 > value2 ? '>' : value1 < value2 ? '<' : '=';
-
-            const feedback = document.getElementById(`feedback${qNum}`);
-
-            if (chosenSign === correctSign) {
-                feedback.textContent = 'מעולה! נכון! 🌟';
-                feedback.className = 'feedback correct';
-                // הדגשת הכפתור הנכון
-                button.style.background = '#4caf50';
-                button.style.color = 'white';
-            } else {
-                feedback.textContent = `לא בדיוק... הסימן הנכון הוא ${correctSign}. נסי שוב!`;
-                feedback.className = 'feedback incorrect';
-                button.style.background = '#f44336';
-                button.style.color = 'white';
             }
         }
 
