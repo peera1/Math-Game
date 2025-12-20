@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לימוד שטחים - שטח בין צורות (שאלות משתנות)</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: right; margin: 20px; background-color: #f9f9f9; }
+        h1 { color: #333; text-align: center; }
+        p.intro { text-align: center; font-size: 1.1em; }
+        .question { margin-bottom: 40px; border: 2px solid #a0d8ef; padding: 20px; border-radius: 15px; background-color: #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        canvas { border: 2px solid #000; margin: 15px 0; background-color: #fff; border-radius: 8px; }
+        input { margin: 10px 0; width: 120px; padding: 8px; font-size: 1.1em; text-align: center; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 1em; border-radius: 5px; }
+        button:hover { background-color: #45a049; }
+        .feedback { font-weight: bold; margin-top: 15px; font-size: 1.2em; }
+        .correct { color: green; }
+        .incorrect { color: red; }
+        #reload { text-align: center; margin: 30px; }
+        #reload button { background-color: #ff9800; font-size: 1.1em; padding: 12px 24px; }
+        #reload button:hover { background-color: #e68900; }
+    </style>
+</head>
+<body>
+    <h1>לימוד שטחים: השטח שבין ריבוע גדול לצורה קטנה יותר</h1>
+    <p class="intro">הריבוע החיצוני תמיד 10×10 (שטח 100).<br>
+    בתוכו יש ריבוע או מלבן קטן יותר. חשבו את השטח שמחוץ לצורה הפנימית (100 פחות שטח הפנימי).<br>
+    בכל פעם שתטעינו את הדף – יופיעו שאלות חדשות!</p>
+
+    <div id="questions"></div>
+
+    <div id="reload">
+        <button onclick="location.reload()">שאלות חדשות!</button>
+    </div>
+
+    <script>
+        const OUTER_AREA = 100;
+        const NUM_QUESTIONS = 5;
+
+        // יצירת 5 שאלות אקראיות
+        function generateQuestions() {
+            const container = document.getElementById('questions');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= NUM_QUESTIONS; i++) {
+                // האם ריבוע או מלבן?
+                const isSquare = Math.random() < 0.5;
+
+                let width, height;
+                if (isSquare) {
+                    width = height = Math.floor(Math.random() * 8) + 2; // 2-9
+                } else {
+                    width = Math.floor(Math.random() * 8) + 2;  // 2-9
+                    do {
+                        height = Math.floor(Math.random() * 8) + 2;
+                    } while (height === width); // כדי שזה לא יהיה ריבוע בטעות
+                }
+
+                const innerArea = width * height;
+                const answer = OUTER_AREA - innerArea;
+
+                const shapeText = isSquare ? `ריבוע פנימי: ${width} על ${width}` : `מלבן פנימי: ${width} על ${height}`;
+
+                // יצירת אלמנט השאלה
+                const div = document.createElement('div');
+                div.className = 'question';
+                div.innerHTML = `
+                    <h2>שאלה ${i}</h2>
+                    <p>ריבוע חיצוני: 10 על 10 (שטח 100).<br>${shapeText}.<br>מה השטח שבחוץ (מחוץ לצורה הפנימית)?</p>
+                    <canvas id="canvas${i}" width="150" height="150"></canvas>
+                    <br>
+                    <input type="number" id="answer${i}" placeholder="התשובה שלך">
+                    <button onclick="checkAnswer(${i}, ${answer})">בדוק</button>
+                    <div id="feedback${i}" class="feedback"></div>
+                `;
+                container.appendChild(div);
+
+                // ציור על הקנבס
+                drawShape(i, width, height, isSquare);
+            }
+        }
+
+        function drawShape(qNum, w, h, isSquare) {
+            const canvas = document.getElementById(`canvas${qNum}`);
+            const ctx = canvas.getContext('2d');
+            const scale = 12; // כדי שיהיה מקום מסביב
+            const offsetX = (150 - 10*scale)/2;
+            const offsetY = (150 - 10*scale)/2;
+
+            // רקע לבן
+            ctx.clearRect(0, 0, 150, 150);
+
+            // ריבוע חיצוני (אפור בהיר)
+            ctx.fillStyle = '#bbddee';
+            ctx.fillRect(offsetX, offsetY, 10*scale, 10*scale);
+
+            // צורה פנימית (לבן)
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2;
+
+            // מיקום אקראי קצת כדי שזה לא תמיד בדיוק במרכז
+            const marginX = Math.floor(Math.random() * (10 - w + 1)) * scale + offsetX;
+            const marginY = Math.floor(Math.random() * (10 - h + 1)) * scale + offsetY;
+
+            ctx.fillRect(marginX, marginY, w*scale, h*scale);
+            ctx.strokeRect(marginX, marginY, w*scale, h*scale);
+
+            // קווי רשת קלים להמחשה (אופציונלי)
+            ctx.strokeStyle = '#cccccc';
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x <= 10; x++) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX + x*scale, offsetY);
+                ctx.lineTo(offsetX + x*scale, offsetY + 10*scale);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= 10; y++) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX, offsetY + y*scale);
+                ctx.lineTo(offsetX + 10*scale, offsetY + y*scale);
+                ctx.stroke();
+            }
+        }
+
+        function checkAnswer(qNum, correctAnswer) {
+            const input = document.getElementById(`answer${qNum}`);
+            const feedback = document.getElementById(`feedback${qNum}`);
+            const userAnswer = parseInt(input.value);
+
+            if (isNaN(userAnswer)) {
+                feedback.textContent = 'הזן מספר בבקשה!';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+
+            if (userAnswer === correctAnswer) {
+                feedback.textContent = 'מעולה! תשובה נכונה! 🎉';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `לא בדיוק... השטח הנכון הוא ${correctAnswer}. נסה שוב!`;
+                feedback.className = 'feedback incorrect';
+            }
+        }
+
+        // הפעלה ראשונית
+        generateQuestions();
+    </script>
+</body>
+</html>
