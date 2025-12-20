@@ -165,88 +165,93 @@
         }
 
         function createOperationQuestion(qNum, operation) {
-            let den1 = Math.floor(Math.random() * 9) + 2;
-            let num1 = Math.floor(Math.random() * den1);
-            let den2 = Math.floor(Math.random() * 9) + 2;
-            let num2 = Math.floor(Math.random() * den2);
+    let den1, num1, den2, num2;
+    do {
+        den1 = Math.floor(Math.random() * 9) + 2;
+        num1 = Math.floor(Math.random() * den1);
+        den2 = Math.floor(Math.random() * 9) + 2;
+        num2 = Math.floor(Math.random() * den2);
 
-            // 80% מהמקרים מכנים שונים
-            if (Math.random() > 0.8) den2 = den1;
+        // 80% מהמקרים מכנים שונים
+        if (Math.random() > 0.8) den2 = den1;
 
-            let resultNum, resultDen;
-            if (operation === '+') {
-                resultNum = num1 * den2 + num2 * den1;
-                resultDen = den1 * den2;
-            } else {
-                resultNum = num1 * den2 - num2 * den1;
-                resultDen = den1 * den2;
-                if (resultNum < 0) {
-                    [num1, num2] = [num2, num1];
-                    [den1, den2] = [den2, den1];
-                    resultNum = -resultNum;
-                }
-            }
-
-            const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
-            const correctHTML = createFractionHTML(reducedNum, reducedDen);
-
-            // בדיקה אם יש צורך בתשובה מעורבת
-            let mixed = null;
-            if (reducedNum > reducedDen) {
-                const whole = Math.floor(reducedNum / reducedDen);
-                const remainNum = reducedNum % reducedDen;
-                mixed = { whole, num: remainNum, den: reducedDen };
-            }
-
-            correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML, mixed };
-
-            const opSign = operation === '+' ? '+' : '−';
-
-            let mixedInputHTML = '';
-            if (mixed && mixed.num !== 0) {
-                mixedInputHTML = `
-                    <div style="margin: 10px 0 0 0; font-size:1em;">
-                        או כתשובה מעורבת:
-                        <div class="fraction-input">
-                            <span style="font-size:1.2em;">שלם:</span>
-                            <input type="text" id="whole${qNum}" maxlength="3" style="width:40px;">
-                            <span style="font-size:1.2em;">ושבר:</span>
-                            <div class="num"><input type="text" id="mixnum${qNum}" maxlength="3"></div>
-                            <div class="den"><input type="text" id="mixden${qNum}" maxlength="3"></div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            const div = document.createElement('div');
-            div.className = 'question';
-            div.innerHTML = `
-                <h2>שאלה ${qNum}</h2>
-                <div class="text">חשבי את התוצאה (בצורה מוקטנת):</div>
-                <div class="canvases">
-                    <div>
-                        <canvas id="canvasLeft${qNum}" width="250" height="250"></canvas>
-                        <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num1, den1)}</p>
-                    </div>
-                    <div class="math-sign">${opSign}</div>
-                    <div>
-                        <canvas id="canvasRight${qNum}" width="250" height="250"></canvas>
-                        <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num2, den2)}</p>
-                    </div>
-                </div>
-                <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
-                ${mixedInputHTML}
-                <button class="check-btn" id="btn${qNum}">בדוק</button>
-                <div id="feedback${qNum}" class="feedback"></div>
-            `;
-            document.getElementById('questions').appendChild(div);
-
-            drawCircleFraction(`canvasLeft${qNum}`, num1, den1);
-            drawCircleFraction(`canvasRight${qNum}`, num2, den2);
-
-            document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
+        // ודא שבחיסור לא תתקבל תוצאה שלילית
+        if (operation === '−') {
+            const left = num1 * den2;
+            const right = num2 * den1;
+            if (left < right) continue; // תוצאה שלילית, נסה שוב
         }
+        break;
+    } while (true);
 
+    let resultNum, resultDen;
+    if (operation === '+') {
+        resultNum = num1 * den2 + num2 * den1;
+        resultDen = den1 * den2;
+    } else {
+        resultNum = num1 * den2 - num2 * den1;
+        resultDen = den1 * den2;
+    }
+
+    const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
+    const correctHTML = createFractionHTML(reducedNum, reducedDen);
+
+    // בדיקה אם יש צורך בתשובה מעורבת
+    let mixed = null;
+    if (reducedNum > reducedDen) {
+        const whole = Math.floor(reducedNum / reducedDen);
+        const remainNum = reducedNum % reducedDen;
+        mixed = { whole, num: remainNum, den: reducedDen };
+    }
+
+    correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML, mixed };
+
+    const opSign = operation === '+' ? '+' : '−';
+
+    let mixedInputHTML = '';
+    if (mixed && mixed.num !== 0) {
+        mixedInputHTML = `
+            <div style="margin: 10px 0 0 0; font-size:1em;">
+                או כתשובה מעורבת:
+                <div class="fraction-input">
+                    <span style="font-size:1.2em;">שלם:</span>
+                    <input type="text" id="whole${qNum}" maxlength="3" style="width:40px;">
+                    <span style="font-size:1.2em;">ושבר:</span>
+                    <div class="num"><input type="text" id="mixnum${qNum}" maxlength="3"></div>
+                    <div class="den"><input type="text" id="mixden${qNum}" maxlength="3"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.innerHTML = `
+        <h2>שאלה ${qNum}</h2>
+        <div class="text">חשבי את התוצאה (בצורה מוקטנת):</div>
+        <div class="canvases">
+            <div>
+                <canvas id="canvasLeft${qNum}" width="250" height="250"></canvas>
+                <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num1, den1)}</p>
+            </div>
+            <div class="math-sign">${opSign}</div>
+            <div>
+                <canvas id="canvasRight${qNum}" width="250" height="250"></canvas>
+                <p style="font-size:1.4em; margin:10px;">${createFractionHTML(num2, den2)}</p>
+            </div>
+        </div>
+        <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
+        ${mixedInputHTML}
+        <button class="check-btn" id="btn${qNum}">בדוק</button>
+        <div id="feedback${qNum}" class="feedback"></div>
+    `;
+    document.getElementById('questions').appendChild(div);
+
+    drawCircleFraction(`canvasLeft${qNum}`, num1, den1);
+    drawCircleFraction(`canvasRight${qNum}`, num2, den2);
+
+    document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
+}
         function drawCircleFraction(canvasId, num, den) {
             const canvas = document.getElementById(canvasId);
             if (!canvas) return;
