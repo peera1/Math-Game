@@ -88,12 +88,12 @@
 
     <script>
         const NUM_QUESTIONS = 5;
-        let correctAnswers = {}; // שונה ל-let
+        let correctAnswers = {};
 
         function generateQuestions() {
             const container = document.getElementById('questions');
             container.innerHTML = '';
-            correctAnswers = {}; // איפוס תקין
+            correctAnswers = {};
 
             for (let i = 1; i <= NUM_QUESTIONS; i++) {
                 const types = ['identify', 'add', 'subtract'];
@@ -170,7 +170,8 @@
             let den2 = Math.floor(Math.random() * 9) + 2;
             let num2 = Math.floor(Math.random() * den2);
 
-            if (Math.random() < 0.4) den2 = den1;
+            // 80% מהמקרים מכנים שונים
+            if (Math.random() > 0.8) den2 = den1;
 
             let resultNum, resultDen;
             if (operation === '+') {
@@ -189,9 +190,33 @@
             const { num: reducedNum, den: reducedDen } = reduceFraction(resultNum, resultDen);
             const correctHTML = createFractionHTML(reducedNum, reducedDen);
 
-            correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML };
+            // בדיקה אם יש צורך בתשובה מעורבת
+            let mixed = null;
+            if (reducedNum > reducedDen) {
+                const whole = Math.floor(reducedNum / reducedDen);
+                const remainNum = reducedNum % reducedDen;
+                mixed = { whole, num: remainNum, den: reducedDen };
+            }
+
+            correctAnswers[qNum] = { num: reducedNum, den: reducedDen, html: correctHTML, mixed };
 
             const opSign = operation === '+' ? '+' : '−';
+
+            let mixedInputHTML = '';
+            if (mixed && mixed.num !== 0) {
+                mixedInputHTML = `
+                    <div style="margin: 10px 0 0 0; font-size:1em;">
+                        או כתשובה מעורבת:
+                        <div class="fraction-input">
+                            <span style="font-size:1.2em;">שלם:</span>
+                            <input type="text" id="whole${qNum}" maxlength="3" style="width:40px;">
+                            <span style="font-size:1.2em;">ושבר:</span>
+                            <div class="num"><input type="text" id="mixnum${qNum}" maxlength="3"></div>
+                            <div class="den"><input type="text" id="mixden${qNum}" maxlength="3"></div>
+                        </div>
+                    </div>
+                `;
+            }
 
             const div = document.createElement('div');
             div.className = 'question';
@@ -210,6 +235,7 @@
                     </div>
                 </div>
                 <div style="margin: 20px 0;">${createFractionInput(qNum)}</div>
+                ${mixedInputHTML}
                 <button class="check-btn" id="btn${qNum}">בדוק</button>
                 <div id="feedback${qNum}" class="feedback"></div>
             `;
@@ -274,24 +300,34 @@
             const userNumStr = numInput.value.trim();
             const userDenStr = denInput.value.trim();
 
-            if (userNumStr === '' || userDenStr === '') {
-                feedback.innerHTML = 'אנא מלא/י את המונה והמכנה לפני הבדיקה 🙏';
-                feedback.className = 'feedback incorrect';
-                return;
-            }
-
-            const userNum = parseInt(userNumStr, 10);
-            const userDen = parseInt(userDenStr, 10);
-
-            if (isNaN(userNum) || isNaN(userDen) || userDen === 0) {
-                feedback.innerHTML = 'הקלד/י מספרים תקינים (מכנה לא יכול להיות 0)';
-                feedback.className = 'feedback incorrect';
-                return;
-            }
-
+            let isCorrect = false;
             const correct = correctAnswers[qNum];
 
-            if (userNum === correct.num && userDen === correct.den) {
+            // בדיקת תשובה רגילה
+            if (userNumStr !== '' && userDenStr !== '') {
+                const userNum = parseInt(userNumStr, 10);
+                const userDen = parseInt(userDenStr, 10);
+                if (!isNaN(userNum) && !isNaN(userDen) && userDen !== 0) {
+                    if (userNum === correct.num && userDen === correct.den) isCorrect = true;
+                }
+            }
+
+            // בדיקת תשובה מעורבת (אם יש)
+            if (!isCorrect && correct.mixed && correct.mixed.num !== 0) {
+                const wholeInput = document.getElementById(`whole${qNum}`);
+                const mixNumInput = document.getElementById(`mixnum${qNum}`);
+                const mixDenInput = document.getElementById(`mixden${qNum}`);
+                if (wholeInput && mixNumInput && mixDenInput) {
+                    const w = parseInt(wholeInput.value.trim(), 10);
+                    const n = parseInt(mixNumInput.value.trim(), 10);
+                    const d = parseInt(mixDenInput.value.trim(), 10);
+                    if (!isNaN(w) && !isNaN(n) && !isNaN(d) && d !== 0) {
+                        if (w === correct.mixed.whole && n === correct.mixed.num && d === correct.mixed.den) isCorrect = true;
+                    }
+                }
+            }
+
+            if (isCorrect) {
                 feedback.innerHTML = 'כל הכבוד! נכון לגמרי! 🎉✅';
                 feedback.className = 'feedback correct';
                 button.textContent = 'נכון! ✅';
@@ -299,8 +335,13 @@
                 button.disabled = true;
                 numInput.disabled = true;
                 denInput.disabled = true;
+                if (correct.mixed && correct.mixed.num !== 0) {
+                    document.getElementById(`whole${qNum}`).disabled = true;
+                    document.getElementById(`mixnum${qNum}`).disabled = true;
+                    document.getElementById(`mixden${qNum}`).disabled = true;
+                }
             } else {
-                feedback.innerHTML = `לא בדיוק... התשובה הנכונה היא ${correct.html}. נסי שוב! 💪`;
+                feedback.innerHTML = `לא בדיוק... התשובה הנכונה היא ${correct.html}${correct.mixed && correct.mixed.num !== 0 ? ` או ${correct.mixed.whole} ${createFractionHTML(correct.mixed.num, correct.mixed.den)}` : ''}. נסי שוב! 💪`;
                 feedback.className = 'feedback incorrect';
             }
         }
