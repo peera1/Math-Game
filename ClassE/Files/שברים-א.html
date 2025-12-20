@@ -88,12 +88,12 @@
 
     <script>
         const NUM_QUESTIONS = 5;
-        const correctAnswers = {}; // כאן נשמור את התשובות הנכונות לכל שאלה
+        let correctAnswers = {}; // שונה ל-let
 
         function generateQuestions() {
             const container = document.getElementById('questions');
             container.innerHTML = '';
-            correctAnswers = {};
+            correctAnswers = {}; // איפוס תקין
 
             for (let i = 1; i <= NUM_QUESTIONS; i++) {
                 const types = ['identify', 'add', 'subtract'];
@@ -159,9 +159,8 @@
             `;
             document.getElementById('questions').appendChild(div);
 
-            drawCircleFraction(qNum, numerator, denominator);
+            drawCircleFraction(`canvas${qNum}`, numerator, denominator);
 
-            // הוספת מאזין אירועים בצורה בטוחה
             document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
         }
 
@@ -216,21 +215,21 @@
             `;
             document.getElementById('questions').appendChild(div);
 
-            drawCircleFraction(`Left${qNum}`, num1, den1);
-            drawCircleFraction(`Right${qNum}`, num2, den2);
+            drawCircleFraction(`canvasLeft${qNum}`, num1, den1);
+            drawCircleFraction(`canvasRight${qNum}`, num2, den2);
 
-            // הוספת מאזין אירועים
             document.getElementById(`btn${qNum}`).addEventListener('click', () => checkFractionAnswer(qNum));
         }
 
-        function drawCircleFraction(idPrefix, num, den) {
-            const canvas = document.getElementById(`canvas${idPrefix}`);
+        function drawCircleFraction(canvasId, num, den) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const size = canvas.width <= 250 ? 100 : 120;
+            const size = Math.min(canvas.width, canvas.height) / 2 - 10;
 
             ctx.strokeStyle = '#006064';
             ctx.lineWidth = 4;
