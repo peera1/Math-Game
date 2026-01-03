@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק סדר פעולות חשבון - כיתה ג'</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .rules-reminder {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .rules-reminder strong {
+            color: #d63031;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .question-area {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .exercise {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2d3436;
+            margin: 20px 0;
+            direction: ltr;
+        }
+
+        .answer-input {
+            font-size: 24px;
+            padding: 15px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            width: 150px;
+            text-align: center;
+            direction: ltr;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .attempts-info {
+            margin: 15px 0;
+            font-size: 16px;
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+
+        .button:hover {
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+        }
+
+        .feedback {
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            display: block;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .results-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .results-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .summary {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .summary h2 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .exercise {
+                font-size: 28px;
+            }
+
+            .answer-input {
+                font-size: 20px;
+                width: 120px;
+            }
+
+            .stat-box {
+                min-width: 90px;
+                padding: 10px 15px;
+            }
+
+            .results-table {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 משחק סדר פעולות חשבון 🎯</h1>
+        
+        <div class="rules-reminder">
+            <strong>💡 זכור את סדר הפעולות:</strong><br>
+            1️⃣ <strong>סוגריים</strong> תמיד קודם<br>
+            2️⃣ <strong>כפל וחילוק</strong> משמאל לימין<br>
+            3️⃣ <strong>חיבור וחיסור</strong> משמאל לימין<br>
+            ⚠️ יש לך עד <strong>3 ניסיונות</strong> לכל שאלה!
+        </div>
+
+        <div id="game-area" class="hidden">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">שאלה</div>
+                    <div class="stat-value" id="current-question">1</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">זמן כולל</div>
+                    <div class="stat-value" id="total-time">0:00</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">ניסיונות</div>
+                    <div class="stat-value" id="attempts-display">0/3</div>
+                </div>
+            </div>
+
+            <div class="question-area">
+                <div class="question-number">שאלה מספר <span id="q-num">1</span> מתוך 10</div>
+                <div class="exercise" id="exercise"></div>
+                <div style="margin: 20px 0;">
+                    <input type="number" id="answer-input" class="answer-input" placeholder="?">
+                </div>
+                <div class="attempts-info" id="attempts-info"></div>
+                <div class="feedback" id="feedback"></div>
+                <button class="button" onclick="checkAnswer()">בדוק תשובה</button>
+            </div>
+        </div>
+
+        <div id="start-screen">
+            <div style="text-align: center; padding: 20px;">
+                <p style="font-size: 18px; margin: 20px 0; line-height: 1.8;">
+                    ברוכים הבאים למשחק סדר פעולות!<br>
+                    תפתרו 10 תרגילים עם חיבור, חיסור, כפל וחילוק.<br>
+                    זכרו את סדר הפעולות הנכון!<br><br>
+                    <strong style="color: #e74c3c;">שימו לב: 3 טעויות באותה שאלה = סיום המשחק!</strong>
+                </p>
+                <button class="button" onclick="startGame()">🚀 התחל משחק</button>
+            </div>
+        </div>
+
+        <div id="results-screen" class="hidden">
+            <div class="summary">
+                <h2>🎉 כל הכבוד! סיימת את המבחן! 🎉</h2>
+                <p style="font-size: 18px; margin: 10px 0;">
+                    זמן כולל: <strong id="final-time"></strong><br>
+                    דיוק: <strong id="accuracy"></strong>
+                </p>
+            </div>
+
+            <h3 style="color: #667eea; margin: 20px 0;">📊 טבלת תוצאות מפורטת למורה</h3>
+            <div style="overflow-x: auto;">
+                <table class="results-table" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>תרגיל</th>
+                            <th>תשובה נכונה</th>
+                            <th>תשובת התלמיד</th>
+                            <th>זמן (שניות)</th>
+                            <th>ניסיונות</th>
+                            <th>✓/✗</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="button" onclick="location.reload()">🔄 משחק חדש</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameState = {
+            currentQuestion: 0,
+            questions: [],
+            answers: [],
+            startTime: null,
+            questionStartTime: null,
+            totalSeconds: 0,
+            currentAttempts: 0,
+            timerInterval: null
+        };
+
+        function generateExercise() {
+            const numCount = Math.random() < 0.5 ? 3 : 4;
+            const useParen = Math.random() < 0.4;
+            
+            let nums = [];
+            let ops = [];
+            
+            for (let i = 0; i < numCount; i++) {
+                nums.push(Math.floor(Math.random() * 12) + 1);
+            }
+            
+            for (let i = 0; i < numCount - 1; i++) {
+                const opChoice = Math.random();
+                if (opChoice < 0.25) ops.push('+');
+                else if (opChoice < 0.5) ops.push('−');
+                else if (opChoice < 0.75) ops.push('×');
+                else ops.push('÷');
+            }
+            
+            let expr = '';
+            let parenStart = -1, parenEnd = -1;
+            
+            if (useParen && numCount >= 3) {
+                parenStart = Math.floor(Math.random() * (numCount - 2));
+                parenEnd = parenStart + 1;
+            }
+            
+            for (let i = 0; i < numCount; i++) {
+                if (i === parenStart) expr += '(';
+                expr += nums[i];
+                if (i === parenEnd) expr += ')';
+                if (i < ops.length) expr += ' ' + ops[i] + ' ';
+            }
+            
+            let result = evaluateExpression(expr);
+            
+            if (result === null || result < 0 || result > 100 || !Number.isInteger(result)) {
+                return generateExercise();
+            }
+            
+            return { expr, result };
+        }
+
+        function evaluateExpression(expr) {
+            try {
+                let e = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+                let result = eval(e);
+                return result;
+            } catch {
+                return null;
+            }
+        }
+
+        function startGame() {
+            gameState.questions = [];
+            gameState.answers = [];
+            gameState.currentQuestion = 0;
+            gameState.currentAttempts = 0;
+            gameState.startTime = Date.now();
+            gameState.questionStartTime = Date.now();
+            
+            for (let i = 0; i < 10; i++) {
+                gameState.questions.push(generateExercise());
+            }
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-area').classList.remove('hidden');
+            
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            gameState.timerInterval = setInterval(() => {
+                gameState.totalSeconds = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const mins = Math.floor(gameState.totalSeconds / 60);
+                const secs = gameState.totalSeconds % 60;
+                document.getElementById('total-time').textContent = 
+                    `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = gameState.questions[gameState.currentQuestion];
+            document.getElementById('current-question').textContent = gameState.currentQuestion + 1;
+            document.getElementById('q-num').textContent = gameState.currentQuestion + 1;
+            document.getElementById('exercise').textContent = q.expr + ' = ?';
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('feedback').classList.remove('correct', 'incorrect');
+            document.getElementById('feedback').style.display = 'none';
+            updateAttemptsDisplay();
+            gameState.questionStartTime = Date.now();
+        }
+
+        function updateAttemptsDisplay() {
+            document.getElementById('attempts-display').textContent = 
+                `${gameState.currentAttempts}/3`;
+            
+            if (gameState.currentAttempts > 0) {
+                const remaining = 3 - gameState.currentAttempts;
+                document.getElementById('attempts-info').textContent = 
+                    `נותרו ${remaining} ניסיונות`;
+            } else {
+                document.getElementById('attempts-info').textContent = '';
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer-input').value);
+            const q = gameState.questions[gameState.currentQuestion];
+            const feedback = document.getElementById('feedback');
+            
+            if (isNaN(userAnswer)) {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = '⚠️ אנא הכנס מספר';
+                feedback.style.display = 'block';
+                return;
+            }
+            
+            gameState.currentAttempts++;
+            updateAttemptsDisplay();
+            
+            if (userAnswer === Math.round(q.result)) {
+                const questionTime = Math.floor((Date.now() - gameState.questionStartTime) / 1000);
+                
+                gameState.answers.push({
+                    expr: q.expr,
+                    correct: q.result,
+                    userAnswer: userAnswer,
+                    time: questionTime,
+                    attempts: gameState.currentAttempts,
+                    isCorrect: true
+                });
+                
+                feedback.className = 'feedback correct';
+                feedback.textContent = '🎉 מעולה! תשובה נכונה!';
+                feedback.style.display = 'block';
+                
+                gameState.currentAttempts = 0;
+                
+                setTimeout(() => {
+                    gameState.currentQuestion++;
+                    if (gameState.currentQuestion >= 10) {
+                        endGame();
+                    } else {
+                        showQuestion();
+                    }
+                }, 1500);
+                
+            } else {
+                if (gameState.currentAttempts >= 3) {
+                    clearInterval(gameState.timerInterval);
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ טעית 3 פעמים. התשובה הנכונה: ${Math.round(q.result)}. המשחק הסתיים.`;
+                    feedback.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        if (confirm('טעית 3 פעמים באותה שאלה. האם תרצה להתחיל מחדש?')) {
+                            location.reload();
+                        }
+                    }, 2000);
+                } else {
+                    const remaining = 3 - gameState.currentAttempts;
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = `❌ לא נכון. נסה שוב! נותרו ${remaining} ניסיונות`;
+                    feedback.style.display = 'block';
+                    document.getElementById('answer-input').value = '';
+                    document.getElementById('answer-input').focus();
+                }
+            }
+        }
+
+        function endGame() {
+            clearInterval(gameState.timerInterval);
+            document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            const mins = Math.floor(gameState.totalSeconds / 60);
+            const secs = gameState.totalSeconds % 60;
+            document.getElementById('final-time').textContent = 
+                `${mins}:${secs.toString().padStart(2, '0')}`;
+            
+            const totalAttempts = gameState.answers.reduce((sum, a) => sum + a.attempts, 0);
+            const accuracy = ((10 / totalAttempts) * 100).toFixed(1);
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = '';
+            
+            gameState.answers.forEach((answer, idx) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td style="direction: ltr;">${answer.expr}</td>
+                    <td>${answer.correct}</td>
+                    <td>${answer.userAnswer}</td>
+                    <td>${answer.time}</td>
+                    <td>${answer.attempts}</td>
+                    <td style="font-size: 20px;">${answer.isCorrect ? '✓' : '✗'}</td>
+                `;
+            });
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+    </script>
+</body>
+</html>
