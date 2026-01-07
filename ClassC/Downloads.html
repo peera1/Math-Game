@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>קבצי כיתה ג׳ - מתמטיקה</title>
+    <title>קבצים להורדה - כיתה ג׳</title>
     <style>
         * {
             margin: 0;
@@ -16,261 +16,345 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            direction: rtl;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1400px;
             margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.8s ease;
-        }
-
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.95;
-        }
-
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            animation: fadeInUp 0.8s ease;
-        }
-
-        .file-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
-        .file-card::before {
-            content: '';
+        .back-btn {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        .file-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-        }
-
-        .file-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 2.5em;
+            top: 30px;
+            right: 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 30px 40px;
+            background: linear-gradient(to bottom, #f8f9ff, #ffffff);
+            border-bottom: 3px solid #e8eaf6;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+            min-width: 150px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 20px 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-align: right;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        th:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        th.sorted-asc::after {
+            content: ' ▲';
+            font-size: 0.8em;
+        }
+
+        th.sorted-desc::after {
+            content: ' ▼';
+            font-size: 0.8em;
+        }
+
+        tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(to left, #f8f9ff, #ffffff);
+            transform: scale(1.01);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 18px 15px;
+            text-align: right;
         }
 
         .file-name {
-            font-size: 1.1em;
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
+            font-size: 1.05em;
+        }
+
+        .file-icon {
+            font-size: 1.8em;
             text-align: center;
-            margin-bottom: 10px;
-            word-break: break-word;
         }
 
         .file-type {
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 15px;
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
-        .file-actions {
+        .file-size {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .file-date {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .actions {
             display: flex;
             gap: 10px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .btn {
             padding: 10px 20px;
             border: none;
             border-radius: 25px;
-            font-size: 0.9em;
             cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
             transition: all 0.3s ease;
-            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
         }
 
-        .btn-view {
+        .view-btn, .pages-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .view-btn:hover, .pages-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .download-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
 
-        .btn-view:hover {
-            transform: scale(1.05);
+        .download-btn:hover {
+            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-download {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-download:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-pages {
-            background: linear-gradient(135deg, #52b788 0%, #40916c 100%);
-            color: white;
-        }
-
-        .btn-pages:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(82, 183, 136, 0.4);
         }
 
         .loading {
             text-align: center;
-            color: white;
+            padding: 60px;
             font-size: 1.3em;
-            padding: 60px 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            color: #667eea;
+            font-weight: 600;
         }
 
         .error {
             text-align: center;
-            color: white;
-            font-size: 1.3em;
-            padding: 60px 20px;
-            background: rgba(255, 100, 100, 0.3);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            padding: 60px;
+            font-size: 1.2em;
+            color: #e74c3c;
+            font-weight: 600;
+            background: #ffe8e8;
+            border-radius: 10px;
+            margin: 20px;
         }
 
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-            z-index: 1000;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        footer {
+            background: linear-gradient(to top, #f8f9ff, #ffffff);
+            padding: 30px;
+            text-align: center;
+            color: #666;
+            font-size: 1em;
+            border-top: 3px solid #e8eaf6;
         }
 
         @media (max-width: 768px) {
-            .header h1 {
+            header h1 {
                 font-size: 2em;
             }
-            
-            .files-grid {
-                grid-template-columns: 1fr;
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
             }
 
-            .back-btn {
-                position: static;
-                margin-bottom: 20px;
-                width: 100%;
+            .table-container {
+                padding: 20px;
+            }
+
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9em;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.85em;
             }
         }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        tbody tr {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        tbody tr:nth-child(2) { animation-delay: 0.15s; }
+        tbody tr:nth-child(3) { animation-delay: 0.2s; }
+        tbody tr:nth-child(4) { animation-delay: 0.25s; }
+        tbody tr:nth-child(5) { animation-delay: 0.3s; }
+        tbody tr:nth-child(n+6) { animation-delay: 0.35s; }
     </style>
 </head>
 <body>
-    <button class="back-btn" onclick="goBack()">← חזרה</button>
-    
     <div class="container">
-        <div class="header">
-            <h1>📚 קבצי כיתה ג׳</h1>
-            <p>לחץ על הקבצים לצפייה או להורדה</p>
+        <button class="back-btn" onclick="goBack()">← חזרה</button>
+        <header>
+            <h1>📚 קבצים להורדה</h1>
+            <p class="subtitle">דפי עבודה ומשימות - כיתה ג׳</p>
+        </header>
+        <div class="stats" id="statsContainer"></div>
+        <div class="table-container">
+            <div id="filesContainer" class="loading">טוען קבצים...</div>
         </div>
-
-        <div class="files-grid" id="filesGrid">
-            <div class="loading">טוען קבצים...</div>
-        </div>
+        <footer>
+            <p>כל הקבצים זמינים להורדה חופשית • לחץ על כותרות הטבלה למיון</p>
+        </footer>
     </div>
-
     <script>
         const GITHUB_USER = 'peera1';
         const GITHUB_REPO = 'Math-Game';
         const FOLDER_PATH = 'ClassC/Files';
         const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FOLDER_PATH}`;
 
+        let filesData = [];
+        let currentSort = { column: 'date', direction: 'desc' };
+
         function getFileIcon(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const icons = {
-                'pdf': '📄',
-                'doc': '📝',
-                'docx': '📝',
-                'txt': '📃',
-                'html': '🌐',
-                'htm': '🌐',
-                'xls': '📊',
-                'xlsx': '📊',
-                'ppt': '📊',
-                'pptx': '📊',
-                'zip': '📦',
-                'rar': '📦',
-                'jpg': '🖼️',
-                'jpeg': '🖼️',
-                'png': '🖼️',
-                'gif': '🖼️',
-                'webp': '🖼️',
-                'svg': '🖼️'
+                'pdf': '📕', 'doc': '📘', 'docx': '📘', 'txt': '📄',
+                'xls': '📊', 'xlsx': '📊', 'csv': '📊',
+                'ppt': '📙', 'pptx': '📙',
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️', 'webp': '🖼️',
+                'zip': '🗜️', 'rar': '🗜️', '7z': '🗜️',
+                'mp3': '🎵', 'wav': '🎵', 'mp4': '🎬', 'avi': '🎬',
+                'html': '🌐', 'htm': '🌐', 'css': '🎨', 'js': '⚙️'
             };
             return icons[ext] || '📄';
         }
@@ -279,104 +363,169 @@
             return filename.split('.').pop().toUpperCase();
         }
 
-        function isHtmlFile(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            return ['html', 'htm'].includes(ext);
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('he-IL') + ' ' + date.toLocaleTimeString('he-IL', {hour: '2-digit', minute: '2-digit'});
         }
 
         function canViewInBrowser(filename) {
             const ext = filename.split('.').pop().toLowerCase();
-            const viewableTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'pdf'];
-            return viewableTypes.includes(ext);
+            return ['jpg','jpeg','png','gif','webp','svg','pdf'].includes(ext);
         }
 
-        function handleView(downloadUrl) {
-            window.open(downloadUrl, '_blank');
+        function isHtmlFile(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return ['html','htm'].includes(ext);
         }
 
-        function handleViewHtml(filePath) {
-            // יצירת נתיב GitHub Pages
-            const githubPagesUrl = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${filePath}`;
-            window.open(githubPagesUrl, '_blank');
+        function handleView(url) { 
+            window.open(url, '_blank'); 
         }
 
-        function handleDownload(downloadUrl, fileName) {
+        function handleViewHtml(path) {
+            const url = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/${path}`;
+            window.open(url, '_blank');
+        }
+
+        function handleDownload(url, name) {
             const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = fileName;
+            a.href = url; 
+            a.download = name; 
             a.style.display = 'none';
-            document.body.appendChild(a);
-            a.click();
+            document.body.appendChild(a); 
+            a.click(); 
             document.body.removeChild(a);
         }
 
         function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = '../index.html';
+        }
+
+        function sortFiles(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
             } else {
-                window.location.href = '../index.html';
+                currentSort.column = column;
+                currentSort.direction = 'desc';
             }
+            filesData.sort((a, b) => {
+                let aVal, bVal;
+                if (column === 'name') {
+                    aVal = a.name.toLowerCase(); 
+                    bVal = b.name.toLowerCase();
+                } else if (column === 'type') {
+                    aVal = getFileType(a.name); 
+                    bVal = getFileType(b.name);
+                } else if (column === 'size') {
+                    aVal = a.size; 
+                    bVal = b.size;
+                } else if (column === 'date') {
+                    aVal = new Date(a.lastModified); 
+                    bVal = new Date(b.lastModified);
+                }
+                if (currentSort.direction === 'asc') return aVal > bVal ? 1 : -1;
+                else return aVal < bVal ? 1 : -1;
+            });
+            renderTable();
+        }
+
+        function renderTable() {
+            const container = document.getElementById('filesContainer');
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th onclick="sortFiles('name')" class="${currentSort.column === 'name' ? 'sorted-' + currentSort.direction : ''}">שם הקובץ</th>
+                            <th style="text-align: center;">סוג</th>
+                            <th onclick="sortFiles('type')" class="${currentSort.column === 'type' ? 'sorted-' + currentSort.direction : ''}">פורמט</th>
+                            <th onclick="sortFiles('size')" class="${currentSort.column === 'size' ? 'sorted-' + currentSort.direction : ''}">גודל</th>
+                            <th onclick="sortFiles('date')" class="${currentSort.column === 'date' ? 'sorted-' + currentSort.direction : ''}">תאריך העלאה</th>
+                            <th style="text-align: center;">פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filesData.map(file => {
+                            const canView = canViewInBrowser(file.name);
+                            const isHtml = isHtmlFile(file.name);
+                            return `
+                                <tr>
+                                    <td class="file-name">${file.name}</td>
+                                    <td class="file-icon">${getFileIcon(file.name)}</td>
+                                    <td><span class="file-type">${getFileType(file.name)}</span></td>
+                                    <td class="file-size">${formatFileSize(file.size)}</td>
+                                    <td class="file-date">${formatDate(file.lastModified)}</td>
+                                    <td>
+                                        <div class="actions">
+                                            ${isHtml ? `<button class="btn pages-btn" onclick="handleViewHtml('${file.path}')">צפה 🌐</button>` : canView ? `<button class="btn view-btn" onclick="handleView('${file.download_url}')">צפה 👁️</button>` : ''}
+                                            <button class="btn download-btn" onclick="handleDownload('${file.download_url}', '${file.name}')">הורד ⬇️</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function updateStats() {
+            const totalSize = filesData.reduce((sum, file) => sum + file.size, 0);
+            const fileTypes = {};
+            filesData.forEach(file => {
+                const type = getFileType(file.name);
+                fileTypes[type] = (fileTypes[type] || 0) + 1;
+            });
+            const statsContainer = document.getElementById('statsContainer');
+            statsContainer.innerHTML = `
+                <div class="stat-card"><div class="stat-number">${filesData.length}</div><div class="stat-label">קבצים</div></div>
+                <div class="stat-card"><div class="stat-number">${formatFileSize(totalSize)}</div><div class="stat-label">גודל כולל</div></div>
+                <div class="stat-card"><div class="stat-number">${Object.keys(fileTypes).length}</div><div class="stat-label">סוגי קבצים</div></div>
+            `;
+        }
+
+        async function getFileCommitDate(filePath) {
+            try {
+                const commitsUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/commits?path=${filePath}&page=1&per_page=1`;
+                const response = await fetch(commitsUrl);
+                if (response.ok) {
+                    const commits = await response.json();
+                    if (commits.length > 0) return commits[0].commit.committer.date;
+                }
+            } catch (error) {}
+            return null;
         }
 
         async function loadFiles() {
-            const grid = document.getElementById('filesGrid');
-            
+            const container = document.getElementById('filesContainer');
             try {
                 const response = await fetch(API_URL);
-                
-                if (!response.ok) {
-                    throw new Error('לא ניתן לטעון את הקבצים');
-                }
-
+                if (!response.ok) throw new Error('לא ניתן לטעון את הקבצים');
                 const files = await response.json();
-                
-                // סנן רק קבצים (לא תיקיות)
                 const fileItems = files.filter(item => item.type === 'file');
-
                 if (fileItems.length === 0) {
-                    grid.innerHTML = '<div class="error">לא נמצאו קבצים בתיקייה</div>';
+                    container.innerHTML = '<div class="error">לא נמצאו קבצים בתיקייה</div>';
                     return;
                 }
-
-                grid.innerHTML = fileItems.map(file => {
-                    const canView = canViewInBrowser(file.name);
-                    const isHtml = isHtmlFile(file.name);
-                    
-                    return `
-                        <div class="file-card">
-                            <div class="file-icon">${getFileIcon(file.name)}</div>
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-type">${getFileType(file.name)}</div>
-                            <div class="file-actions">
-                                ${isHtml ? `
-                                    <button class="btn btn-pages" onclick="handleViewHtml('${file.path}')">
-                                        צפה בדף 🌐
-                                    </button>
-                                ` : canView ? `
-                                    <button class="btn btn-view" onclick="handleView('${file.download_url}')">
-                                        צפה 👁️
-                                    </button>
-                                ` : ''}
-                                <button class="btn btn-download" onclick="handleDownload('${file.download_url}', '${file.name}')">
-                                    הורד ⬇️
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
+                container.innerHTML = '<div class="loading">טוען מידע על הקבצים...</div>';
+                filesData = await Promise.all(fileItems.map(async file => {
+                    const commitDate = await getFileCommitDate(file.path);
+                    return {...file, lastModified: commitDate || new Date().toISOString()};
+                }));
+                filesData.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+                renderTable();
+                updateStats();
             } catch (error) {
-                grid.innerHTML = `
-                    <div class="error">
-                        ❌ שגיאה בטעינת הקבצים<br>
-                        ${error.message}
-                    </div>
-                `;
-                console.error('Error loading files:', error);
+                container.innerHTML = `<div class="error">❌ שגיאה בטעינת הקבצים<br>${error.message}</div>`;
             }
         }
-
-        // טעינת הקבצים בעת טעינת הדף
         loadFiles();
     </script>
 </body>
