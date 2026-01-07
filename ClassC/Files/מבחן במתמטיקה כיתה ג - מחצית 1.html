@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מבחן מתמטיקה - כיתה ג'</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+        
+        .section {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-right: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateX(-5px);
+        }
+        
+        .section-title {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .question {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .answer-box {
+            margin-top: 10px;
+            padding: 10px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            background: #f0f4ff;
+            min-height: 50px;
+        }
+        
+        .geometry-section {
+            border-right-color: #f093fb;
+        }
+        
+        .geometry-section .section-title {
+            color: #f093fb;
+        }
+        
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .info-box {
+            background: #fff9e6;
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .ltr-numbers {
+            unicode-bidi: bidi-override;
+            direction: ltr;
+            display: inline;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 מבחן מתמטיקה</h1>
+        <div class="subtitle">כיתה ג' - סוף מחצית א'</div>
+        
+        <div class="info-box">
+            <strong>שם התלמיד/ה:</strong> __________________ &nbsp;&nbsp;&nbsp; <strong>תאריך:</strong> __________
+        </div>
+
+        <!-- חלק א: אריתמטיקה -->
+        
+        <div class="section">
+            <div class="section-title">1. כתיבת מספרים בעלי ארבע ספרות</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                כתבו במספרים: שלושת אלפים ושש מאות וארבעים ושבע
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                כתבו בספרות (במילים): <span class="ltr-numbers">5209</span>
+                <div class="answer-box">
+                    <textarea rows="2" placeholder="תשובה: "></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">2. המונה והשוני של מספרים</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                מה ההפרש (השוני) בין המספרים: <span class="ltr-numbers">7845</span> ו-<span class="ltr-numbers">7802</span>?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                כתבו את המספר שגדול ב-<span class="ltr-numbers">100</span> מהמספר <span class="ltr-numbers">4567</span>
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">3. חיבור וחיסור בתחום הרבבה (ללא המרה)</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                פתרו: <span class="ltr-numbers">4231</span> + <span class="ltr-numbers">3502</span> = ?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                פתרו: <span class="ltr-numbers">8756</span> - <span class="ltr-numbers">4320</span> = ?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">4. סדר פעולות חשבון</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                פתרו לפי סדר הפעולות: <span class="ltr-numbers">15</span> + <span class="ltr-numbers">3</span> × <span class="ltr-numbers">4</span> = ?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                פתרו לפי סדר הפעולות: <span class="ltr-numbers">(20 - 8)</span> : <span class="ltr-numbers">4</span> = ?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">5. בעיות כפל וחילוק</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                לרונן יש 25 מדבקות. הוא רוצה לחלק אותן שווה בשווה ל-4 חברים. כמה מדבקות יקבל כל חבר וכמה מדבקות יישארו?
+                <div class="answer-box">
+                    <textarea rows="2" placeholder="תשובה: "></textarea>
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                בכיתה יש 6 שורות של שולחנות. על כל שורה יושבים 5 תלמידים. כמה תלמידים יושבים בכיתה?
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">6. שאלות מילוליות</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                ביום שני קראה נועה 123 עמודים בספר. ביום שלישי היא קראה עוד 145 עמודים. כמה עמודים היא קראה בסך הכל?
+                <div class="answer-box">
+                    <textarea rows="3" placeholder="פתרון: "></textarea>
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                לאימא היו 8 תפוחים. היא חילקה אותם שווה בשווה ל-2 ילדים. כמה תפוחים קיבל כל ילד?
+                <div class="answer-box">
+                    <textarea rows="3" placeholder="פתרון: "></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- חלק ב: גיאומטריה -->
+
+        <div class="section geometry-section">
+            <div class="section-title">גיאומטריה - 1. זיהוי זוויות</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                מהי זווית ישרה? ציירו דוגמה לזווית ישרה.
+                <div class="answer-box" style="min-height: 100px;">
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                סמנו איזו זווית היא: זווית שגדולה מזווית ישרה נקראת זווית ________
+                <div class="answer-box">
+                    <input type="text" placeholder="תשובה: ________">
+                </div>
+            </div>
+        </div>
+
+        <div class="section geometry-section">
+            <div class="section-title">גיאומטריה - 2. מיון משולשים לפי זוויות</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                מהו משולש חד זווית?
+                <div class="answer-box">
+                    <textarea rows="2" placeholder="תשובה: "></textarea>
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                ציירו משולש ישר זווית וסמנו את הזווית הישרה.
+                <div class="answer-box" style="min-height: 120px;">
+                </div>
+            </div>
+        </div>
+
+        <div class="section geometry-section">
+            <div class="section-title">גיאומטריה - 3. מיון משולשים לפי צלעות</div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 1:</div>
+                מהו משולש שווה שוקיים? כמה צלעות שוות יש לו?
+                <div class="answer-box">
+                    <textarea rows="2" placeholder="תשובה: "></textarea>
+                </div>
+            </div>
+            
+            <div class="question">
+                <div class="question-number">שאלה 2:</div>
+                ציירו משולש שווה צלעות.
+                <div class="answer-box" style="min-height: 120px;">
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #e8f5e9; border-radius: 15px;">
+            <h2 style="color: #2e7d32;">🌟 בהצלחה! 🌟</h2>
+        </div>
+    </div>
+</body>
+</html>
