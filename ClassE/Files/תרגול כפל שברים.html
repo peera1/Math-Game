@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק כפל שברים</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f7f7f7;
+            border-radius: 10px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .mistakes {
+            color: #e74c3c;
+        }
+        
+        .question-box {
+            background: #f0f4ff;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .question {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            direction: ltr;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+        }
+        
+        .numerator {
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            min-width: 30px;
+        }
+        
+        .denominator {
+            padding-top: 5px;
+            min-width: 30px;
+        }
+        
+        .mixed-number {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .answer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .answer-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            direction: ltr;
+        }
+        
+        .answer-type-selector {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            direction: rtl;
+        }
+        
+        .answer-type-selector label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        
+        .answer-type-selector label:hover {
+            background: #f0f4ff;
+        }
+        
+        .answer-type-selector input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        input[type="number"] {
+            width: 65px;
+            padding: 8px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .regular-fraction-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            position: relative;
+        }
+        
+        .regular-fraction-input::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 3px;
+            background-color: #333;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .regular-fraction-input input:first-child {
+            border-radius: 6px;
+            margin-bottom: 5px;
+        }
+        
+        .regular-fraction-input input:last-child {
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+        
+        .mixed-fraction-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .whole-input {
+            width: 70px;
+            padding: 10px;
+            font-size: 1.1em;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .summary-table th,
+        .summary-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        .summary-table th {
+            background: #667eea;
+            color: white;
+        }
+        
+        .summary-table tr:nth-child(even) {
+            background: #f7f7f7;
+        }
+        
+        .final-score {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .restart-btn {
+            display: block;
+            margin: 20px auto;
+        }
+        
+        .hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 משחק כפל שברים 🎯</h1>
+        
+        <div id="gameScreen">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">שאלה</div>
+                    <div class="stat-value" id="questionNum">1/5</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">טעויות</div>
+                    <div class="stat-value mistakes" id="mistakes">0/3</div>
+                </div>
+            </div>
+            
+            <div class="question-box">
+                <div class="question" id="question"></div>
+                
+                <div class="answer-section">
+                    <div class="answer-type-selector">
+                        <label>
+                            <input type="radio" name="answerType" value="regular" checked onchange="toggleAnswerType()">
+                            שבר רגיל
+                        </label>
+                        <label>
+                            <input type="radio" name="answerType" value="mixed" onchange="toggleAnswerType()">
+                            שבר מעורב
+                        </label>
+                        <label>
+                            <input type="radio" name="answerType" value="whole" onchange="toggleAnswerType()">
+                            מספר שלם
+                        </label>
+                    </div>
+                    
+                    <div class="answer-inputs" id="regularAnswer">
+                        <div class="regular-fraction-input">
+                            <input type="number" id="numAnswer" placeholder="מונה">
+                            <input type="number" id="denAnswer" placeholder="מכנה">
+                        </div>
+                    </div>
+                    
+                    <div class="answer-inputs" id="mixedAnswer" style="display:none;">
+                        <div class="mixed-fraction-container">
+                            <input type="number" id="wholeMixedAnswer" placeholder="שלם" class="whole-input">
+                            <div class="regular-fraction-input">
+                                <input type="number" id="mixedNumAnswer" placeholder="מונה">
+                                <input type="number" id="mixedDenAnswer" placeholder="מכנה">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="answer-inputs" id="wholeOnlyAnswer" style="display:none;">
+                        <input type="number" id="wholeNumAnswer" placeholder="מספר שלם" class="whole-input">
+                    </div>
+                    
+                    <div class="hint">הזן תשובה בשבר מצומצם</div>
+                    <button onclick="checkAnswer()">בדוק תשובה</button>
+                </div>
+                
+                <div id="feedback"></div>
+            </div>
+        </div>
+        
+        <div id="summaryScreen" style="display:none;">
+            <h2 style="text-align:center; color:#667eea; margin-bottom:20px;">סיכום המשחק</h2>
+            <div class="final-score" id="finalScore"></div>
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>שאלה</th>
+                        <th>התרגיל</th>
+                        <th>זמן (שניות)</th>
+                        <th>ניסיונות</th>
+                        <th>תוצאה</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryBody"></tbody>
+            </table>
+            <button class="restart-btn" onclick="restartGame()">משחק חדש</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let mistakes = 0;
+        let questionsData = [];
+        let currentAnswer = null;
+        let startTime = null;
+        let questionAttempts = 0;
+
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        function simplifyFraction(num, den) {
+            const divisor = gcd(num, den);
+            return {
+                num: num / divisor,
+                den: den / divisor
+            };
+        }
+
+        function toImproperFraction(whole, num, den) {
+            return {
+                num: whole * den + num,
+                den: den
+            };
+        }
+
+        function toMixedNumber(num, den) {
+            const whole = Math.floor(num / den);
+            const remainder = num % den;
+            return { whole, num: remainder, den };
+        }
+        
+        function toggleAnswerType() {
+            const answerType = document.querySelector('input[name="answerType"]:checked').value;
+            const regularAnswer = document.getElementById('regularAnswer');
+            const mixedAnswer = document.getElementById('mixedAnswer');
+            const wholeOnlyAnswer = document.getElementById('wholeOnlyAnswer');
+            
+            regularAnswer.style.display = 'none';
+            mixedAnswer.style.display = 'none';
+            wholeOnlyAnswer.style.display = 'none';
+            
+            if (answerType === 'regular') {
+                regularAnswer.style.display = 'flex';
+            } else if (answerType === 'mixed') {
+                mixedAnswer.style.display = 'flex';
+            } else if (answerType === 'whole') {
+                wholeOnlyAnswer.style.display = 'flex';
+            }
+        }
+
+        function generateQuestion() {
+            const types = [
+                'whole_proper',
+                'whole_improper', 
+                'whole_mixed',
+                'proper_proper',
+                'improper_improper',
+                'mixed_proper',
+                'mixed_mixed'
+            ];
+            
+            const type = types[Math.floor(Math.random() * types.length)];
+            let questionText = '';
+            let answerNum, answerDen;
+
+            switch(type) {
+                case 'whole_proper':
+                    const w1 = Math.floor(Math.random() * 5) + 2;
+                    const n1 = Math.floor(Math.random() * 4) + 1;
+                    const d1 = Math.floor(Math.random() * 5) + n1 + 1;
+                    questionText = `${w1} × <span class="fraction"><span class="numerator">${n1}</span><span class="denominator">${d1}</span></span>`;
+                    answerNum = w1 * n1;
+                    answerDen = d1;
+                    break;
+                    
+                case 'whole_improper':
+                    const w2 = Math.floor(Math.random() * 4) + 2;
+                    const n2 = Math.floor(Math.random() * 10) + 8;
+                    const d2 = Math.floor(Math.random() * 5) + 3;
+                    questionText = `${w2} × <span class="fraction"><span class="numerator">${n2}</span><span class="denominator">${d2}</span></span>`;
+                    answerNum = w2 * n2;
+                    answerDen = d2;
+                    break;
+                    
+                case 'whole_mixed':
+                    const w3 = Math.floor(Math.random() * 4) + 2;
+                    const mw1 = Math.floor(Math.random() * 3) + 1;
+                    const mn1 = Math.floor(Math.random() * 3) + 1;
+                    const md1 = Math.floor(Math.random() * 4) + mn1 + 1;
+                    const imp1 = toImproperFraction(mw1, mn1, md1);
+                    questionText = `${w3} × <span class="mixed-number">${mw1}<span class="fraction"><span class="numerator">${mn1}</span><span class="denominator">${md1}</span></span></span>`;
+                    answerNum = w3 * imp1.num;
+                    answerDen = imp1.den;
+                    break;
+                    
+                case 'proper_proper':
+                    const n3 = Math.floor(Math.random() * 4) + 1;
+                    const d3 = Math.floor(Math.random() * 5) + n3 + 1;
+                    const n4 = Math.floor(Math.random() * 4) + 1;
+                    const d4 = Math.floor(Math.random() * 5) + n4 + 1;
+                    questionText = `<span class="fraction"><span class="numerator">${n3}</span><span class="denominator">${d3}</span></span> × <span class="fraction"><span class="numerator">${n4}</span><span class="denominator">${d4}</span></span>`;
+                    answerNum = n3 * n4;
+                    answerDen = d3 * d4;
+                    break;
+                    
+                case 'improper_improper':
+                    const n5 = Math.floor(Math.random() * 8) + 6;
+                    const d5 = Math.floor(Math.random() * 4) + 2;
+                    const n6 = Math.floor(Math.random() * 8) + 6;
+                    const d6 = Math.floor(Math.random() * 4) + 2;
+                    questionText = `<span class="fraction"><span class="numerator">${n5}</span><span class="denominator">${d5}</span></span> × <span class="fraction"><span class="numerator">${n6}</span><span class="denominator">${d6}</span></span>`;
+                    answerNum = n5 * n6;
+                    answerDen = d5 * d6;
+                    break;
+                    
+                case 'mixed_proper':
+                    const mw2 = Math.floor(Math.random() * 3) + 1;
+                    const mn2 = Math.floor(Math.random() * 3) + 1;
+                    const md2 = Math.floor(Math.random() * 4) + mn2 + 1;
+                    const n7 = Math.floor(Math.random() * 4) + 1;
+                    const d7 = Math.floor(Math.random() * 5) + n7 + 1;
+                    const imp2 = toImproperFraction(mw2, mn2, md2);
+                    questionText = `<span class="mixed-number">${mw2}<span class="fraction"><span class="numerator">${mn2}</span><span class="denominator">${md2}</span></span></span> × <span class="fraction"><span class="numerator">${n7}</span><span class="denominator">${d7}</span></span>`;
+                    answerNum = imp2.num * n7;
+                    answerDen = imp2.den * d7;
+                    break;
+                    
+                case 'mixed_mixed':
+                    const mw3 = Math.floor(Math.random() * 3) + 1;
+                    const mn3 = Math.floor(Math.random() * 3) + 1;
+                    const md3 = Math.floor(Math.random() * 4) + mn3 + 1;
+                    const mw4 = Math.floor(Math.random() * 3) + 1;
+                    const mn4 = Math.floor(Math.random() * 3) + 1;
+                    const md4 = Math.floor(Math.random() * 4) + mn4 + 1;
+                    const imp3 = toImproperFraction(mw3, mn3, md3);
+                    const imp4 = toImproperFraction(mw4, mn4, md4);
+                    questionText = `<span class="mixed-number">${mw3}<span class="fraction"><span class="numerator">${mn3}</span><span class="denominator">${md3}</span></span></span> × <span class="mixed-number">${mw4}<span class="fraction"><span class="numerator">${mn4}</span><span class="denominator">${md4}</span></span></span>`;
+                    answerNum = imp3.num * imp4.num;
+                    answerDen = imp3.den * imp4.den;
+                    break;
+            }
+
+            const simplified = simplifyFraction(answerNum, answerDen);
+            return {
+                text: questionText,
+                answer: simplified
+            };
+        }
+
+        function displayQuestion() {
+            const question = generateQuestion();
+            currentAnswer = question.answer;
+            document.getElementById('question').innerHTML = question.text;
+            
+            // Reset all inputs
+            document.getElementById('numAnswer').value = '';
+            document.getElementById('denAnswer').value = '';
+            document.getElementById('wholeMixedAnswer').value = '';
+            document.getElementById('mixedNumAnswer').value = '';
+            document.getElementById('mixedDenAnswer').value = '';
+            document.getElementById('wholeNumAnswer').value = '';
+            
+            // Reset to regular fraction
+            document.querySelector('input[name="answerType"][value="regular"]').checked = true;
+            toggleAnswerType();
+            
+            document.getElementById('feedback').innerHTML = '';
+            startTime = Date.now();
+            questionAttempts = 0;
+            
+            questionsData[currentQuestion] = {
+                questionText: question.text,
+                startTime: startTime,
+                attempts: 0,
+                solved: false
+            };
+        }
+
+        function checkAnswer() {
+            questionAttempts++;
+            questionsData[currentQuestion].attempts = questionAttempts;
+            
+            const answerType = document.querySelector('input[name="answerType"]:checked').value;
+            let numInput, denInput;
+            
+            if (answerType === 'regular') {
+                numInput = parseInt(document.getElementById('numAnswer').value);
+                denInput = parseInt(document.getElementById('denAnswer').value);
+                
+                if (isNaN(numInput) || isNaN(denInput)) {
+                    document.getElementById('feedback').innerHTML = '<div class="feedback incorrect">אנא הזן מספרים תקינים</div>';
+                    return;
+                }
+            } else if (answerType === 'mixed') {
+                const wholeInput = parseInt(document.getElementById('wholeMixedAnswer').value) || 0;
+                const mixedNumInput = parseInt(document.getElementById('mixedNumAnswer').value);
+                const mixedDenInput = parseInt(document.getElementById('mixedDenAnswer').value);
+                
+                if (isNaN(mixedNumInput) || isNaN(mixedDenInput)) {
+                    document.getElementById('feedback').innerHTML = '<div class="feedback incorrect">אנא הזן מספרים תקינים</div>';
+                    return;
+                }
+                
+                // Convert mixed number to improper fraction
+                numInput = wholeInput * mixedDenInput + mixedNumInput;
+                denInput = mixedDenInput;
+            } else if (answerType === 'whole') {
+                const wholeNumInput = parseInt(document.getElementById('wholeNumAnswer').value);
+                
+                if (isNaN(wholeNumInput)) {
+                    document.getElementById('feedback').innerHTML = '<div class="feedback incorrect">אנא הזן מספר תקין</div>';
+                    return;
+                }
+                
+                // Convert whole number to fraction
+                numInput = wholeNumInput;
+                denInput = 1;
+            }
+            
+            const userAnswer = simplifyFraction(numInput, denInput);
+            
+            if (userAnswer.num === currentAnswer.num && userAnswer.den === currentAnswer.den) {
+                const timeSpent = Math.round((Date.now() - startTime) / 1000);
+                questionsData[currentQuestion].time = timeSpent;
+                questionsData[currentQuestion].solved = true;
+                
+                document.getElementById('feedback').innerHTML = '<div class="feedback correct">🎉 כל הכבוד! תשובה נכונה!</div>';
+                
+                setTimeout(() => {
+                    currentQuestion++;
+                    if (currentQuestion < 5) {
+                        updateStats();
+                        displayQuestion();
+                    } else {
+                        showSummary();
+                    }
+                }, 1500);
+            } else {
+                mistakes++;
+                
+                // Show correct answer in the best format
+                let correctAnswerText;
+                if (currentAnswer.den === 1) {
+                    correctAnswerText = `${currentAnswer.num}`;
+                } else if (currentAnswer.num > currentAnswer.den) {
+                    const mixed = toMixedNumber(currentAnswer.num, currentAnswer.den);
+                    if (mixed.num === 0) {
+                        correctAnswerText = `${mixed.whole}`;
+                    } else {
+                        correctAnswerText = `${mixed.whole} ${mixed.num}/${mixed.den}`;
+                    }
+                } else {
+                    correctAnswerText = `${currentAnswer.num}/${currentAnswer.den}`;
+                }
+                
+                document.getElementById('feedback').innerHTML = `<div class="feedback incorrect">❌ לא נכון. נסה שוב!<br>התשובה הנכונה: ${correctAnswerText}</div>`;
+                updateStats();
+                
+                if (mistakes >= 3) {
+                    setTimeout(() => {
+                        alert('נפסלת! נסה שוב');
+                        restartGame();
+                    }, 1500);
+                }
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('questionNum').textContent = `${currentQuestion + 1}/5`;
+            document.getElementById('mistakes').textContent = `${mistakes}/3`;
+        }
+
+        function showSummary() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('summaryScreen').style.display = 'block';
+            
+            const totalTime = questionsData.reduce((sum, q) => sum + (q.time || 0), 0);
+            const solved = questionsData.filter(q => q.solved).length;
+            
+            document.getElementById('finalScore').textContent = `פתרת ${solved} מתוך 5 שאלות בזמן כולל של ${totalTime} שניות`;
+            
+            const tbody = document.getElementById('summaryBody');
+            tbody.innerHTML = '';
+            
+            questionsData.forEach((q, i) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = i + 1;
+                row.insertCell(1).innerHTML = q.questionText;
+                row.insertCell(2).textContent = q.time || '-';
+                row.insertCell(3).textContent = q.attempts;
+                row.insertCell(4).textContent = q.solved ? '✓' : '✗';
+                row.cells[4].style.color = q.solved ? '#28a745' : '#dc3545';
+            });
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            mistakes = 0;
+            questionsData = [];
+            document.getElementById('summaryScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            updateStats();
+            displayQuestion();
+        }
+
+        // Start the game
+        displayQuestion();
+        updateStats();
+    </script>
+</body>
+</html>
