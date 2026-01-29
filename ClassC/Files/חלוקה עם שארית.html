@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק חילוק עם שארית</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .mistakes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .mistake-icon {
+            transition: all 0.3s;
+        }
+
+        .mistake-icon.used {
+            opacity: 0.3;
+            filter: grayscale(100%);
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.2em;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            background: #fff9e6;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 3px solid #ffd700;
+        }
+
+        .question {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .input-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 1.2em;
+            color: #333;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 12px;
+            font-size: 1.5em;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .end-game {
+            text-align: center;
+            display: none;
+        }
+
+        .end-game h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .final-score {
+            font-size: 3em;
+            color: #764ba2;
+            margin: 20px 0;
+        }
+
+        .stars {
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .results-table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            font-size: 0.95em;
+        }
+
+        .results-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .correct-answer {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .wrong-answer {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .game-over {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .game-over h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .bounce {
+            animation: bounce 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .encouragement {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: encouragement-pop 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes encouragement-pop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎯 משחק חילוק עם שארית</h1>
+        
+        <div class="mistakes">
+            <span class="mistake-icon" id="life1">❤️</span>
+            <span class="mistake-icon" id="life2">❤️</span>
+            <span class="mistake-icon" id="life3">❤️</span>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <div class="score-label">שאלה</div>
+                <div class="score-value" id="current-question">1</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">תשובות נכונות</div>
+                <div class="score-value" id="correct-count">0</div>
+            </div>
+        </div>
+
+        <div class="timer" id="timer">זמן: 0 שניות</div>
+
+        <div id="game-area">
+            <div class="question-box">
+                <div class="question" id="question"></div>
+                
+                <div class="input-group">
+                    <div class="input-box">
+                        <label>תוצאה:</label>
+                        <input type="number" id="quotient" min="0" max="50">
+                    </div>
+                    <div class="input-box">
+                        <label>שארית:</label>
+                        <input type="number" id="remainder" min="0" max="50">
+                    </div>
+                </div>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+
+            <button class="btn btn-check" id="check-btn" onclick="checkAnswer()">בדוק תשובה</button>
+            <button class="btn btn-next" id="next-btn" onclick="nextQuestion()" style="display: none;">שאלה הבאה</button>
+        </div>
+
+        <div class="end-game" id="end-game">
+            <h2 id="end-title">🎉 כל הכבוד! סיימת את המשחק!</h2>
+            <div class="stars" id="stars"></div>
+            <div class="final-score" id="final-score"></div>
+            
+            <h3 style="margin-top: 30px; color: #667eea;">סיכום השאלות:</h3>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>שאלה</th>
+                        <th>התשובה שלך</th>
+                        <th>תשובה נכונה</th>
+                        <th>תוצאה</th>
+                        <th>זמן</th>
+                    </tr>
+                </thead>
+                <tbody id="results-body">
+                </tbody>
+            </table>
+            
+            <button class="btn btn-next" onclick="restartGame()">שחק שוב</button>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestionNum = 0;
+        let correctAnswers = 0;
+        let mistakes = 0;
+        let currentDividend, currentDivisor, correctQuotient, correctRemainder;
+        let questionStartTime;
+        let gameResults = [];
+        let askedQuestions = []; // מערך לשמירת שאלות שכבר נשאלו
+        const totalQuestions = 5;
+        const maxMistakes = 3;
+        let timerInterval;
+
+        const encouragements = [
+            'כל הכבוד! 🌟',
+            'מעולה! 🎯',
+            'יפה מאוד! 💪',
+            'גאון! 🏆',
+            'פנומנלי! ⭐',
+            'מושלם! 🎉',
+            'חזק ואמץ! 💯'
+        ];
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ff1493'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animation = `confetti-fall ${2 + Math.random() * 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 0.3 + 's';
+                document.body.appendChild(confetti);
+
+                setTimeout(() => confetti.remove(), 4000);
+            }
+        }
+
+        function showEncouragement() {
+            const message = encouragements[Math.floor(Math.random() * encouragements.length)];
+            const encouragement = document.createElement('div');
+            encouragement.className = 'encouragement';
+            encouragement.textContent = message;
+            document.body.appendChild(encouragement);
+
+            setTimeout(() => encouragement.remove(), 1000);
+        }
+
+        function startTimer() {
+            questionStartTime = Date.now();
+        }
+
+        function getElapsedTime() {
+            return Math.round((Date.now() - questionStartTime) / 1000);
+        }
+
+        function updateGlobalTimer() {
+            const totalSeconds = Math.floor((Date.now() - gameResults[0]?.startTime || Date.now()) / 1000);
+            document.getElementById('timer').textContent = `זמן: ${totalSeconds} שניות`;
+        }
+
+        function generateQuestion() {
+            let questionKey;
+            let attempts = 0;
+            const maxAttempts = 100; // למנוע לולאה אינסופית
+            
+            // יצירת שאלה ייחודית
+            do {
+                currentDividend = Math.floor(Math.random() * 50) + 1;
+                currentDivisor = Math.floor(Math.random() * 9) + 2; // מחלק בין 2-10
+                questionKey = `${currentDividend}-${currentDivisor}`;
+                attempts++;
+            } while (askedQuestions.includes(questionKey) && attempts < maxAttempts);
+            
+            // שמירת השאלה שנשאלה
+            askedQuestions.push(questionKey);
+            
+            correctQuotient = Math.floor(currentDividend / currentDivisor);
+            correctRemainder = currentDividend % currentDivisor;
+            
+            // תצוגה בפורמט הנכון: ? = מחלק ÷ מחולק
+            document.getElementById('question').textContent = `? = ${currentDivisor} ÷ ${currentDividend}`;
+            document.getElementById('quotient').value = '';
+            document.getElementById('remainder').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('check-btn').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('quotient').focus();
+            
+            startTimer();
+        }
+
+        function checkAnswer() {
+            const userQuotient = parseInt(document.getElementById('quotient').value);
+            const userRemainder = parseInt(document.getElementById('remainder').value);
+            const feedback = document.getElementById('feedback');
+            const elapsedTime = getElapsedTime();
+            
+            if (isNaN(userQuotient) || isNaN(userRemainder)) {
+                feedback.textContent = '❗ אנא מלא את שני השדות';
+                feedback.className = 'feedback incorrect';
+                return;
+            }
+            
+            const isCorrect = (userQuotient === correctQuotient && userRemainder === correctRemainder);
+            
+            // שמירת התוצאה
+            gameResults.push({
+                questionNum: currentQuestionNum,
+                question: `${currentDivisor} ÷ ${currentDividend}`,
+                userAnswer: `${userQuotient} שארית ${userRemainder}`,
+                correctAnswer: `${correctQuotient} שארית ${correctRemainder}`,
+                isCorrect: isCorrect,
+                time: elapsedTime,
+                startTime: currentQuestionNum === 1 ? questionStartTime : gameResults[0]?.startTime
+            });
+            
+            if (isCorrect) {
+                feedback.textContent = '🎉 מצוין! תשובה נכונה!';
+                feedback.className = 'feedback correct';
+                correctAnswers++;
+                document.getElementById('correct-count').textContent = correctAnswers;
+                document.querySelector('.score-value#correct-count').classList.add('bounce');
+                
+                // הוספת קונפטי ועידוד!
+                createConfetti();
+                showEncouragement();
+                
+                setTimeout(() => {
+                    document.querySelector('.score-value#correct-count').classList.remove('bounce');
+                }, 500);
+            } else {
+                mistakes++;
+                feedback.textContent = `❌ לא נכון. התשובה הנכונה: ${correctQuotient} עם שארית ${correctRemainder}`;
+                feedback.className = 'feedback incorrect';
+                
+                // עדכון לבבות
+                const lifeIcon = document.getElementById(`life${mistakes}`);
+                if (lifeIcon) {
+                    lifeIcon.classList.add('used');
+                    lifeIcon.classList.add('shake');
+                }
+                
+                // בדיקה אם הגיע ל-3 טעויות
+                if (mistakes >= maxMistakes) {
+                    setTimeout(() => {
+                        endGame(true);
+                    }, 1500);
+                    return;
+                }
+            }
+            
+            document.getElementById('check-btn').style.display = 'none';
+            
+            if (currentQuestionNum < totalQuestions && mistakes < maxMistakes) {
+                document.getElementById('next-btn').style.display = 'block';
+            } else if (mistakes < maxMistakes) {
+                setTimeout(() => endGame(false), 2000);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionNum++;
+            document.getElementById('current-question').textContent = currentQuestionNum;
+            generateQuestion();
+        }
+
+        function endGame(gameOver) {
+            clearInterval(timerInterval);
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('end-game').style.display = 'block';
+            
+            const endTitle = document.getElementById('end-title');
+            const starsDiv = document.getElementById('stars');
+            
+            if (gameOver) {
+                endTitle.innerHTML = '😔 נפסלת! 3 טעויות';
+                endTitle.style.color = '#dc3545';
+                starsDiv.innerHTML = '<div class="game-over"><h3>המשחק הסתיים לאחר 3 טעויות</h3><p>נסה שוב!</p></div>';
+            } else {
+                endTitle.innerHTML = '🎉 כל הכבוד! סיימת את המשחק!';
+                endTitle.style.color = '#667eea';
+                
+                const percentage = (correctAnswers / totalQuestions) * 100;
+                let stars = '';
+                
+                if (percentage === 100) {
+                    stars = '⭐⭐⭐';
+                } else if (percentage >= 60) {
+                    stars = '⭐⭐';
+                } else if (percentage >= 40) {
+                    stars = '⭐';
+                } else {
+                    stars = '💪 תתאמן עוד קצת!';
+                }
+                
+                starsDiv.textContent = stars;
+            }
+            
+            document.getElementById('final-score').textContent = `${correctAnswers} נכונות מתוך ${currentQuestionNum} שאלות`;
+            
+            // יצירת טבלת תוצאות
+            const resultsBody = document.getElementById('results-body');
+            resultsBody.innerHTML = '';
+            
+            gameResults.forEach((result, index) => {
+                const row = resultsBody.insertRow();
+                row.innerHTML = `
+                    <td>${result.question}</td>
+                    <td>${result.userAnswer}</td>
+                    <td>${result.correctAnswer}</td>
+                    <td class="${result.isCorrect ? 'correct-answer' : 'wrong-answer'}">
+                        ${result.isCorrect ? '✓ נכון' : '✗ לא נכון'}
+                    </td>
+                    <td>${result.time} שניות</td>
+                `;
+            });
+        }
+
+        function restartGame() {
+            currentQuestionNum = 0;
+            correctAnswers = 0;
+            mistakes = 0;
+            gameResults = [];
+            askedQuestions = []; // איפוס רשימת השאלות שנשאלו
+            document.getElementById('current-question').textContent = '1';
+            document.getElementById('correct-count').textContent = '0';
+            document.getElementById('game-area').style.display = 'block';
+            document.getElementById('end-game').style.display = 'none';
+            
+            // איפוס לבבות
+            for (let i = 1; i <= 3; i++) {
+                const lifeIcon = document.getElementById(`life${i}`);
+                lifeIcon.classList.remove('used', 'shake');
+            }
+            
+            nextQuestion();
+            timerInterval = setInterval(updateGlobalTimer, 1000);
+        }
+
+        // התחלת המשחק
+        window.onload = function() {
+            nextQuestion();
+            timerInterval = setInterval(updateGlobalTimer, 1000);
+            
+            // אפשרות ללחוץ Enter כדי לבדוק תשובה
+            document.getElementById('remainder').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkAnswer();
+                }
+            });
+            
+            document.getElementById('quotient').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('remainder').focus();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
