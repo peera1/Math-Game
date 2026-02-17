@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>חיבור וחיסור שברים – מכנה זהה</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f7fa;
+    --sea: #00bcd4;
+    --deep: #006064;
+    --coral: #ff6f61;
+    --sun: #ffd54f;
+    --mint: #a5d6a7;
+    --lavender: #ce93d8;
+    --white: #ffffff;
+    --light: #f8f9ff;
+    --shadow: rgba(0,80,100,0.12);
+    --radius: 24px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Assistant', sans-serif;
+    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 40%, #e8f5e9 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-x: hidden;
+  }
+
+  /* Floating bubbles background */
+  .bubble {
+    position: fixed;
+    border-radius: 50%;
+    opacity: 0.18;
+    animation: floatBubble linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes floatBubble {
+    0% { transform: translateY(110vh) scale(0.8); opacity: 0; }
+    10% { opacity: 0.18; }
+    90% { opacity: 0.18; }
+    100% { transform: translateY(-20vh) scale(1.2); opacity: 0; }
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  /* ========== SCREENS ========== */
+  .screen { display: none; animation: fadeIn 0.6s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ========== CARD ========== */
+  .card {
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(20px);
+    border-radius: 36px;
+    padding: 44px 40px;
+    box-shadow: 0 20px 60px var(--shadow), 0 2px 0 rgba(255,255,255,0.8) inset;
+    border: 1.5px solid rgba(255,255,255,0.7);
+  }
+
+  /* ========== WELCOME SCREEN ========== */
+  .welcome-icon {
+    font-size: 90px;
+    text-align: center;
+    margin-bottom: 12px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .welcome-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.6rem;
+    color: var(--deep);
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .welcome-subtitle {
+    text-align: center;
+    color: #546e7a;
+    font-size: 1.1rem;
+    margin-bottom: 28px;
+    font-weight: 600;
+  }
+  .info-boxes {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 32px;
+    direction: ltr; /* keep boxes left-to-right visually */
+  }
+  .info-box {
+    flex: 1;
+    border-radius: 18px;
+    padding: 16px 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .info-box .icon { font-size: 28px; margin-bottom: 6px; }
+  .info-box.blue { background: #e1f5fe; color: #0277bd; }
+  .info-box.orange { background: #fff3e0; color: #e65100; }
+  .info-box.green { background: #e8f5e9; color: #2e7d32; }
+
+  /* ========== BTN ========== */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    border: none;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.35rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--sea), var(--deep));
+    color: white;
+    box-shadow: 0 6px 20px rgba(0,188,212,0.4);
+  }
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(0,188,212,0.5);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ========== PROGRESS BAR ========== */
+  .progress-wrap {
+    margin-bottom: 28px;
+  }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    direction: rtl;
+  }
+  .progress-label {
+    font-family: 'Fredoka One', cursive;
+    color: var(--deep);
+    font-size: 1rem;
+  }
+  .hearts {
+    display: flex;
+    gap: 5px;
+    font-size: 1.4rem;
+    direction: ltr;
+  }
+  .heart { transition: all 0.3s ease; }
+  .heart.lost { filter: grayscale(1) opacity(0.3); transform: scale(0.8); }
+
+  .progress-bar-bg {
+    height: 14px;
+    background: #e0f2f1;
+    border-radius: 99px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.08);
+    direction: ltr; /* keep fill going left-to-right visually */
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--sea), var(--mint));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* ========== QUESTION AREA ========== */
+  .question-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .question-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--sea);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .question-type-badge {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .badge-add { background: #e8f5e9; color: #2e7d32; }
+  .badge-sub { background: #fce4ec; color: #c62828; }
+
+  /* ========== FRACTION DISPLAY ========== */
+  .fraction-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin: 24px 0;
+    direction: ltr; /* Math equations always LTR */
+  }
+  .fraction {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: var(--deep);
+    min-width: 60px;
+  }
+  .frac-line {
+    width: 100%;
+    height: 4px;
+    background: var(--deep);
+    border-radius: 2px;
+    margin: 4px 0;
+  }
+  .frac-num, .frac-den {
+    line-height: 1;
+    padding: 2px 8px;
+  }
+  .op-symbol {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: var(--coral);
+    font-weight: 700;
+  }
+  .eq-symbol {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.8rem;
+    color: var(--sea);
+  }
+
+  /* Answer fraction */
+  .answer-fraction {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+  }
+  .answer-top-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .answer-input {
+    width: 70px;
+    height: 54px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--deep);
+    border: 3px solid #b2dfdb;
+    border-radius: 14px;
+    background: #f1fffe;
+    outline: none;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .answer-input::-webkit-outer-spin-button,
+  .answer-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .answer-input:focus {
+    border-color: var(--sea);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(0,188,212,0.15);
+    transform: scale(1.05);
+  }
+  .answer-input.correct {
+    border-color: #43a047;
+    background: #e8f5e9;
+    animation: correctPop 0.5s ease;
+  }
+  .answer-input.wrong {
+    border-color: var(--coral);
+    background: #fff3f3;
+    animation: shake 0.4s ease;
+  }
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .answer-denom-fixed {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: #90a4ae;
+    padding: 2px 8px;
+  }
+  .answer-denom-input {
+    width: 70px;
+    height: 54px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--deep);
+    border: 3px solid #b2dfdb;
+    border-radius: 14px;
+    background: #f1fffe;
+    outline: none;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .answer-denom-input::-webkit-outer-spin-button,
+  .answer-denom-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .answer-denom-input:focus {
+    border-color: var(--sea);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(0,188,212,0.15);
+    transform: scale(1.05);
+  }
+  .answer-denom-input.correct {
+    border-color: #43a047;
+    background: #e8f5e9;
+    animation: correctPop 0.5s ease;
+  }
+  .answer-denom-input.wrong {
+    border-color: var(--coral);
+    background: #fff3f3;
+    animation: shake 0.4s ease;
+  }
+  .answer-frac-line {
+    width: 80px;
+    height: 4px;
+    background: #b2dfdb;
+    border-radius: 2px;
+    margin: 4px 0;
+  }
+
+  /* ========== FEEDBACK ========== */
+  .feedback-msg {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 14px;
+    transition: all 0.3s;
+    margin: 12px 0;
+  }
+  .feedback-msg.correct-msg {
+    background: #e8f5e9;
+    color: #2e7d32;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback-msg.wrong-msg {
+    background: #fce4ec;
+    color: #c62828;
+    animation: fadeIn 0.3s ease;
+  }
+
+  /* ========== CHECK BTN ========== */
+  .btn-check {
+    background: linear-gradient(135deg, #26c6da, #006064);
+    color: white;
+    box-shadow: 0 6px 20px rgba(38,198,218,0.4);
+    margin-top: 8px;
+  }
+  .btn-check:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(38,198,218,0.5);
+  }
+  .btn-check:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ========== VISUAL FRACTION STRIPS ========== */
+  .strips-wrap {
+    margin: 0 0 20px;
+    padding: 16px;
+    background: rgba(0,188,212,0.06);
+    border-radius: 18px;
+    border: 1.5px dashed rgba(0,188,212,0.3);
+    direction: ltr;
+  }
+  .strip-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    direction: ltr;
+  }
+  .strip-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: var(--deep);
+    min-width: 44px;
+    text-align: center;
+    direction: ltr;
+  }
+  .strip-track {
+    flex: 1;
+    height: 28px;
+    background: #e0f2f1;
+    border-radius: 8px;
+    display: flex;
+    overflow: hidden;
+    border: 1.5px solid rgba(0,188,212,0.2);
+  }
+  .strip-seg {
+    height: 100%;
+    transition: all 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    border-left: 1px solid rgba(255,255,255,0.3);
+  }
+  .strip-seg:first-child { border-left: none; }
+  .seg-filled-add { background: linear-gradient(180deg, #4dd0e1, #0097a7); }
+  .seg-filled-sub { background: linear-gradient(180deg, #ff8a65, #e64a19); }
+  .seg-empty { background: transparent; }
+
+  /* ========== DISQUALIFIED ========== */
+  .disq-icon { font-size: 80px; text-align: center; animation: wobble 0.7s ease; }
+  @keyframes wobble {
+    0%,100% { transform: rotate(0); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+  }
+  .disq-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--coral);
+    text-align: center;
+    margin: 12px 0 6px;
+  }
+  .disq-sub {
+    text-align: center;
+    color: #78909c;
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  /* ========== REPORT ========== */
+  .report-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .report-icon { font-size: 70px; animation: bounce 2s ease-in-out infinite; }
+  .report-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    margin: 8px 0 4px;
+  }
+  .report-grade {
+    display: inline-block;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    padding: 6px 20px;
+    border-radius: 99px;
+    margin-bottom: 16px;
+  }
+  .grade-excellent { background: #e8f5e9; color: #1b5e20; }
+  .grade-good { background: #e3f2fd; color: #0d47a1; }
+  .grade-ok { background: #fff3e0; color: #bf360c; }
+  .grade-fail { background: #fce4ec; color: #880e4f; }
+
+  .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .report-stat {
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-icon { font-size: 28px; margin-bottom: 4px; }
+  .stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.75;
+  }
+  .stat-blue { background: #e1f5fe; color: #01579b; }
+  .stat-green { background: #e8f5e9; color: #1b5e20; }
+  .stat-red { background: #fce4ec; color: #880e4f; }
+  .stat-orange { background: #fff3e0; color: #bf360c; }
+  .stat-purple { background: #f3e5f5; color: #6a1b9a; }
+  .stat-teal { background: #e0f2f1; color: #004d40; }
+
+  .report-detail-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.1rem;
+    color: var(--deep);
+    margin: 16px 0 10px;
+  }
+  .question-review {
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    direction: rtl;
+    text-align: right;
+  }
+  .qr-correct { background: #e8f5e9; color: #2e7d32; }
+  .qr-wrong { background: #fce4ec; color: #c62828; }
+  .qr-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .qr-text { flex: 1; direction: ltr; text-align: left; }
+  .qr-attempts { font-size: 0.78rem; opacity: 0.7; }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--coral), #c62828);
+    color: white;
+    box-shadow: 0 6px 20px rgba(255,111,97,0.4);
+    margin-top: 8px;
+  }
+  .btn-restart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(255,111,97,0.5);
+  }
+
+  /* Stars animation */
+  .stars-wrap {
+    text-align: center;
+    font-size: 2rem;
+    margin: 12px 0;
+    animation: fadeIn 0.5s ease 0.3s both;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 999;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 500px) {
+    .card { padding: 28px 20px; }
+    .fraction { font-size: 1.8rem; }
+    .op-symbol, .eq-symbol { font-size: 2rem; }
+    .answer-input { width: 56px; height: 46px; font-size: 1.6rem; }
+    .report-grid { grid-template-columns: 1fr 1fr; }
+    .welcome-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background bubbles -->
+<div class="bubble" style="width:60px;height:60px;background:#00bcd4;left:10%;animation-duration:14s;animation-delay:0s;"></div>
+<div class="bubble" style="width:40px;height:40px;background:#ff6f61;left:25%;animation-duration:18s;animation-delay:3s;"></div>
+<div class="bubble" style="width:80px;height:80px;background:#a5d6a7;left:55%;animation-duration:12s;animation-delay:6s;"></div>
+<div class="bubble" style="width:50px;height:50px;background:#ffd54f;left:75%;animation-duration:16s;animation-delay:1s;"></div>
+<div class="bubble" style="width:35px;height:35px;background:#ce93d8;left:88%;animation-duration:20s;animation-delay:9s;"></div>
+<div class="bubble" style="width:55px;height:55px;background:#80cbc4;left:42%;animation-duration:15s;animation-delay:4s;"></div>
+
+<div class="app">
+
+  <!-- ===== WELCOME SCREEN ===== -->
+  <div class="screen active" id="screen-welcome">
+    <div class="card">
+      <div class="welcome-icon">🍕</div>
+      <h1 class="welcome-title">חיבור וחיסור<br>שברים</h1>
+      <p class="welcome-subtitle">כשהמכנה זהה – הכל קל יותר!</p>
+      <div class="info-boxes">
+        <div class="info-box blue">
+          <div class="icon">🎯</div>
+          5 תרגילים
+        </div>
+        <div class="info-box orange">
+          <div class="icon">❤️</div>
+          3 חיים
+        </div>
+        <div class="info-box green">
+          <div class="icon">📊</div>
+          דוח מסכם
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="startGame()">בואו נתחיל! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ===== QUESTION SCREEN ===== -->
+  <div class="screen" id="screen-question">
+    <div class="card">
+
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span class="progress-label" id="q-label">שאלה 1 מתוך 5</span>
+          <div class="hearts" id="hearts-display"></div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="question-header">
+        <div class="question-num" id="q-num">שאלה 1</div>
+        <div class="question-type-badge" id="q-badge">חיבור</div>
+      </div>
+
+      <div id="strips-container" class="strips-wrap"></div>
+
+      <div class="fraction-display" id="fraction-display"></div>
+
+      <div class="feedback-msg" id="feedback-msg"></div>
+
+      <button class="btn btn-check" id="btn-check" onclick="checkAnswer()">בדוק תשובה ✓</button>
+
+    </div>
+  </div>
+
+  <!-- ===== DISQUALIFIED SCREEN ===== -->
+  <div class="screen" id="screen-disq">
+    <div class="card">
+      <div class="disq-icon">😵</div>
+      <h2 class="disq-title">נפסלת!</h2>
+      <p class="disq-sub">השתמשת ב-3 חיים ויצאת מהמשחק.<br>אל תתייאש, אפשר לנסות שוב!</p>
+      <button class="btn btn-restart" onclick="restartGame()">נסה שוב 🔄</button>
+    </div>
+  </div>
+
+  <!-- ===== REPORT SCREEN ===== -->
+  <div class="screen" id="screen-report">
+    <div class="card">
+      <div class="report-header">
+        <div class="report-icon" id="report-icon">🏆</div>
+        <h2 class="report-title" id="report-title">כל הכבוד!</h2>
+        <div class="stars-wrap" id="report-stars"></div>
+        <span class="report-grade" id="report-grade">מעולה!</span>
+      </div>
+
+      <div class="report-grid" id="report-grid"></div>
+
+      <div class="report-detail-title">📋 סיכום כל השאלות</div>
+      <div id="report-questions"></div>
+
+      <button class="btn btn-restart" onclick="restartGame()">שחק שוב 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const QUESTIONS = [
+  { type: 'add', n1: 2, n2: 3, d: 7 },  // 2/7 + 3/7 = 5/7
+  { type: 'sub', n1: 5, n2: 2, d: 6 },  // 5/6 - 2/6 = 3/6
+  { type: 'add', n1: 1, n2: 4, d: 9 },  // 1/9 + 4/9 = 5/9
+  { type: 'sub', n1: 7, n2: 3, d: 8 },  // 7/8 - 3/8 = 4/8
+  { type: 'add', n1: 3, n2: 5, d: 10 }, // 3/10 + 5/10 = 8/10
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {};
+
+function initState() {
+  state = {
+    currentQ: 0,
+    lives: 3,
+    startTime: Date.now(),
+    totalTime: 0,
+    log: QUESTIONS.map(q => ({
+      ...q,
+      answer: q.type === 'add' ? q.n1 + q.n2 : q.n1 - q.n2,
+      attempts: 0,
+      correct: false,
+      wrongAnswers: [],
+      timeSpent: 0,
+      qStartTime: 0
+    })),
+    disqualified: false
+  };
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderHearts() {
+  const wrap = document.getElementById('hearts-display');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.lives ? ' lost' : '');
+    h.textContent = i < state.lives ? '❤️' : '🖤';
+    wrap.appendChild(h);
+  }
+}
+
+function renderStrips(q) {
+  const container = document.getElementById('strips-container');
+  const maxSeg = q.d;
+  const colors = q.type === 'add' ? ['seg-filled-add', 'seg-filled-add'] : ['seg-filled-sub', 'seg-empty'];
+
+  const makeRow = (numerator, label, colorClass) => {
+    const row = document.createElement('div');
+    row.className = 'strip-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'strip-label';
+    lbl.textContent = numerator + '/' + maxSeg;
+    const track = document.createElement('div');
+    track.className = 'strip-track';
+    for (let i = 0; i < maxSeg; i++) {
+      const seg = document.createElement('div');
+      seg.className = 'strip-seg ' + (i < numerator ? colorClass : 'seg-empty');
+      seg.style.flex = '1';
+      if (i < numerator) seg.style.background = '';
+      track.appendChild(seg);
+    }
+    row.appendChild(lbl);
+    row.appendChild(track);
+    return row;
+  };
+
+  container.innerHTML = '';
+
+  if (q.type === 'add') {
+    container.appendChild(makeRow(q.n1, q.n1 + '/' + q.d, 'seg-filled-add'));
+    container.appendChild(makeRow(q.n2, q.n2 + '/' + q.d, 'seg-filled-add'));
+    // result row
+    const resultLabel = document.createElement('div');
+    resultLabel.className = 'strip-row';
+    resultLabel.style.marginTop = '8px';
+    resultLabel.style.paddingTop = '8px';
+    resultLabel.style.borderTop = '1px dashed rgba(0,188,212,0.3)';
+    const lbl2 = document.createElement('div');
+    lbl2.className = 'strip-label';
+    lbl2.style.color = '#00838f';
+    lbl2.style.fontWeight = '700';
+    lbl2.textContent = '?/' + q.d;
+    const track2 = document.createElement('div');
+    track2.className = 'strip-track';
+    track2.style.border = '1.5px dashed rgba(0,188,212,0.4)';
+    track2.style.background = 'transparent';
+    for (let i = 0; i < maxSeg; i++) {
+      const seg = document.createElement('div');
+      seg.className = 'strip-seg';
+      seg.style.flex = '1';
+      seg.style.borderLeft = '1px solid rgba(0,188,212,0.15)';
+      track2.appendChild(seg);
+    }
+    resultLabel.appendChild(lbl2);
+    resultLabel.appendChild(track2);
+    container.appendChild(resultLabel);
+  } else {
+    // sub: show the first strip with "removed" section
+    const row = document.createElement('div');
+    row.className = 'strip-row';
+    const lbl = document.createElement('div');
+    lbl.className = 'strip-label';
+    lbl.textContent = q.n1 + '/' + q.d;
+    const track = document.createElement('div');
+    track.className = 'strip-track';
+    for (let i = 0; i < maxSeg; i++) {
+      const seg = document.createElement('div');
+      seg.className = 'strip-seg';
+      seg.style.flex = '1';
+      if (i < q.n1 - q.n2) {
+        seg.classList.add('seg-filled-add');
+      } else if (i < q.n1) {
+        seg.style.background = 'linear-gradient(180deg, #ffcc02, #f57c00)';
+        seg.style.opacity = '0.5';
+        seg.textContent = '✕';
+        seg.style.fontSize = '10px';
+        seg.style.color = 'white';
+      }
+      track.appendChild(seg);
+    }
+    row.appendChild(lbl);
+    row.appendChild(track);
+    container.appendChild(row);
+
+    // helper text
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:0.8rem;color:#78909c;text-align:center;margin-top:4px;font-weight:600;';
+    hint.textContent = '⬅ הסר ' + q.n2 + '/' + q.d + ' (סמן ✕)';
+    container.appendChild(hint);
+  }
+}
+
+function renderQuestion() {
+  const q = state.log[state.currentQ];
+  q.qStartTime = Date.now();
+
+  // Progress
+  document.getElementById('q-label').textContent = `שאלה ${state.currentQ + 1} מתוך 5`;
+  document.getElementById('q-num').textContent = `שאלה ${state.currentQ + 1}`;
+  document.getElementById('progress-fill').style.width = (state.currentQ / 5 * 100) + '%';
+
+  // Badge
+  const badge = document.getElementById('q-badge');
+  badge.textContent = q.type === 'add' ? '➕ חיבור' : '➖ חיסור';
+  badge.className = 'question-type-badge ' + (q.type === 'add' ? 'badge-add' : 'badge-sub');
+
+  // Hearts
+  renderHearts();
+
+  // Strips
+  renderStrips(q);
+
+  // Fraction display
+  const display = document.getElementById('fraction-display');
+  const op = q.type === 'add' ? '+' : '−';
+
+  display.innerHTML = `
+    <div class="fraction">
+      <span class="frac-num">${q.n1}</span>
+      <div class="frac-line"></div>
+      <span class="frac-den">${q.d}</span>
+    </div>
+    <span class="op-symbol">${op}</span>
+    <div class="fraction">
+      <span class="frac-num">${q.n2}</span>
+      <div class="frac-line"></div>
+      <span class="frac-den">${q.d}</span>
+    </div>
+    <span class="eq-symbol">=</span>
+    <div class="answer-fraction">
+      <div class="answer-top-wrap">
+        <input type="number" class="answer-input" id="answer-input" min="1" max="20" placeholder="?" onkeydown="handleKey(event)">
+      </div>
+      <div class="answer-frac-line"></div>
+      <input type="number" class="answer-denom-input" id="answer-denom-input" min="1" max="20" placeholder="?" onkeydown="handleKey(event)">
+    </div>
+  `;
+
+  // Feedback
+  document.getElementById('feedback-msg').textContent = '';
+  document.getElementById('feedback-msg').className = 'feedback-msg';
+
+  // Enable check button
+  const btn = document.getElementById('btn-check');
+  btn.disabled = false;
+  btn.textContent = 'בדוק תשובה ✓';
+
+  // Focus input
+  setTimeout(() => document.getElementById('answer-input')?.focus(), 200);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter') checkAnswer();
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function startGame() {
+  initState();
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function checkAnswer() {
+  const q = state.log[state.currentQ];
+  const inputNum = document.getElementById('answer-input');
+  const inputDen = document.getElementById('answer-denom-input');
+  const valNum = parseInt(inputNum.value);
+  const valDen = parseInt(inputDen.value);
+  const btn = document.getElementById('btn-check');
+  const feedback = document.getElementById('feedback-msg');
+
+  if (isNaN(valNum) || inputNum.value.trim() === '' || isNaN(valDen) || inputDen.value.trim() === '') {
+    feedback.className = 'feedback-msg wrong-msg';
+    feedback.textContent = '⚠️ אנא מלא את המונה והמכנה';
+    return;
+  }
+
+  q.attempts++;
+  const timeNow = Date.now();
+
+  const numCorrect = valNum === q.answer;
+  const denCorrect = valDen === q.d;
+
+  if (numCorrect && denCorrect) {
+    // CORRECT
+    q.correct = true;
+    q.timeSpent = (timeNow - q.qStartTime) / 1000;
+
+    inputNum.className = 'answer-input correct';
+    inputDen.className = 'answer-denom-input correct';
+    feedback.className = 'feedback-msg correct-msg';
+    const msgs = ['🎉 מצוין! כל הכבוד!', '✅ נכון! עשית זאת!', '🌟 פנטסטי! ממשיכים!', '🏆 מדהים! תשובה נכונה!', '🎯 פגעת בול!'];
+    feedback.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+
+    btn.disabled = true;
+
+    if (q.attempts === 1) spawnConfetti(8);
+    else if (q.attempts <= 2) spawnConfetti(4);
+
+    setTimeout(() => nextQuestion(), 1400);
+
+  } else {
+    // WRONG
+    q.wrongAnswers.push(`${valNum}/${valDen}`);
+    q.timeSpent = (timeNow - q.qStartTime) / 1000;
+
+    if (!numCorrect) inputNum.className = 'answer-input wrong';
+    if (!denCorrect) inputDen.className = 'answer-denom-input wrong';
+    state.lives--;
+    renderHearts();
+
+    // hint message
+    let hint = '';
+    if (!numCorrect && !denCorrect) hint = '❌ גם המונה וגם המכנה שגויים!';
+    else if (!numCorrect) hint = '❌ המכנה נכון, אבל המונה שגוי!';
+    else hint = '❌ המונה נכון, אבל המכנה שגוי!';
+
+    feedback.className = 'feedback-msg wrong-msg';
+    if (state.lives <= 0) {
+      feedback.textContent = hint + ' נגמרו החיים!';
+      btn.disabled = true;
+      state.disqualified = true;
+      state.totalTime = (Date.now() - state.startTime) / 1000;
+      setTimeout(() => showDisqualified(), 1200);
+    } else {
+      feedback.textContent = hint + ` (נותרו ❤️ × ${state.lives})`;
+      setTimeout(() => {
+        inputNum.value = '';
+        inputDen.value = '';
+        inputNum.className = 'answer-input';
+        inputDen.className = 'answer-denom-input';
+        feedback.textContent = '';
+        feedback.className = 'feedback-msg';
+        inputNum.focus();
+      }, 1000);
+    }
+  }
+}
+
+function nextQuestion() {
+  state.currentQ++;
+  if (state.currentQ >= QUESTIONS.length) {
+    state.totalTime = (Date.now() - state.startTime) / 1000;
+    showReport();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showDisqualified() {
+  showScreen('screen-disq');
+}
+
+// ============================================================
+// REPORT
+// ============================================================
+function showReport() {
+  showScreen('screen-report');
+
+  const log = state.log;
+  const total = log.length;
+  const correct = log.filter(q => q.correct).length;
+  const wrong = total - correct;
+  const totalAttempts = log.reduce((s, q) => s + q.attempts, 0);
+  const totalWrongAttempts = log.reduce((s, q) => s + (q.attempts - (q.correct ? 1 : 0)), 0);
+  const avgTime = (state.totalTime / total).toFixed(1);
+  const score = Math.round((correct / total) * 100);
+  const livesLeft = state.lives;
+  const addQ = log.filter(q => q.type === 'add');
+  const subQ = log.filter(q => q.type === 'sub');
+  const addCorrect = addQ.filter(q => q.correct).length;
+  const subCorrect = subQ.filter(q => q.correct).length;
+
+  // Icon, title, grade
+  let icon, title, grade, gradeClass, stars;
+  if (score === 100) { icon='🏆'; title='מושלם לחלוטין!'; grade='100 – מעולה!'; gradeClass='grade-excellent'; stars='⭐⭐⭐'; spawnConfetti(25); }
+  else if (score >= 80) { icon='🥇'; title='כל הכבוד!'; grade='ציון גבוה מאוד'; gradeClass='grade-excellent'; stars='⭐⭐✨'; }
+  else if (score >= 60) { icon='😊'; title='לא רע!'; grade='ציון טוב'; gradeClass='grade-good'; stars='⭐⭐'; }
+  else if (score >= 40) { icon='😐'; title='יש מה לשפר'; grade='ציון ממוצע'; gradeClass='grade-ok'; stars='⭐'; }
+  else { icon='📚'; title='צריך לתרגל עוד'; grade='כדאי לחזור על החומר'; gradeClass='grade-fail'; stars=''; }
+
+  document.getElementById('report-icon').textContent = icon;
+  document.getElementById('report-title').textContent = title;
+  document.getElementById('report-grade').textContent = grade;
+  document.getElementById('report-grade').className = 'report-grade ' + gradeClass;
+  document.getElementById('report-stars').textContent = stars;
+
+  // Stats grid
+  const grid = document.getElementById('report-grid');
+  grid.innerHTML = '';
+  const stats = [
+    { icon: '🎯', value: correct + '/' + total, label: 'שאלות נכונות', cls: 'stat-green' },
+    { icon: '📊', value: score + '%', label: 'ציון', cls: 'stat-blue' },
+    { icon: '❤️', value: livesLeft + '/3', label: 'חיים שנותרו', cls: livesLeft > 0 ? 'stat-green' : 'stat-red' },
+    { icon: '❌', value: totalWrongAttempts, label: 'טעויות כולל', cls: totalWrongAttempts === 0 ? 'stat-green' : 'stat-red' },
+    { icon: '⏱️', value: state.totalTime.toFixed(0) + 'ש', label: 'זמן כולל', cls: 'stat-orange' },
+    { icon: '⚡', value: avgTime + 'ש', label: 'ממוצע לשאלה', cls: 'stat-purple' },
+    { icon: '➕', value: addCorrect + '/' + addQ.length, label: 'שאלות חיבור', cls: 'stat-teal' },
+    { icon: '➖', value: subCorrect + '/' + subQ.length, label: 'שאלות חיסור', cls: 'stat-orange' },
+  ];
+
+  stats.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'report-stat ' + s.cls;
+    div.innerHTML = `<div class="stat-icon">${s.icon}</div><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div>`;
+    grid.appendChild(div);
+  });
+
+  // Question details
+  const qWrap = document.getElementById('report-questions');
+  qWrap.innerHTML = '';
+  log.forEach((q, i) => {
+    const op = q.type === 'add' ? '+' : '−';
+    const div = document.createElement('div');
+    div.className = 'question-review ' + (q.correct ? 'qr-correct' : 'qr-wrong');
+    const wrongStr = q.wrongAnswers.length > 0 ? ` | ניסיונות שגויים: ${q.wrongAnswers.join(', ')}` : '';
+    const attStr = q.attempts > 0 ? `${q.attempts} ניסיון${q.attempts > 1 ? 'ות' : ''} • ⏱ ${q.timeSpent.toFixed(1)}ש${wrongStr}` : 'לא הגעת';
+    div.innerHTML = `
+      <span class="qr-icon">${q.correct ? '✅' : '❌'}</span>
+      <div style="flex:1; text-align:right;">
+        <div class="qr-text" style="direction:ltr; text-align:left;">${q.n1}/${q.d} ${op} ${q.n2}/${q.d} = <strong>${q.answer}/${q.d}</strong></div>
+        <div class="qr-attempts" style="direction:rtl; text-align:right;">${attStr}</div>
+      </div>
+    `;
+    qWrap.appendChild(div);
+  });
+}
+
+function restartGame() {
+  startGame();
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function spawnConfetti(count) {
+  const colors = ['#00bcd4','#ff6f61','#ffd54f','#a5d6a7','#ce93d8','#80cbc4','#ffab40'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.width = (8 + Math.random() * 10) + 'px';
+      c.style.height = (8 + Math.random() * 10) + 'px';
+      c.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+      c.style.animationDelay = '0s';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }, i * 80);
+  }
+}
+</script>
+</body>
+</html>
