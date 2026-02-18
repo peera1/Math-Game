@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שברים מדומים ושלמים-שלמים</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --berry: #6c3fc5;
+    --violet: #9c5ff5;
+    --soft-violet: #ede0ff;
+    --amber: #f5a623;
+    --amber-light: #fff4e0;
+    --green: #22c55e;
+    --green-light: #dcfce7;
+    --red: #ef4444;
+    --red-light: #fee2e2;
+    --sky-blue: #38bdf8;
+    --white: #ffffff;
+    --bg1: #f5f0ff;
+    --bg2: #ffe8f0;
+    --text: #2d1b5e;
+    --muted: #7c6fa0;
+    --radius: 22px;
+    --shadow: 0 8px 32px rgba(108,63,197,0.13);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Assistant', sans-serif;
+    background: linear-gradient(145deg, #f5f0ff 0%, #fde8f8 50%, #ffe8f0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background shapes */
+  .bg-shape {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.07;
+    animation: floatShape ease-in-out infinite;
+  }
+  @keyframes floatShape {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-30px) rotate(20deg); }
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 700px;
+  }
+
+  .screen { display: none; animation: fadeIn 0.5s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========= CARD ========= */
+  .card {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(24px);
+    border-radius: 36px;
+    padding: 44px 40px;
+    box-shadow: 0 24px 72px rgba(108,63,197,0.14), 0 2px 0 rgba(255,255,255,0.9) inset;
+    border: 1.5px solid rgba(255,255,255,0.75);
+  }
+
+  /* ========= WELCOME ========= */
+  .welcome-emoji {
+    font-size: 88px;
+    text-align: center;
+    margin-bottom: 10px;
+    animation: wobbleIn 0.8s ease;
+    display: block;
+  }
+  @keyframes wobbleIn {
+    0% { transform: scale(0) rotate(-20deg); }
+    60% { transform: scale(1.15) rotate(8deg); }
+    80% { transform: scale(0.95) rotate(-4deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+  .welcome-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: var(--berry);
+    text-align: center;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .welcome-sub {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+
+  .mode-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .mode-card {
+    background: linear-gradient(135deg, var(--soft-violet), #f3e8ff);
+    border-radius: 20px;
+    padding: 18px 14px;
+    text-align: center;
+    border: 2px solid rgba(108,63,197,0.12);
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .mode-card:hover, .mode-card.selected {
+    border-color: var(--violet);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(108,63,197,0.2);
+  }
+  .mode-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: var(--violet);
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .mode-icon { font-size: 32px; margin-bottom: 8px; }
+  .mode-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--berry);
+    margin-bottom: 4px;
+  }
+  .mode-desc { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+
+  .info-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    direction: ltr;
+  }
+  .info-chip {
+    flex: 1;
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .info-chip .ico { font-size: 22px; display: block; margin-bottom: 4px; }
+  .chip-purple { background: var(--soft-violet); color: var(--berry); }
+  .chip-amber { background: var(--amber-light); color: #a06000; }
+  .chip-green { background: var(--green-light); color: #15803d; }
+
+  /* ========= BUTTONS ========= */
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 17px;
+    border-radius: 18px;
+    border: none;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--violet), var(--berry));
+    color: white;
+    box-shadow: 0 6px 22px rgba(108,63,197,0.38);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(108,63,197,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-restart {
+    background: linear-gradient(135deg, var(--amber), #d97706);
+    color: white;
+    box-shadow: 0 6px 22px rgba(245,166,35,0.35);
+    margin-top: 8px;
+  }
+  .btn-restart:hover { transform: translateY(-3px); }
+  .btn-check {
+    background: linear-gradient(135deg, var(--violet), var(--berry));
+    color: white;
+    box-shadow: 0 6px 22px rgba(108,63,197,0.35);
+    margin-top: 10px;
+  }
+  .btn-check:hover:not(:disabled) { transform: translateY(-3px); }
+  .btn-check:disabled { opacity: 0.38; cursor: not-allowed; }
+
+  /* ========= PROGRESS ========= */
+  .progress-wrap { margin-bottom: 24px; }
+  .progress-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    direction: rtl;
+  }
+  .progress-label { font-family: 'Fredoka One', cursive; color: var(--berry); font-size: 1rem; }
+  .hearts { display: flex; gap: 5px; font-size: 1.35rem; direction: ltr; }
+  .heart.lost { filter: grayscale(1) opacity(0.3); transform: scale(0.8); }
+  .progress-bar-bg {
+    height: 13px;
+    background: #ede0ff;
+    border-radius: 99px;
+    overflow: hidden;
+    direction: ltr;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--violet), var(--amber));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+  /* ========= QUESTION ========= */
+  .q-header { text-align: center; margin-bottom: 16px; }
+  .q-num { font-family: 'Fredoka One', cursive; font-size: 0.9rem; color: var(--violet); letter-spacing: 1px; margin-bottom: 6px; }
+  .q-badge {
+    display: inline-block;
+    padding: 5px 18px;
+    border-radius: 99px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .badge-improper { background: var(--soft-violet); color: var(--berry); }
+  .badge-mixed { background: var(--amber-light); color: #a06000; }
+
+  /* Visual explainer */
+  .visual-box {
+    background: linear-gradient(135deg, #f8f4ff, #fff8e8);
+    border-radius: 20px;
+    padding: 18px 16px;
+    margin-bottom: 18px;
+    border: 1.5px dashed rgba(108,63,197,0.22);
+    direction: ltr;
+  }
+  .visual-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: var(--berry);
+    text-align: center;
+    margin-bottom: 12px;
+    opacity: 0.8;
+  }
+  .pie-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .pie-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .pie-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* SVG pie */
+  svg.pie { width: 54px; height: 54px; }
+
+  .plus-sign {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.8rem;
+    color: var(--violet);
+    opacity: 0.5;
+  }
+
+  /* ========= FRACTION DISPLAY ========= */
+  .fraction-equation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin: 18px 0;
+    direction: ltr;
+  }
+  .frac {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.3rem;
+    color: var(--berry);
+    min-width: 55px;
+  }
+  .frac-line { width: 100%; height: 4px; background: var(--berry); border-radius: 2px; margin: 3px 0; }
+  .whole-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.3rem;
+    color: var(--berry);
+  }
+  .mixed-sep {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin: 0 -4px;
+    align-self: flex-start;
+    margin-top: 6px;
+  }
+  .op-sym {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--amber);
+  }
+  .eq-sym {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.5rem;
+    color: var(--violet);
+  }
+
+  /* Answer area */
+  .answer-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    direction: ltr;
+  }
+  .ans-input {
+    height: 58px;
+    width: 68px;
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--berry);
+    border: 3px solid #d8bfff;
+    border-radius: 14px;
+    background: #faf5ff;
+    outline: none;
+    transition: all 0.2s;
+    -moz-appearance: textfield;
+  }
+  .ans-input::-webkit-outer-spin-button,
+  .ans-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .ans-input:focus {
+    border-color: var(--violet);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(108,63,197,0.12);
+    transform: scale(1.05);
+  }
+  .ans-input.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    animation: pop 0.45s ease;
+  }
+  .ans-input.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    animation: shake 0.4s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+  }
+  .ans-frac-line { width: 68px; height: 4px; background: #c4b0e8; border-radius: 2px; margin: 4px 0; }
+  .ans-frac-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Hint / tip box */
+  .tip-box {
+    background: linear-gradient(135deg, #f8f4ff, #fff9f0);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border: 1.5px solid rgba(108,63,197,0.14);
+    font-size: 0.88rem;
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.6;
+    direction: rtl;
+    text-align: right;
+  }
+  .tip-box strong { color: var(--berry); }
+
+  /* Feedback */
+  .feedback-msg {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    transition: all 0.3s;
+    margin: 10px 0;
+  }
+  .feedback-msg.correct-msg { background: var(--green-light); color: #15803d; animation: fadeIn 0.3s ease; }
+  .feedback-msg.wrong-msg { background: var(--red-light); color: #b91c1c; animation: fadeIn 0.3s ease; }
+
+  /* ========= DISQ ========= */
+  .disq-icon { font-size: 78px; text-align: center; animation: shake 0.6s ease; }
+  .disq-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--red); text-align: center; margin: 10px 0 6px; }
+  .disq-sub { text-align: center; color: var(--muted); font-size: 1rem; margin-bottom: 24px; }
+
+  /* ========= REPORT ========= */
+  .report-header { text-align: center; margin-bottom: 24px; }
+  .report-icon { font-size: 68px; animation: wobbleIn 0.7s ease; display: block; }
+  .report-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--berry); margin: 8px 0 4px; }
+  .stars-row { font-size: 2rem; margin: 8px 0; }
+  .grade-badge {
+    display: inline-block;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    padding: 5px 20px;
+    border-radius: 99px;
+    margin-bottom: 16px;
+  }
+  .grade-excellent { background: var(--green-light); color: #15803d; }
+  .grade-good { background: #dbeafe; color: #1d4ed8; }
+  .grade-ok { background: var(--amber-light); color: #a06000; }
+  .grade-fail { background: var(--red-light); color: #b91c1c; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat-box {
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-box .s-icon { font-size: 24px; margin-bottom: 4px; }
+  .stat-box .s-val { font-family: 'Fredoka One', cursive; font-size: 1.65rem; line-height: 1; margin-bottom: 2px; }
+  .stat-box .s-lbl { font-size: 0.78rem; font-weight: 700; opacity: 0.75; }
+  .sb-purple { background: var(--soft-violet); color: var(--berry); }
+  .sb-green { background: var(--green-light); color: #15803d; }
+  .sb-red { background: var(--red-light); color: #b91c1c; }
+  .sb-amber { background: var(--amber-light); color: #a06000; }
+  .sb-blue { background: #dbeafe; color: #1e40af; }
+  .sb-teal { background: #ccfbf1; color: #0f766e; }
+
+  .review-title { font-family: 'Fredoka One', cursive; color: var(--berry); font-size: 1.05rem; margin: 14px 0 10px; }
+  .q-review {
+    border-radius: 14px;
+    padding: 11px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .qr-ok { background: var(--green-light); color: #15803d; }
+  .qr-no { background: var(--red-light); color: #b91c1c; }
+  .qr-ico { font-size: 1.3rem; flex-shrink: 0; }
+  .qr-eq { flex: 1; direction: ltr; text-align: left; font-size: 0.88rem; }
+  .qr-meta { font-size: 0.75rem; opacity: 0.7; direction: rtl; text-align: right; }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 999;
+    animation: fall linear forwards;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 500px) {
+    .card { padding: 26px 18px; }
+    .frac { font-size: 1.8rem; }
+    .whole-num { font-size: 1.8rem; }
+    .op-sym, .eq-sym { font-size: 1.9rem; }
+    .ans-input { width: 58px; height: 50px; font-size: 1.7rem; }
+    .mode-cards { grid-template-columns: 1fr; }
+    .welcome-title { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- BG shapes -->
+<div class="bg-shape" style="width:300px;height:300px;background:var(--violet);top:-80px;right:-80px;animation-duration:9s;"></div>
+<div class="bg-shape" style="width:200px;height:200px;background:var(--amber);bottom:-60px;left:-60px;animation-duration:12s;animation-delay:2s;"></div>
+<div class="bg-shape" style="width:150px;height:150px;background:var(--green);bottom:30%;right:5%;animation-duration:7s;animation-delay:4s;"></div>
+
+<div class="app">
+
+  <!-- ===== WELCOME ===== -->
+  <div class="screen active" id="screen-welcome">
+    <div class="card">
+      <span class="welcome-emoji">🔢</span>
+      <h1 class="welcome-title">שברים מדומים<br>ומספרים מעורבים</h1>
+      <p class="welcome-sub">לומדים לעבור קדימה ואחורה בין סוגי השברים!</p>
+
+      <p style="font-family:'Fredoka One',cursive;color:var(--berry);font-size:1rem;margin-bottom:12px;text-align:center;">שני חלקים:</p>
+      <div class="mode-cards">
+        <div class="mode-card selected" style="cursor:default;">
+          <div class="mode-icon">🔄</div>
+          <div class="mode-title">שבר מדומה → מספר מעורב</div>
+          <div class="mode-desc">3 שאלות – לדוגמה: 9/4 = 2 ו-¼</div>
+        </div>
+        <div class="mode-card selected" style="cursor:default;">
+          <div class="mode-icon">🔃</div>
+          <div class="mode-title">מספר מעורב → שבר מדומה</div>
+          <div class="mode-desc">3 שאלות – לדוגמה: 3½ = 7/2</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-chip chip-purple"><span class="ico">🎯</span>6 שאלות (3+3)</div>
+        <div class="info-chip chip-amber"><span class="ico">❤️</span>3 חיים</div>
+        <div class="info-chip chip-green"><span class="ico">📊</span>דוח מסכם</div>
+      </div>
+      <button class="btn btn-primary" onclick="startGame()">בואו נתחיל! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ===== QUESTION ===== -->
+  <div class="screen" id="screen-question">
+    <div class="card">
+      <div class="progress-wrap">
+        <div class="progress-top">
+          <span class="progress-label" id="q-label">שאלה 1 מתוך 6</span>
+          <div class="hearts" id="hearts-display"></div>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="q-header">
+        <div class="q-num" id="q-num">שאלה 1</div>
+        <div class="q-badge" id="q-badge">שבר מדומה → מספר מעורב</div>
+      </div>
+
+      <div class="tip-box" id="tip-box"></div>
+      <div class="visual-box" id="visual-box"></div>
+      <div class="fraction-equation" id="frac-eq"></div>
+      <div class="feedback-msg" id="feedback-msg"></div>
+      <button class="btn btn-check" id="btn-check" onclick="checkAnswer()">בדוק תשובה ✓</button>
+    </div>
+  </div>
+
+  <!-- ===== DISQ ===== -->
+  <div class="screen" id="screen-disq">
+    <div class="card">
+      <div class="disq-icon">😵</div>
+      <h2 class="disq-title">נפסלת!</h2>
+      <p class="disq-sub">נגמרו 3 החיים שלך.<br>אל תתייאש – ניסיון נוסף ואתה שם! 💪</p>
+      <button class="btn btn-restart" onclick="restartGame()">נסה שוב 🔄</button>
+    </div>
+  </div>
+
+  <!-- ===== REPORT ===== -->
+  <div class="screen" id="screen-report">
+    <div class="card">
+      <div class="report-header">
+        <span class="report-icon" id="r-icon">🏆</span>
+        <h2 class="report-title" id="r-title">כל הכבוד!</h2>
+        <div class="stars-row" id="r-stars"></div>
+        <span class="grade-badge" id="r-grade"></span>
+      </div>
+      <div class="stats-grid" id="r-stats"></div>
+      <div class="review-title">📋 סיכום כל השאלות</div>
+      <div id="r-questions"></div>
+      <button class="btn btn-restart" onclick="restartGame()">שחק שוב 🔄</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// QUESTION BANKS
+// ============================================================
+const IMPROPER_POOL = [
+  { num: 7,  den: 3  },
+  { num: 9,  den: 4  },
+  { num: 11, den: 5  },
+  { num: 13, den: 6  },
+  { num: 17, den: 7  },
+  { num: 15, den: 4  },
+  { num: 22, den: 9  },
+  { num: 19, den: 6  },
+];
+
+const MIXED_POOL = [
+  { whole: 2, num: 1, den: 3  },
+  { whole: 3, num: 1, den: 4  },
+  { whole: 2, num: 3, den: 5  },
+  { whole: 4, num: 1, den: 6  },
+  { whole: 3, num: 2, den: 7  },
+  { whole: 2, num: 5, den: 8  },
+  { whole: 5, num: 1, den: 3  },
+  { whole: 3, num: 4, den: 9  },
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let currentMode = 'both'; // always both
+let state = {};
+
+function initState() {
+  // 3 improper-to-mixed + 3 mixed-to-improper
+  const impPool = shuffle(IMPROPER_POOL).slice(0, 3).map(q => {
+    const whole = Math.floor(q.num / q.den);
+    const rem   = q.num % q.den;
+    return {
+      type: 'improper-to-mixed',
+      num: q.num, den: q.den,
+      ansWhole: whole, ansNum: rem, ansDen: q.den,
+      attempts: 0, correct: false,
+      wrongAnswers: [], timeSpent: 0, qStartTime: 0
+    };
+  });
+  const mixPool = shuffle(MIXED_POOL).slice(0, 3).map(q => {
+    const topNum = q.whole * q.den + q.num;
+    return {
+      type: 'mixed-to-improper',
+      whole: q.whole, num: q.num, den: q.den,
+      ansNum: topNum, ansDen: q.den,
+      attempts: 0, correct: false,
+      wrongAnswers: [], timeSpent: 0, qStartTime: 0
+    };
+  });
+
+  const pool = [...impPool, ...mixPool];
+
+  state = {
+    questions: pool,
+    currentQ: 0,
+    lives: 3,
+    startTime: Date.now(),
+    totalTime: 0,
+    disqualified: false
+  };
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectMode(mode) {
+  currentMode = mode;
+  document.getElementById('mode-a').classList.toggle('selected', mode === 'improper-to-mixed');
+  document.getElementById('mode-b').classList.toggle('selected', mode === 'mixed-to-improper');
+}
+
+function renderHearts() {
+  const wrap = document.getElementById('hearts-display');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const h = document.createElement('span');
+    h.className = 'heart' + (i >= state.lives ? ' lost' : '');
+    h.textContent = i < state.lives ? '❤️' : '🖤';
+    wrap.appendChild(h);
+  }
+}
+
+// ============================================================
+// PIE CHART (SVG)
+// ============================================================
+function makePieSVG(numerator, denominator, color) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', 'pie');
+  svg.setAttribute('viewBox', '0 0 100 100');
+
+  // background circle
+  const bg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  bg.setAttribute('cx', '50'); bg.setAttribute('cy', '50'); bg.setAttribute('r', '48');
+  bg.setAttribute('fill', '#ede0ff'); bg.setAttribute('stroke', '#c4b0e8'); bg.setAttribute('stroke-width', '2');
+  svg.appendChild(bg);
+
+  if (numerator > 0) {
+    const angle = (numerator / denominator) * 360;
+    const rad = angle * Math.PI / 180;
+    const x = 50 + 48 * Math.sin(rad);
+    const y = 50 - 48 * Math.cos(rad);
+    const large = angle > 180 ? 1 : 0;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    if (numerator === denominator) {
+      // full circle
+      const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle2.setAttribute('cx','50'); circle2.setAttribute('cy','50'); circle2.setAttribute('r','48');
+      circle2.setAttribute('fill', color);
+      svg.appendChild(circle2);
+    } else {
+      path.setAttribute('d', `M50,50 L50,2 A48,48 0 ${large},1 ${x},${y} Z`);
+      path.setAttribute('fill', color);
+      svg.appendChild(path);
+    }
+  }
+
+  // dividers
+  for (let i = 0; i < denominator; i++) {
+    const a = (i / denominator) * 2 * Math.PI - Math.PI / 2;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1','50'); line.setAttribute('y1','50');
+    line.setAttribute('x2', 50 + 48 * Math.cos(a));
+    line.setAttribute('y2', 50 + 48 * Math.sin(a));
+    line.setAttribute('stroke','rgba(255,255,255,0.6)'); line.setAttribute('stroke-width','1.5');
+    svg.appendChild(line);
+  }
+
+  return svg;
+}
+
+// ============================================================
+// RENDER QUESTION
+// ============================================================
+function renderQuestion() {
+  const q = state.questions[state.currentQ];
+  const total = state.questions.length;
+  q.qStartTime = Date.now();
+
+  document.getElementById('q-label').textContent = `שאלה ${state.currentQ + 1} מתוך ${total}`;
+  document.getElementById('q-num').textContent = `שאלה ${state.currentQ + 1}`;
+  document.getElementById('progress-fill').style.width = (state.currentQ / total * 100) + '%';
+  renderHearts();
+
+  const badge = document.getElementById('q-badge');
+  const tipBox = document.getElementById('tip-box');
+  const visual = document.getElementById('visual-box');
+  const eq = document.getElementById('frac-eq');
+
+  if (q.type === 'improper-to-mixed') {
+    badge.textContent = '🔄 שבר מדומה → מספר מעורב';
+    badge.className = 'q-badge badge-improper';
+
+    // Tip
+    const whole = Math.floor(q.num / q.den);
+    const rem   = q.num % q.den;
+    tipBox.innerHTML = `💡 חלק <strong>${q.num} ÷ ${q.den}</strong>: מנה = <strong>${whole}</strong>, שארית = <strong>${rem}</strong>. כתוב: <strong>${whole}</strong> ו-<strong>${rem}/${q.den}</strong>`;
+
+    // Visual: show whole pies + partial
+    visual.innerHTML = '';
+    const title = document.createElement('div');
+    title.className = 'visual-title';
+    title.textContent = `סה"כ ${q.num}/${q.den} חתיכות`;
+    visual.appendChild(title);
+    const row = document.createElement('div');
+    row.className = 'pie-row';
+    // full pies
+    for (let i = 0; i < whole; i++) {
+      const g = document.createElement('div');
+      g.className = 'pie-group';
+      g.appendChild(makePieSVG(q.den, q.den, '#a78bfa'));
+      const lbl = document.createElement('div');
+      lbl.className = 'pie-label';
+      lbl.textContent = '1 שלם';
+      g.appendChild(lbl);
+      row.appendChild(g);
+      if (i < whole - 1 || rem > 0) {
+        const plus = document.createElement('span');
+        plus.className = 'plus-sign';
+        plus.textContent = '+';
+        row.appendChild(plus);
+      }
+    }
+    // partial pie
+    if (rem > 0) {
+      const g = document.createElement('div');
+      g.className = 'pie-group';
+      g.appendChild(makePieSVG(rem, q.den, '#f59e0b'));
+      const lbl = document.createElement('div');
+      lbl.className = 'pie-label';
+      lbl.textContent = `${rem}/${q.den}`;
+      g.appendChild(lbl);
+      row.appendChild(g);
+    }
+    visual.appendChild(row);
+
+    // Equation: num/den = [ ]whole + [ ]/[ ]
+    eq.innerHTML = '';
+    const given = document.createElement('div');
+    given.className = 'frac';
+    given.innerHTML = `<span>${q.num}</span><div class="frac-line"></div><span>${q.den}</span>`;
+    const eqSym = document.createElement('span');
+    eqSym.className = 'eq-sym';
+    eqSym.textContent = '=';
+
+    // Answer: whole input + frac
+    const ansWrap = document.createElement('div');
+    ansWrap.className = 'answer-area';
+    ansWrap.style.flexDirection = 'column';
+    ansWrap.style.alignItems = 'center';
+    ansWrap.style.gap = '4px';
+
+    // Row: whole [_] and [_]/[_]
+    const ansRow = document.createElement('div');
+    ansRow.className = 'answer-area';
+    ansRow.style.gap = '6px';
+
+    const inpWhole = document.createElement('input');
+    inpWhole.type = 'number'; inpWhole.className = 'ans-input'; inpWhole.id = 'inp-whole';
+    inpWhole.placeholder = '?'; inpWhole.min = '0'; inpWhole.max = '20';
+    inpWhole.onkeydown = handleKey;
+
+    const andSpan = document.createElement('span');
+    andSpan.style.fontFamily = 'Fredoka One'; andSpan.style.fontSize = '1.5rem';
+    andSpan.style.color = 'var(--muted)'; andSpan.textContent = 'ו-';
+
+    const fracWrap = document.createElement('div');
+    fracWrap.className = 'ans-frac-wrap';
+    const inpN = document.createElement('input');
+    inpN.type = 'number'; inpN.className = 'ans-input'; inpN.id = 'inp-num';
+    inpN.placeholder = '?'; inpN.min = '0'; inpN.max = '20';
+    inpN.onkeydown = handleKey;
+    const fl = document.createElement('div');
+    fl.className = 'ans-frac-line';
+    const inpD = document.createElement('input');
+    inpD.type = 'number'; inpD.className = 'ans-input'; inpD.id = 'inp-den';
+    inpD.placeholder = '?'; inpD.min = '1'; inpD.max = '20';
+    inpD.onkeydown = handleKey;
+    fracWrap.appendChild(inpN); fracWrap.appendChild(fl); fracWrap.appendChild(inpD);
+
+    ansRow.appendChild(inpWhole);
+    ansRow.appendChild(andSpan);
+    ansRow.appendChild(fracWrap);
+
+    eq.appendChild(given);
+    eq.appendChild(eqSym);
+    eq.appendChild(ansRow);
+
+  } else {
+    // MIXED TO IMPROPER
+    badge.textContent = '🔃 מספר מעורב → שבר מדומה';
+    badge.className = 'q-badge badge-mixed';
+
+    const topNum = q.ansNum; // whole*den + num
+    tipBox.innerHTML = `💡 כפול ורשום: <strong>(${q.whole} × ${q.den}) + ${q.num}</strong> = <strong>${topNum}</strong>. המכנה נשאר <strong>${q.den}</strong>`;
+
+    // Visual: show whole pies + partial
+    visual.innerHTML = '';
+    const title = document.createElement('div');
+    title.className = 'visual-title';
+    title.textContent = `${q.whole} שלמים ועוד ${q.num}/${q.den}`;
+    visual.appendChild(title);
+    const row = document.createElement('div');
+    row.className = 'pie-row';
+    for (let i = 0; i < q.whole; i++) {
+      const g = document.createElement('div');
+      g.className = 'pie-group';
+      g.appendChild(makePieSVG(q.den, q.den, '#a78bfa'));
+      const lbl = document.createElement('div');
+      lbl.className = 'pie-label';
+      lbl.textContent = `${q.den}/${q.den}`;
+      g.appendChild(lbl);
+      row.appendChild(g);
+      const plus = document.createElement('span');
+      plus.className = 'plus-sign';
+      plus.textContent = '+';
+      row.appendChild(plus);
+    }
+    const gp = document.createElement('div');
+    gp.className = 'pie-group';
+    gp.appendChild(makePieSVG(q.num, q.den, '#f59e0b'));
+    const lp = document.createElement('div');
+    lp.className = 'pie-label';
+    lp.textContent = `${q.num}/${q.den}`;
+    gp.appendChild(lp);
+    row.appendChild(gp);
+    visual.appendChild(row);
+
+    // Equation: whole num/den = [_]/[_]
+    eq.innerHTML = '';
+    const givenWhole = document.createElement('span');
+    givenWhole.className = 'whole-num';
+    givenWhole.textContent = q.whole;
+    const andSep = document.createElement('span');
+    andSep.className = 'mixed-sep'; andSep.textContent = ' ';
+    const givenFrac = document.createElement('div');
+    givenFrac.className = 'frac';
+    givenFrac.innerHTML = `<span>${q.num}</span><div class="frac-line"></div><span>${q.den}</span>`;
+    const eqSym = document.createElement('span');
+    eqSym.className = 'eq-sym'; eqSym.textContent = '=';
+
+    const ansWrap = document.createElement('div');
+    ansWrap.className = 'ans-frac-wrap';
+    const inpN = document.createElement('input');
+    inpN.type = 'number'; inpN.className = 'ans-input'; inpN.id = 'inp-num';
+    inpN.placeholder = '?'; inpN.min = '1'; inpN.max = '100';
+    inpN.onkeydown = handleKey;
+    const fl = document.createElement('div');
+    fl.className = 'ans-frac-line';
+    const inpD = document.createElement('input');
+    inpD.type = 'number'; inpD.className = 'ans-input'; inpD.id = 'inp-den';
+    inpD.placeholder = '?'; inpD.min = '1'; inpD.max = '20';
+    inpD.onkeydown = handleKey;
+    ansWrap.appendChild(inpN); ansWrap.appendChild(fl); ansWrap.appendChild(inpD);
+
+    eq.appendChild(givenWhole);
+    eq.appendChild(andSep);
+    eq.appendChild(givenFrac);
+    eq.appendChild(eqSym);
+    eq.appendChild(ansWrap);
+  }
+
+  document.getElementById('feedback-msg').textContent = '';
+  document.getElementById('feedback-msg').className = 'feedback-msg';
+  const btn = document.getElementById('btn-check');
+  btn.disabled = false;
+  btn.textContent = 'בדוק תשובה ✓';
+
+  setTimeout(() => {
+    const first = document.getElementById('inp-whole') || document.getElementById('inp-num');
+    first?.focus();
+  }, 200);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter') checkAnswer();
+}
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function startGame() {
+  initState();
+  showScreen('screen-question');
+  renderQuestion();
+}
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  return { el, val: parseInt(el.value) };
+}
+
+function checkAnswer() {
+  const q = state.questions[state.currentQ];
+  const feedback = document.getElementById('feedback-msg');
+  const btn = document.getElementById('btn-check');
+
+  let isCorrect = false;
+  let hintMsg = '';
+
+  if (q.type === 'improper-to-mixed') {
+    const wh = getVal('inp-whole');
+    const nu = getVal('inp-num');
+    const de = getVal('inp-den');
+    if (!wh || !nu || !de || isNaN(wh.val) || isNaN(nu.val) || isNaN(de.val) || wh.el.value==='' || nu.el.value==='' || de.el.value==='') {
+      feedback.className = 'feedback-msg wrong-msg';
+      feedback.textContent = '⚠️ אנא מלא את כל השדות';
+      return;
+    }
+    q.attempts++;
+    const whOk = wh.val === q.ansWhole;
+    const nuOk = nu.val === q.ansNum;
+    const deOk = de.val === q.ansDen;
+    isCorrect = whOk && nuOk && deOk;
+    if (!isCorrect) {
+      if (!whOk) { wh.el.className = 'ans-input wrong'; } else { wh.el.className = 'ans-input correct'; }
+      if (!nuOk) { nu.el.className = 'ans-input wrong'; } else { nu.el.className = 'ans-input correct'; }
+      if (!deOk) { de.el.className = 'ans-input wrong'; } else { de.el.className = 'ans-input correct'; }
+      const got = `${wh.val} ו-${nu.val}/${de.val}`;
+      q.wrongAnswers.push(got);
+      hintMsg = `❌ התשובה הנכונה: ${q.ansWhole} ו-${q.ansNum}/${q.ansDen}`;
+    } else {
+      wh.el.className = 'ans-input correct';
+      nu.el.className = 'ans-input correct';
+      de.el.className = 'ans-input correct';
+    }
+  } else {
+    const nu = getVal('inp-num');
+    const de = getVal('inp-den');
+    if (!nu || !de || isNaN(nu.val) || isNaN(de.val) || nu.el.value==='' || de.el.value==='') {
+      feedback.className = 'feedback-msg wrong-msg';
+      feedback.textContent = '⚠️ אנא מלא מונה ומכנה';
+      return;
+    }
+    q.attempts++;
+    const nuOk = nu.val === q.ansNum;
+    const deOk = de.val === q.ansDen;
+    isCorrect = nuOk && deOk;
+    if (!isCorrect) {
+      if (!nuOk) { nu.el.className = 'ans-input wrong'; } else { nu.el.className = 'ans-input correct'; }
+      if (!deOk) { de.el.className = 'ans-input wrong'; } else { de.el.className = 'ans-input correct'; }
+      q.wrongAnswers.push(`${nu.val}/${de.val}`);
+      hintMsg = `❌ התשובה הנכונה: ${q.ansNum}/${q.ansDen}`;
+    } else {
+      nu.el.className = 'ans-input correct';
+      de.el.className = 'ans-input correct';
+    }
+  }
+
+  q.timeSpent = (Date.now() - q.qStartTime) / 1000;
+
+  if (isCorrect) {
+    q.correct = true;
+    feedback.className = 'feedback-msg correct-msg';
+    const msgs = ['🎉 מצוין!', '✅ כל הכבוד!', '🌟 פנטסטי!', '🏆 מדהים!', '🎯 פגעת בול!', '⭐ נהדר!'];
+    feedback.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+    btn.disabled = true;
+    if (q.attempts === 1) spawnConfetti(10);
+    else if (q.attempts <= 2) spawnConfetti(5);
+    setTimeout(() => nextQuestion(), 1400);
+  } else {
+    state.lives--;
+    renderHearts();
+    if (state.lives <= 0) {
+      feedback.className = 'feedback-msg wrong-msg';
+      feedback.textContent = hintMsg + ' – נגמרו החיים!';
+      btn.disabled = true;
+      state.totalTime = (Date.now() - state.startTime) / 1000;
+      setTimeout(() => showScreen('screen-disq'), 1400);
+    } else {
+      feedback.className = 'feedback-msg wrong-msg';
+      feedback.textContent = hintMsg + ` (נותרו ❤️ × ${state.lives})`;
+      setTimeout(() => {
+        // clear wrong inputs
+        ['inp-whole','inp-num','inp-den'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) { el.value = ''; el.className = 'ans-input'; }
+        });
+        feedback.textContent = '';
+        feedback.className = 'feedback-msg';
+        const first = document.getElementById('inp-whole') || document.getElementById('inp-num');
+        first?.focus();
+      }, 1200);
+    }
+  }
+}
+
+function nextQuestion() {
+  state.currentQ++;
+  if (state.currentQ >= state.questions.length) {
+    state.totalTime = (Date.now() - state.startTime) / 1000;
+    showReport();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ============================================================
+// REPORT
+// ============================================================
+function showReport() {
+  showScreen('screen-report');
+  const qs = state.questions;
+  const total = qs.length;
+  const correct = qs.filter(q => q.correct).length;
+  const score = Math.round(correct / total * 100);
+  const totalWrong = qs.reduce((s,q) => s + (q.attempts - (q.correct ? 1 : 0)), 0);
+  const avgTime = (state.totalTime / total).toFixed(1);
+
+  let icon, title, stars, gradeText, gradeCls;
+  if (score === 100) { icon='🏆'; title='מושלם לחלוטין!'; stars='⭐⭐⭐'; gradeText='100 – מעולה!'; gradeCls='grade-excellent'; spawnConfetti(28); }
+  else if (score >= 80) { icon='🥇'; title='כל הכבוד!'; stars='⭐⭐✨'; gradeText='ציון גבוה'; gradeCls='grade-excellent'; }
+  else if (score >= 60) { icon='😊'; title='לא רע!'; stars='⭐⭐'; gradeText='ציון טוב'; gradeCls='grade-good'; }
+  else if (score >= 40) { icon='😐'; title='יש מה לשפר'; stars='⭐'; gradeText='ציון ממוצע'; gradeCls='grade-ok'; }
+  else { icon='📚'; title='צריך לתרגל עוד'; stars=''; gradeText='כדאי לחזור'; gradeCls='grade-fail'; }
+
+  document.getElementById('r-icon').textContent = icon;
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-stars').textContent = stars;
+  const rg = document.getElementById('r-grade');
+  rg.textContent = gradeText; rg.className = 'grade-badge ' + gradeCls;
+
+  const statsData = [
+    { ico:'🎯', val: correct+'/'+total, lbl:'נכונות', cls:'sb-green' },
+    { ico:'📊', val: score+'%', lbl:'ציון', cls:'sb-purple' },
+    { ico:'❤️', val: state.lives+'/3', lbl:'חיים שנותרו', cls: state.lives>0?'sb-green':'sb-red' },
+    { ico:'❌', val: totalWrong, lbl:'טעויות כולל', cls: totalWrong===0?'sb-green':'sb-red' },
+    { ico:'⏱️', val: state.totalTime.toFixed(0)+'ש', lbl:'זמן כולל', cls:'sb-amber' },
+    { ico:'⚡', val: avgTime+'ש', lbl:'ממוצע לשאלה', cls:'sb-blue' },
+  ];
+  const grid = document.getElementById('r-stats');
+  grid.innerHTML = '';
+  statsData.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'stat-box ' + s.cls;
+    d.innerHTML = `<div class="s-icon">${s.ico}</div><div class="s-val">${s.val}</div><div class="s-lbl">${s.lbl}</div>`;
+    grid.appendChild(d);
+  });
+
+  const qWrap = document.getElementById('r-questions');
+  qWrap.innerHTML = '';
+  qs.forEach((q, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-review ' + (q.correct ? 'qr-ok' : 'qr-no');
+    let eqText, ansText;
+    if (q.type === 'improper-to-mixed') {
+      eqText = `${q.num}/${q.den} = <strong>${q.ansWhole} ו-${q.ansNum}/${q.ansDen}</strong>`;
+    } else {
+      eqText = `${q.whole} ו-${q.num}/${q.den} = <strong>${q.ansNum}/${q.ansDen}</strong>`;
+    }
+    const wrongStr = q.wrongAnswers.length ? ` | שגויים: ${q.wrongAnswers.join(', ')}` : '';
+    const meta = q.attempts > 0 ? `${q.attempts} ניסיון${q.attempts>1?'ות':''} • ⏱ ${q.timeSpent.toFixed(1)}ש${wrongStr}` : 'לא הגעת';
+    d.innerHTML = `
+      <span class="qr-ico">${q.correct?'✅':'❌'}</span>
+      <div style="flex:1">
+        <div class="qr-eq">${eqText}</div>
+        <div class="qr-meta">${meta}</div>
+      </div>
+    `;
+    qWrap.appendChild(d);
+  });
+}
+
+function restartGame() { startGame(); }
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function spawnConfetti(n) {
+  const colors = ['#9c5ff5','#f5a623','#22c55e','#38bdf8','#f472b6','#a78bfa','#fbbf24'];
+  for (let i = 0; i < n; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.width = (7 + Math.random() * 9) + 'px';
+      c.style.height = (7 + Math.random() * 9) + 'px';
+      c.style.animationDuration = (2.2 + Math.random() * 2.3) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }, i * 70);
+  }
+}
+</script>
+</body>
+</html>
