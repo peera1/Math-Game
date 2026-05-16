@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אלופי השברים - לומדים ומנצחים!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: #4cc9f0;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4ade80;
+            --bg-grad: linear-gradient(135deg, #fbcfe8 0%, #c084fc 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Rubik', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-grad);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border: 4px solid #fff;
+        }
+
+        /* מסכי פתיחה וסיום */
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', 'Rubik', sans-serif;
+            color: var(--secondary);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px #fff;
+        }
+
+        p.subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        /* כפתורים */
+        .btn {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(76, 201, 240, 0.4);
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 20px rgba(76, 201, 240, 0.6);
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        /* שורת מצב עליונה */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .hearts {
+            display: flex;
+            gap: 8px;
+            font-size: 1.5rem;
+        }
+        .heart {
+            color: var(--accent);
+            animation: pulse 1.5s infinite;
+            transition: all 0.3s;
+        }
+        .heart.lost {
+            color: #cbd5e1;
+            transform: scale(0.8);
+            animation: none;
+        }
+
+        .progress-box {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        /* אזור הוויזואל - העיגול */
+        .visual-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            min-height: 220px;
+        }
+
+        .fraction-circle {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            border-radius: 50%;
+            background: #e2e8f0;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 6px solid #fff;
+        }
+
+        /* הוראה לשאלה */
+        .instruction {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        /* כתיבת שבר מותאמת לישראל */
+        .fraction-display {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            vertical-align: middle;
+            line-height: 1;
+            padding: 0 5px;
+        }
+        .fraction-display .numerator {
+            border-bottom: 3px solid #2d3748;
+            padding-bottom: 2px;
+            width: 100%;
+            text-align: center;
+        }
+        .fraction-display .denominator {
+            padding-top: 2px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* אפשרויות אמריקאיות */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 120px);
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+            transform: translateY(-2px);
+        }
+
+        /* כפתור אישור לצביעה */
+        .action-area {
+            margin-top: 25px;
+        }
+
+        /* פידבק משוב */
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 30px;
+            transition: all 0.3s;
+        }
+        .feedback.success { color: #16a34a; animation: bounce 0.5s; }
+        .feedback.error { color: var(--accent); animation: shake 0.5s; }
+
+        /* מסך דוח מסכם */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        .report-table th, .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .report-table th {
+            background-color: #f1f5f9;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 15px;
+            flex: 1;
+            border: 2px solid #e2e8f0;
+        }
+        .card h3 { font-size: 1rem; color: #64748b; }
+        .card p { font-size: 1.6rem; font-weight: bold; color: var(--secondary); }
+
+        /* אפקטים ואנימציות */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+
+        /* קונפטי וזיקוקים אלמנטים */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: explode 1s ease-out forwards;
+        }
+        @keyframes explode {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="gameContainer">
+        
+        <!-- מסך פתיחה -->
+        <div id="screen-start" class="screen active">
+            <h1>אלופי השברים! 🍕</h1>
+            <p class="subtitle">ברוכים הבאים למשחק השברים הכי כיפי בעולם. האם תצליחו לפתור את כל 10 המשימות בלי לאבד את הלבבות?</p>
+            <button class="btn" onclick="startGame()">מתחילים לשחק!</button>
+        </div>
+
+        <!-- מסך משחק פעיל -->
+        <div id="screen-game" class="screen">
+            <div class="status-bar">
+                <div class="progress-box">משימה <span id="current-question-num">1</span> מתוך 10</div>
+                <div class="hearts" id="hearts-container">
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                    <span class="heart">❤️</span>
+                </div>
+            </div>
+
+            <div class="instruction" id="instruction-text">כמה חלקים צבועים בשלם?</div>
+            
+            <div class="visual-area">
+                <div class="fraction-circle" id="circle-visual"></div>
+            </div>
+
+            <!-- לאתר שאלות אמריקאיות -->
+            <div class="options-grid" id="options-container"></div>
+
+            <!-- לאתר שאלות צביעה עצמית -->
+            <div class="action-area" id="action-container" style="display: none;">
+                <button class="btn" style="background:linear-gradient(135deg, #4ade80, #22c55e)" onclick="checkColoringQuestion()">בדקו אותי!</button>
+            </div>
+
+            <div class="feedback" id="feedback-message"></div>
+        </div>
+
+        <!-- מסך הפסדה -->
+        <div id="screen-gameover" class="screen">
+            <h1>אוי, נגמרו הלבבות! 💔</h1>
+            <p class="subtitle">לא נורא כלל! טעויות הן חלק מהלמידה. כל אלופי העולם הגדולים ניסו שוב ושוב עד שהצליחו!</p>
+            <button class="btn" onclick="startGame()">רוצה לנסות שוב מהתחלה!</button>
+        </div>
+
+        <!-- מסך סיכום ודוח להורים -->
+        <div id="screen-summary" class="screen">
+            <h1>כל הכבוד! אתם אלופים! 🎉🏆</h1>
+            <p class="subtitle">סיימתם את לומדת השברים בהצלחה רבה.</p>
+            
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>זמן כולל</h3>
+                    <p id="sum-total-time">00:00</p>
+                </div>
+                <div class="card">
+                    <h3>סך טעויות</h3>
+                    <p id="sum-total-errors">0</p>
+                </div>
+            </div>
+
+            <h3 style="color: var(--secondary); margin-top:20px;">דוח דרך מפורט למשחק:</h3>
+            <div style="overflow-x: auto;">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>משימה</th>
+                            <th>סוג משימה</th>
+                            <th>התשובה הנכונה</th>
+                            <th>טעויות בשלב</th>
+                            <th>זמן פתרון</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tbody">
+                        <!-- שורות הדוח יוזנו דינמית -->
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn" onclick="startGame()">לשחק שוב!</button>
+        </div>
+
+    </div>
+
+    <script>
+        // בנק 10 השאלות המתוכנן בקפידה
+        const questionsDatabase = [
+            { id: 1, type: 'identify', totalSlices: 3, coloredSlices: 2, options: ['1/3', '2/3', '1/2', '3/2'], answer: '2/3', text: "מהו החלק הצבוע בעיגול?" },
+            { id: 2, type: 'identify', totalSlices: 4, coloredSlices: 1, options: ['1/4', '2/4', '3/4', '1/2'], answer: '1/4', text: "איזה שבר מייצג החלק הצבוע?" },
+            { id: 3, type: 'color', totalSlices: 2, targetNumerator: 1, targetDenominator: 2, text: "לחצו על הפרוסות כדי לצבוע בדיוק: <div class='fraction-display'><span class='numerator'>1</span><span class='denominator'>2</span></div>" },
+            { id: 4, type: 'identify', totalSlices: 6, coloredSlices: 3, options: ['1/6', '3/6', '1/2', '2/3'], answer: '1/2', text: "שימו לב היטב! מהו החלק הצבוע? (רמז: אפשר לצמצם ולפשט!)" },
+            { id: 5, type: 'color', totalSlices: 4, targetNumerator: 3, targetDenominator: 4, text: "צבעו בעיגול את השבר המבוקש: <div class='fraction-display'><span class='numerator'>3</span><span class='denominator'>4</span></div>" },
+            { id: 6, type: 'identify', totalSlices: 5, coloredSlices: 4, options: ['4/5', '1/5', '3/5', '2/5'], answer: '4/5', text: "כמה חלקים מתוך השלם צבועים כאן?" },
+            { id: 7, type: 'identify', totalSlices: 8, coloredSlices: 4, options: ['4/8', '1/4', '1/2', '3/4'], answer: '1/2', text: "הביטו בעיגול. איזה חלק הוא צבוע מתוך השלם לאחר צמצום?" },
+            { id: 8, type: 'color', totalSlices: 6, targetNumerator: 2, targetDenominator: 6, text: "צבעו בעיגול את השבר הבא: <div class='fraction-display'><span class='numerator'>2</span><span class='denominator'>6</span></div>" },
+            { id: 9, type: 'identify', totalSlices: 4, coloredSlices: 2, options: ['2/4', '1/4', '1/2', '3/4'], answer: '1/2', text: "שני רבעים בעיגול הם בדיוק כמו השבר..." },
+            { id: 10, type: 'color', totalSlices: 3, targetNumerator: 1, targetDenominator: 3, text: "משימה אחרונה חביבה! צבעו את השבר הבא: <div class='fraction-display'><span class='numerator'>1</span><span class='denominator'>3</span></div>" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let lives = 3;
+        let gameInProgress = false;
+        
+        // משתני אנליטיקה ודוח
+        let startTime;
+        let questionStartTime;
+        let totalErrors = 0;
+        let telemetry = [];
+
+        // מערך לשמירת מצב הצביעה האינטראקטיבי של הילד בשאלות מסוג צביעה
+        let userColoredSlices = []; 
+
+        // משפטי עידוד לטעויות
+        const tryAgainEncouragements = [
+            "קרוב מאוד! נסו לחשוב שוב כמה חלקים יש סך הכל.",
+            "לא נורא, טעות היא הזדמנות ללמוד! נסו שוב.",
+            "אני בטוח שאם תסתכלו שוב טוב טוב בעיגול תצליחו!",
+            "כמעט! ספרו שוב את הפרוסות ונסו פעם נוספת."
+        ];
+
+        // משפטי עידוד להצלחות
+        const successCelebrations = [
+            "מדהים! אתם פשוט גאונים! ✨",
+            "כל הכבוד! תשובה מדויקת להפליא! 🚀",
+            "יש! עשיתם את זה נכון! 🎉",
+            "אלופי השברים! ממשיכים בכל הכוח! 🔥"
+        ];
+
+        function startGame() {
+            currentQuestionIndex = 0;
+            lives = 3;
+            totalErrors = 0;
+            telemetry = [];
+            startTime = new Date();
+            
+            updateHeartsUI();
+            switchScreen('screen-game');
+            loadQuestion();
+        }
+
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function updateHeartsUI() {
+            const hearts = document.querySelectorAll('#hearts-container .heart');
+            hearts.forEach((heart, index) => {
+                if (index < lives) {
+                    heart.classList.remove('lost');
+                } else {
+                    heart.classList.add('lost');
+                }
+            });
+        }
+
+        function loadQuestion() {
+            document.getElementById('feedback-message').innerHTML = "";
+            questionStartTime = new Date();
+            
+            let q = questionsDatabase[currentQuestionIndex];
+            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('instruction-text').innerHTML = q.text;
+
+            // יצירת ויזואל של העיגול מחולק
+            buildCircleVisual(q);
+
+            if (q.type === 'identify') {
+                document.getElementById('options-container').style.display = 'grid';
+                document.getElementById('action-container').style.display = 'none';
+                buildOptions(q);
+            } else {
+                document.getElementById('options-container').style.display = 'none';
+                document.getElementById('action-container').style.display = 'block';
+                userColoredSlices = new Array(q.totalSlices).fill(false);
+            }
+        }
+
+        function buildCircleVisual(q) {
+            const container = document.getElementById('circle-visual');
+            container.innerHTML = '';
+            
+            const total = q.totalSlices;
+            const angleStep = 360 / total;
+
+            for (let i = 0; i < total; i++) {
+                const slice = document.createElement('div');
+                slice.style.position = 'absolute';
+                slice.style.width = '100%';
+                slice.style.height = '100%';
+                slice.style.top = '0';
+                slice.style.left = '0';
+                
+                // שימוש ב-clip-path ליצירת גזרת עיגול מדויקת
+                let startAngle = i * angleStep;
+                let endAngle = (i + 1) * angleStep;
+                
+                // התאמת ה-clip path לפי הגזרה
+                slice.style.clipPath = `polygon(50% 50%, ${50 + 50 * Math.cos((startAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((startAngle - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((endAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((endAngle - 90) * Math.PI / 180)}%)`;
+                
+                // צבע התחלתי
+                if (q.type === 'identify') {
+                    if (i < q.coloredSlices) {
+                        slice.style.background = 'linear-gradient(135deg, #ff007f, #7209b7)';
+                    } else {
+                        slice.style.background = '#cbd5e1';
+                    }
+                    // קו מפריד דק
+                    slice.style.border = '1px solid rgba(255,255,255,0.4)';
+                } else {
+                    // מצב שאלה מסוג צביעה עצמית
+                    slice.style.background = '#cbd5e1';
+                    slice.style.cursor = 'pointer';
+                    slice.style.transition = 'background 0.2s';
+                    slice.addEventListener('click', () => {
+                        userColoredSlices[i] = !userColoredSlices[i];
+                        slice.style.background = userColoredSlices[i] ? 'linear-gradient(135deg, #4cc9f0, #4895ef)' : '#cbd5e1';
+                    });
+                }
+
+                // הוספת קו מפריד ויזואלי בין הגזרות
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+                line.style.width = '2px';
+                line.style.height = '50%';
+                line.style.background = '#fff';
+                line.style.top = '0';
+                line.style.left = '50%';
+                line.style.transformOrigin = 'bottom center';
+                line.style.transform = `rotate(${startAngle}deg)`;
+                
+                container.appendChild(slice);
+                container.appendChild(line);
+            }
+        }
+
+        function createFractionHTML(fractionStr) {
+            const parts = fractionStr.split('/');
+            return `<div class="fraction-display"><span class="numerator">${parts[0]}</span><span class="denominator">${parts[1]}</span></div>`;
+        }
+
+        function buildOptions(q) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = createFractionHTML(opt);
+                btn.onclick = () => checkIdentifyAnswer(opt);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleWrongAnswer() {
+            lives--;
+            totalErrors++;
+            
+            // רישום הטעות באנליטיקה של השאלה הנוכחית
+            if(!telemetry[currentQuestionIndex]) {
+                telemetry[currentQuestionIndex] = { errorsInStep: 0 };
+            }
+            telemetry[currentQuestionIndex].errorsInStep++;
+
+            updateHeartsUI();
+
+            if (lives <= 0) {
+                setTimeout(() => { switchScreen('screen-gameover'); }, 600);
+            } else {
+                const msgBox = document.getElementById('feedback-message');
+                msgBox.className = "feedback error";
+                msgBox.innerText = tryAgainEncouragements[Math.floor(Math.random() * tryAgainEncouragements.length)];
+            }
+        }
+
+        function handleCorrectAnswer() {
+            const msgBox = document.getElementById('feedback-message');
+            msgBox.className = "feedback success";
+            msgBox.innerText = successCelebrations[Math.floor(Math.random() * successCelebrations.length)];
+            
+            // אפקטים מיוחדים של פיצוץ קונפטי וזיקוקים
+            triggerCelebrationEffects();
+
+            // שמירת נתוני טלמטריה לשלב הנוכחי
+            let duration = Math.round((new Date() - questionStartTime) / 1000);
+            let currentStepErrors = telemetry[currentQuestionIndex]?.errorsInStep || 0;
+            
+            let q = questionsDatabase[currentQuestionIndex];
+            let typeText = q.type === 'identify' ? 'זיהוי שבר' : 'צביעת שבר';
+            let ansText = q.type === 'identify' ? q.answer : `${q.targetNumerator}/${q.targetDenominator}`;
+
+            telemetry[currentQuestionIndex] = {
+                id: q.id,
+                type: typeText,
+                answer: ansText,
+                errors: currentStepErrors,
+                time: duration
+            };
+
+            currentQuestionIndex++;
+
+            setTimeout(() => {
+                if (currentQuestionIndex < 10) {
+                    loadQuestion();
+                } else {
+                    showSummaryScreen();
+                }
+            }, 2000);
+        }
+
+        function checkIdentifyAnswer(selectedOption) {
+            let q = questionsDatabase[currentQuestionIndex];
+            if (selectedOption === q.answer) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+        }
+
+        function checkColoringQuestion() {
+            let q = questionsDatabase[currentQuestionIndex];
+            let coloredCount = userColoredSlices.filter(Boolean).length;
+            
+            // חישוב ערך השבר שהילד צבע מול שבר המטרה
+            let targetValue = q.targetNumerator / q.targetDenominator;
+            let userValue = coloredCount / q.totalSlices;
+
+            if (Math.abs(targetValue - userValue) < 0.01) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+        }
+
+        function showSummaryScreen() {
+            switchScreen('screen-summary');
+            
+            // חישוב זמנים
+            let totalTimeSec = Math.round((new Date() - startTime) / 1000);
+            let mins = Math.floor(totalTimeSec / 60).toString().padStart(2, '0');
+            let secs = (totalTimeSec % 60).toString().padStart(2, '0');
+            
+            document.getElementById('sum-total-time').innerText = `${mins}:${secs}`;
+            document.getElementById('sum-total-errors').innerText = totalErrors;
+
+            // בניית טבלת הדוח להורים
+            const tbody = document.getElementById('report-tbody');
+            tbody.innerHTML = '';
+
+            telemetry.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><b>משימה ${item.id}</b></td>
+                    <td>${item.type}</td>
+                    <td><div class="fraction-display"><span class="numerator">${item.answer.split('/')[0]}</span><span class="denominator">${item.answer.split('/')[1]}</span></div></td>
+                    <td style="color: ${item.errors > 0 ? 'var(--accent)' : '#16a34a'}; font-weight: bold;">${item.errors}</td>
+                    <td>${item.time} שניות</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // מטח זיקוקים חגיגי ממושך בסיום הלומדה
+            for(let i=0; i<5; i++) {
+                setTimeout(triggerCelebrationEffects, i * 600);
+            }
+        }
+
+        // מערכת זיקוקים וחלקיקים דינמית ב-JavaScript טהור
+        function triggerCelebrationEffects() {
+            const container = document.getElementById('gameContainer');
+            const rect = container.getBoundingClientRect();
+            
+            // ייצור חלקיקים במקומות רנדומליים מעל הקונטיינר
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // צבעים מרהיבים אקראיים
+                const colors = ['#f72585', '#7209b7', '#3a0ca3', '#4361ee', '#4cc9f0', '#4ade80', '#facc15'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                // מיקום מרכז הפיצוץ אקראי
+                const originX = Math.random() * rect.width;
+                const originY = Math.random() * (rect.height / 2);
+                
+                particle.style.left = originX + 'px';
+                particle.style.top = originY + 'px';
+                
+                // כיוון פיצוץ אקראי לכל חלקיק (וקטור X ו-Y)
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 120 + 40;
+                particle.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
+                particle.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
+                
+                container.appendChild(particle);
+                
+                // הסרה מה-DOM לאחר סיום האנימציה
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+    </script>
+</body>
+</html>
