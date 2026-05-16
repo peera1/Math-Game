@@ -1,673 +1,1143 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>אלופי השברים - לומדים ומנצחים!</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Rubik:wght@400;500;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שברים - הרפתקת החלקים!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f7ff;
+    --ocean: #2196f3;
+    --deep: #1565c0;
+    --sun: #ffd600;
+    --coral: #ff6b6b;
+    --mint: #43e97b;
+    --lavender: #b39ddb;
+    --peach: #ffb347;
+    --bg: #f0faff;
+    --card: #ffffff;
+    --text: #1a2340;
+    --shadow: 0 8px 32px rgba(33,150,243,0.13);
+  }
 
-        :root {
-            --primary: #4cc9f0;
-            --secondary: #7209b7;
-            --accent: #f72585;
-            --success: #4ade80;
-            --bg-grad: linear-gradient(135deg, #fbcfe8 0%, #c084fc 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Rubik', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
 
-        body {
-            background: var(--bg-grad);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow-x: hidden;
-        }
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #e0f7ff 0%, #f8f4ff 50%, #fff9e6 100%);
+    z-index: -2;
+  }
 
-        .game-container {
-            background: var(--card-bg);
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 700px;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-            border: 4px solid #fff;
-        }
+  .bg-blobs {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.22;
+    animation: blobFloat 8s ease-in-out infinite alternate;
+  }
+  .blob1 { width: 350px; height: 350px; background: #2196f3; top: -80px; right: -80px; animation-delay: 0s; }
+  .blob2 { width: 280px; height: 280px; background: #ffd600; bottom: 50px; left: -60px; animation-delay: 2s; }
+  .blob3 { width: 200px; height: 200px; background: #43e97b; top: 40%; right: 30%; animation-delay: 4s; }
+  @keyframes blobFloat {
+    from { transform: scale(1) translateY(0); }
+    to { transform: scale(1.12) translateY(30px); }
+  }
 
-        /* מסכי פתיחה וסיום */
-        .screen {
-            display: none;
-        }
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
+  /* Header */
+  header {
+    text-align: center;
+    padding: 28px 16px 10px;
+    position: relative;
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    color: var(--deep);
+    letter-spacing: 1px;
+    text-shadow: 3px 3px 0 rgba(33,150,243,0.13);
+  }
+  header p.subtitle {
+    font-size: 1.1rem;
+    color: #5577aa;
+    margin-top: 4px;
+  }
 
-        h1 {
-            font-family: 'Fredoka One', 'Rubik', sans-serif;
-            color: var(--secondary);
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px #fff;
-        }
+  /* Hearts */
+  #hearts-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 0;
+  }
+  .heart {
+    font-size: 2rem;
+    transition: transform 0.3s, opacity 0.3s;
+    filter: drop-shadow(0 2px 6px #ff6b6b88);
+  }
+  .heart.lost {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
 
-        p.subtitle {
-            font-size: 1.2rem;
-            color: #4a5568;
-            margin-bottom: 30px;
-        }
+  /* Progress bar */
+  #progress-wrap {
+    max-width: 500px;
+    margin: 10px auto 0;
+    padding: 0 20px;
+  }
+  #progress-bar-bg {
+    background: #c9e4fa;
+    border-radius: 20px;
+    height: 16px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.07);
+  }
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #43e97b, #2196f3);
+    border-radius: 20px;
+    transition: width 0.7s cubic-bezier(.4,2,.6,1);
+    width: 0%;
+  }
+  #progress-label {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #5577aa;
+    margin-top: 4px;
+  }
 
-        /* כפתורים */
-        .btn {
-            background: linear-gradient(135deg, #4cc9f0, #4895ef);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 8px 15px rgba(76, 201, 240, 0.4);
-            transition: all 0.2s;
-        }
-        .btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 20px rgba(76, 201, 240, 0.6);
-        }
-        .btn:active {
-            transform: translateY(1px);
-        }
+  /* Main card */
+  #game-card {
+    max-width: 650px;
+    margin: 20px auto 30px;
+    background: var(--card);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 32px 28px 28px;
+    position: relative;
+    animation: cardIn 0.5s cubic-bezier(.4,2,.6,1);
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(40px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
 
-        /* שורת מצב עליונה */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            background: #f8fafc;
-            padding: 15px 20px;
-            border-radius: 20px;
-            border: 2px solid #e2e8f0;
-        }
+  #question-num {
+    font-size: 0.95rem;
+    color: #8aabcc;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  #question-text {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 20px;
+    min-height: 2em;
+  }
 
-        .hearts {
-            display: flex;
-            gap: 8px;
-            font-size: 1.5rem;
-        }
-        .heart {
-            color: var(--accent);
-            animation: pulse 1.5s infinite;
-            transition: all 0.3s;
-        }
-        .heart.lost {
-            color: #cbd5e1;
-            transform: scale(0.8);
-            animation: none;
-        }
+  /* Circle SVG */
+  #circle-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 26px;
+  }
+  #circle-svg {
+    width: 200px;
+    height: 200px;
+    filter: drop-shadow(0 6px 18px rgba(33,150,243,0.18));
+    cursor: default;
+  }
+  .pie-slice {
+    transition: fill 0.2s, transform 0.2s;
+  }
+  .pie-slice.clickable {
+    cursor: pointer;
+  }
+  .pie-slice.clickable:hover {
+    transform-origin: center;
+  }
 
-        .progress-box {
-            font-weight: bold;
-            color: var(--secondary);
-            font-size: 1.1rem;
-        }
+  /* Fraction display */
+  .fraction-display {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--deep);
+    background: #e8f4ff;
+    border-radius: 12px;
+    padding: 6px 16px;
+    border: 2.5px solid #b3d7f7;
+  }
+  .fraction-display .numer { font-size: 1.8rem; }
+  .fraction-display .line { width: 100%; height: 3px; background: var(--deep); border-radius: 3px; margin: 2px 0; }
+  .fraction-display .denom { font-size: 1.8rem; }
 
-        /* אזור הוויזואל - העיגול */
-        .visual-area {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 30px 0;
-            min-height: 220px;
-        }
+  /* Answer choices */
+  #answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 13px;
+    margin-top: 8px;
+  }
+  .ans-btn {
+    background: #f4f8ff;
+    border: 3px solid #c9dff7;
+    border-radius: 18px;
+    padding: 14px 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-size: 1rem;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 3px 10px rgba(33,150,243,0.06);
+    position: relative;
+    overflow: hidden;
+  }
+  .ans-btn:hover {
+    background: #e0f0ff;
+    border-color: var(--ocean);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 18px rgba(33,150,243,0.16);
+  }
+  .ans-btn.correct {
+    background: linear-gradient(135deg, #43e97b22, #38f9d722);
+    border-color: #43e97b;
+    color: #1b7f40;
+    animation: correctPop 0.4s cubic-bezier(.4,2,.6,1);
+  }
+  .ans-btn.wrong {
+    background: linear-gradient(135deg, #ff6b6b22, #ffb34722);
+    border-color: #ff6b6b;
+    color: #c0392b;
+    animation: wrongShake 0.4s;
+  }
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrongShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+  .ans-btn:disabled { cursor: default; transform: none !important; }
 
-        .fraction-circle {
-            width: 200px;
-            height: 200px;
-            position: relative;
-            border-radius: 50%;
-            background: #e2e8f0;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.1);
-            overflow: hidden;
-            border: 6px solid #fff;
-        }
+  /* Fraction inside answer */
+  .ans-fraction {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Fredoka One', cursive;
+    line-height: 1;
+  }
+  .ans-fraction .an { font-size: 1.4rem; }
+  .ans-fraction .al { width: 100%; height: 2.5px; background: currentColor; border-radius: 2px; margin: 1px 0; }
+  .ans-fraction .ad { font-size: 1.4rem; }
 
-        /* הוראה לשאלה */
-        .instruction {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 20px;
-        }
+  /* Coloring mode */
+  #coloring-note {
+    font-size: 1rem;
+    color: #5577aa;
+    margin-bottom: 14px;
+    background: #e8f4ff;
+    border-radius: 12px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #coloring-note span { font-size: 1.4rem; }
+  #coloring-submit {
+    display: block;
+    margin: 18px auto 0;
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 13px 40px;
+    font-size: 1.1rem;
+    font-family: 'Fredoka One', cursive;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(33,150,243,0.28);
+    transition: all 0.18s;
+  }
+  #coloring-submit:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 8px 28px rgba(33,150,243,0.35); }
 
-        /* כתיבת שבר מותאמת לישראל */
-        .fraction-display {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            vertical-align: middle;
-            line-height: 1;
-            padding: 0 5px;
-        }
-        .fraction-display .numerator {
-            border-bottom: 3px solid #2d3748;
-            padding-bottom: 2px;
-            width: 100%;
-            text-align: center;
-        }
-        .fraction-display .denominator {
-            padding-top: 2px;
-            width: 100%;
-            text-align: center;
-        }
+  /* Feedback message */
+  #feedback-msg {
+    text-align: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.25rem;
+    margin-top: 16px;
+    min-height: 1.8em;
+    transition: all 0.3s;
+  }
+  #feedback-msg.good { color: #1b7f40; }
+  #feedback-msg.bad { color: #c0392b; }
 
-        /* אפשרויות אמריקאיות */
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 120px);
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+  /* Next button */
+  #next-btn {
+    display: none;
+    margin: 18px auto 0;
+    background: linear-gradient(135deg, #ffd600, #ff9800);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 13px 44px;
+    font-size: 1.15rem;
+    font-family: 'Fredoka One', cursive;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(255,152,0,0.28);
+    transition: all 0.18s;
+    animation: nextIn 0.4s cubic-bezier(.4,2,.6,1);
+  }
+  @keyframes nextIn {
+    from { opacity: 0; transform: scale(0.8) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  #next-btn:hover { transform: translateY(-2px) scale(1.05); }
+  #next-btn { display: none; text-align: center; }
+  #next-wrap { text-align: center; }
 
-        .option-btn {
-            background: white;
-            border: 3px solid #e2e8f0;
-            border-radius: 20px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .option-btn:hover {
-            border-color: var(--primary);
-            background: #f0f9ff;
-            transform: translateY(-2px);
-        }
+  /* Screens */
+  #start-screen, #end-screen {
+    max-width: 600px;
+    margin: 40px auto;
+    background: var(--card);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 44px 32px;
+    text-align: center;
+    animation: cardIn 0.5s cubic-bezier(.4,2,.6,1);
+  }
+  #start-screen h2, #end-screen h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.2rem;
+    color: var(--deep);
+    margin-bottom: 12px;
+  }
+  #start-screen p { font-size: 1.1rem; color: #5577aa; margin-bottom: 24px; line-height: 1.7; }
 
-        /* כפתור אישור לצביעה */
-        .action-area {
-            margin-top: 25px;
-        }
+  .big-btn {
+    background: linear-gradient(135deg, #2196f3, #1565c0);
+    color: #fff;
+    border: none;
+    border-radius: 22px;
+    padding: 16px 56px;
+    font-size: 1.3rem;
+    font-family: 'Fredoka One', cursive;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(33,150,243,0.32);
+    transition: all 0.18s;
+    display: inline-block;
+    margin-top: 8px;
+  }
+  .big-btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 32px rgba(33,150,243,0.4); }
 
-        /* פידבק משוב */
-        .feedback {
-            margin-top: 20px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            min-height: 30px;
-            transition: all 0.3s;
-        }
-        .feedback.success { color: #16a34a; animation: bounce 0.5s; }
-        .feedback.error { color: var(--accent); animation: shake 0.5s; }
+  /* End screen report */
+  #end-screen .report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 22px 0;
+    text-align: center;
+  }
+  .report-item {
+    background: #f0f8ff;
+    border-radius: 16px;
+    padding: 14px 10px;
+    border: 2px solid #c9dff7;
+  }
+  .report-item .ri-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--deep);
+  }
+  .report-item .ri-label { font-size: 0.85rem; color: #8aabcc; }
 
-        /* מסך דוח מסכם */
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-size: 0.95rem;
-            text-align: right;
-        }
-        .report-table th, .report-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .report-table th {
-            background-color: #f1f5f9;
-            color: var(--secondary);
-            font-weight: bold;
-        }
-        .summary-cards {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 25px;
-        }
-        .card {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 15px;
-            flex: 1;
-            border: 2px solid #e2e8f0;
-        }
-        .card h3 { font-size: 1rem; color: #64748b; }
-        .card p { font-size: 1.6rem; font-weight: bold; color: var(--secondary); }
+  #answer-log { margin: 16px 0; text-align: right; max-height: 220px; overflow-y: auto; }
+  .log-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 10px; border-radius: 10px; margin-bottom: 5px; font-size: 0.9rem; }
+  .log-row.ok { background: #e8fdf1; color: #1b7f40; }
+  .log-row.nok { background: #fff0f0; color: #c0392b; }
+  .log-row .log-icon { font-size: 1.2rem; }
+  .log-row .log-q { flex: 1; margin: 0 8px; }
+  .log-row .log-t { font-size: 0.8rem; color: #8aabcc; }
 
-        /* אפקטים ואנימציות */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+  /* Confetti / fireworks */
+  #celebration { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  .confetti-piece {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  .firework {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: fireworkBurst 0.8s ease-out forwards;
+  }
+  @keyframes fireworkBurst {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--fx), var(--fy)) scale(0.2); opacity: 0; }
+  }
 
-        /* קונפטי וזיקוקים אלמנטים */
-        .particle {
-            position: absolute;
-            pointer-events: none;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: explode 1s ease-out forwards;
-        }
-        @keyframes explode {
-            0% { transform: translate(0, 0) scale(1); opacity: 1; }
-            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
-        }
-    </style>
+  /* Emoji bounce */
+  .emoji-bounce { display: inline-block; animation: eBounce 0.6s cubic-bezier(.4,2,.6,1); }
+  @keyframes eBounce { 0%{transform:scale(0)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
+
+  /* Lose screen overlay */
+  #lose-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 8888;
+    align-items: center;
+    justify-content: center;
+  }
+  #lose-overlay.show { display: flex; }
+  #lose-box {
+    background: #fff;
+    border-radius: 28px;
+    padding: 40px 36px;
+    text-align: center;
+    max-width: 380px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.25);
+    animation: cardIn 0.4s cubic-bezier(.4,2,.6,1);
+  }
+  #lose-box h2 { font-family:'Fredoka One',cursive; font-size:2rem; color:#c0392b; margin-bottom:10px; }
+  #lose-box p { font-size:1.05rem; color:#555; margin-bottom:22px; }
+
+  /* Slice label inside svg */
+  .slice-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    fill: #fff;
+    pointer-events: none;
+  }
+
+  @media (max-width: 500px) {
+    #game-card { padding: 20px 10px; }
+    #answers-grid { gap: 9px; }
+    #circle-svg { width: 160px; height: 160px; }
+    .ans-btn { padding: 11px 4px; font-size: 0.95rem; }
+  }
+</style>
 </head>
 <body>
 
-    <div class="game-container" id="gameContainer">
-        
-        <!-- מסך פתיחה -->
-        <div id="screen-start" class="screen active">
-            <h1>אלופי השברים! 🍕</h1>
-            <p class="subtitle">ברוכים הבאים למשחק השברים הכי כיפי בעולם. האם תצליחו לפתור את כל 10 המשימות בלי לאבד את הלבבות?</p>
-            <button class="btn" onclick="startGame()">מתחילים לשחק!</button>
-        </div>
+<div class="bg-blobs">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
 
-        <!-- מסך משחק פעיל -->
-        <div id="screen-game" class="screen">
-            <div class="status-bar">
-                <div class="progress-box">משימה <span id="current-question-num">1</span> מתוך 10</div>
-                <div class="hearts" id="hearts-container">
-                    <span class="heart">❤️</span>
-                    <span class="heart">❤️</span>
-                    <span class="heart">❤️</span>
-                </div>
-            </div>
+<div id="celebration"></div>
 
-            <div class="instruction" id="instruction-text">כמה חלקים צבועים בשלם?</div>
-            
-            <div class="visual-area">
-                <div class="fraction-circle" id="circle-visual"></div>
-            </div>
+<!-- Lose overlay -->
+<div id="lose-overlay">
+  <div id="lose-box">
+    <div style="font-size:3.5rem;margin-bottom:8px">💔</div>
+    <h2>אוף! אזלו הלבבות</h2>
+    <p>אל דאגה! כל טעות היא הזדמנות ללמוד. בואו ננסה שוב!</p>
+    <button class="big-btn" onclick="restartGame()">🔄 התחל מחדש</button>
+  </div>
+</div>
 
-            <!-- לאתר שאלות אמריקאיות -->
-            <div class="options-grid" id="options-container"></div>
+<!-- Start screen -->
+<div id="start-screen">
+  <div style="font-size:4rem;margin-bottom:10px">🍕</div>
+  <h2>הרפתקת השברים!</h2>
+  <p>
+    נלמד על שברים בעזרת עיגולים צבעוניים!<br>
+    יש לך <strong>3 לבבות ❤️</strong> — תשמור עליהם!<br>
+    10 שאלות מחכות לך. בהצלחה!
+  </p>
+  <div style="display:flex;justify-content:center;gap:10px;margin-bottom:18px;font-size:2rem">❤️❤️❤️</div>
+  <button class="big-btn" onclick="startGame()">🚀 יאללה, מתחילים!</button>
+</div>
 
-            <!-- לאתר שאלות צביעה עצמית -->
-            <div class="action-area" id="action-container" style="display: none;">
-                <button class="btn" style="background:linear-gradient(135deg, #4ade80, #22c55e)" onclick="checkColoringQuestion()">בדקו אותי!</button>
-            </div>
-
-            <div class="feedback" id="feedback-message"></div>
-        </div>
-
-        <!-- מסך הפסדה -->
-        <div id="screen-gameover" class="screen">
-            <h1>אוי, נגמרו הלבבות! 💔</h1>
-            <p class="subtitle">לא נורא כלל! טעויות הן חלק מהלמידה. כל אלופי העולם הגדולים ניסו שוב ושוב עד שהצליחו!</p>
-            <button class="btn" onclick="startGame()">רוצה לנסות שוב מהתחלה!</button>
-        </div>
-
-        <!-- מסך סיכום ודוח להורים -->
-        <div id="screen-summary" class="screen">
-            <h1>כל הכבוד! אתם אלופים! 🎉🏆</h1>
-            <p class="subtitle">סיימתם את לומדת השברים בהצלחה רבה.</p>
-            
-            <div class="summary-cards">
-                <div class="card">
-                    <h3>זמן כולל</h3>
-                    <p id="sum-total-time">00:00</p>
-                </div>
-                <div class="card">
-                    <h3>סך טעויות</h3>
-                    <p id="sum-total-errors">0</p>
-                </div>
-            </div>
-
-            <h3 style="color: var(--secondary); margin-top:20px;">דוח דרך מפורט למשחק:</h3>
-            <div style="overflow-x: auto;">
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>משימה</th>
-                            <th>סוג משימה</th>
-                            <th>התשובה הנכונה</th>
-                            <th>טעויות בשלב</th>
-                            <th>זמן פתרון</th>
-                        </tr>
-                    </thead>
-                    <tbody id="report-tbody">
-                        <!-- שורות הדוח יוזנו דינמית -->
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn" onclick="startGame()">לשחק שוב!</button>
-        </div>
-
+<!-- Game card -->
+<div id="game-area" style="display:none">
+  <header>
+    <h1>🍕 שברים בגדול!</h1>
+    <p class="subtitle">שאלה <span id="q-counter">1</span> מתוך 10</p>
+    <div id="hearts-bar">
+      <span class="heart" id="h1">❤️</span>
+      <span class="heart" id="h2">❤️</span>
+      <span class="heart" id="h3">❤️</span>
     </div>
+    <div id="progress-wrap">
+      <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+      <div id="progress-label">0 / 10 שאלות</div>
+    </div>
+  </header>
 
-    <script>
-        // בנק 10 השאלות המתוכנן בקפידה
-        const questionsDatabase = [
-            { id: 1, type: 'identify', totalSlices: 3, coloredSlices: 2, options: ['1/3', '2/3', '1/2', '3/2'], answer: '2/3', text: "מהו החלק הצבוע בעיגול?" },
-            { id: 2, type: 'identify', totalSlices: 4, coloredSlices: 1, options: ['1/4', '2/4', '3/4', '1/2'], answer: '1/4', text: "איזה שבר מייצג החלק הצבוע?" },
-            { id: 3, type: 'color', totalSlices: 2, targetNumerator: 1, targetDenominator: 2, text: "לחצו על הפרוסות כדי לצבוע בדיוק: <div class='fraction-display'><span class='numerator'>1</span><span class='denominator'>2</span></div>" },
-            { id: 4, type: 'identify', totalSlices: 6, coloredSlices: 3, options: ['1/6', '3/6', '1/2', '2/3'], answer: '1/2', text: "שימו לב היטב! מהו החלק הצבוע? (רמז: אפשר לצמצם ולפשט!)" },
-            { id: 5, type: 'color', totalSlices: 4, targetNumerator: 3, targetDenominator: 4, text: "צבעו בעיגול את השבר המבוקש: <div class='fraction-display'><span class='numerator'>3</span><span class='denominator'>4</span></div>" },
-            { id: 6, type: 'identify', totalSlices: 5, coloredSlices: 4, options: ['4/5', '1/5', '3/5', '2/5'], answer: '4/5', text: "כמה חלקים מתוך השלם צבועים כאן?" },
-            { id: 7, type: 'identify', totalSlices: 8, coloredSlices: 4, options: ['4/8', '1/4', '1/2', '3/4'], answer: '1/2', text: "הביטו בעיגול. איזה חלק הוא צבוע מתוך השלם לאחר צמצום?" },
-            { id: 8, type: 'color', totalSlices: 6, targetNumerator: 2, targetDenominator: 6, text: "צבעו בעיגול את השבר הבא: <div class='fraction-display'><span class='numerator'>2</span><span class='denominator'>6</span></div>" },
-            { id: 9, type: 'identify', totalSlices: 4, coloredSlices: 2, options: ['2/4', '1/4', '1/2', '3/4'], answer: '1/2', text: "שני רבעים בעיגול הם בדיוק כמו השבר..." },
-            { id: 10, type: 'color', totalSlices: 3, targetNumerator: 1, targetDenominator: 3, text: "משימה אחרונה חביבה! צבעו את השבר הבא: <div class='fraction-display'><span class='numerator'>1</span><span class='denominator'>3</span></div>" }
-        ];
+  <div id="game-card">
+    <div id="question-num"></div>
+    <div id="question-text"></div>
+    <div id="coloring-note" style="display:none">
+      <span>👆</span>
+      <span id="coloring-instruction">לחץ על החלקים שרוצים לצבוע!</span>
+    </div>
+    <div id="circle-wrap">
+      <svg id="circle-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="95" fill="#f4f8ff" stroke="#c9dff7" stroke-width="3"/>
+      </svg>
+    </div>
+    <div id="answers-area">
+      <div id="answers-grid"></div>
+    </div>
+    <div id="next-wrap">
+      <button id="next-btn" onclick="nextQuestion()">הבא ➡️</button>
+    </div>
+    <div id="feedback-msg"></div>
+  </div>
+</div>
 
-        let currentQuestionIndex = 0;
-        let lives = 3;
-        let gameInProgress = false;
-        
-        // משתני אנליטיקה ודוח
-        let startTime;
-        let questionStartTime;
-        let totalErrors = 0;
-        let telemetry = [];
+<!-- End screen -->
+<div id="end-screen" style="display:none">
+  <div style="font-size:3.5rem;margin-bottom:8px" id="end-emoji">🏆</div>
+  <h2 id="end-title">כל הכבוד!</h2>
+  <p id="end-subtitle"></p>
+  <div class="report-grid">
+    <div class="report-item">
+      <div class="ri-val" id="r-correct">-</div>
+      <div class="ri-label">תשובות נכונות</div>
+    </div>
+    <div class="report-item">
+      <div class="ri-val" id="r-wrong">-</div>
+      <div class="ri-label">טעויות</div>
+    </div>
+    <div class="report-item">
+      <div class="ri-val" id="r-time">-</div>
+      <div class="ri-label">זמן כולל</div>
+    </div>
+    <div class="report-item">
+      <div class="ri-val" id="r-avg">-</div>
+      <div class="ri-label">זמן ממוצע לשאלה</div>
+    </div>
+  </div>
+  <h3 style="font-family:'Fredoka One',cursive;color:#1565c0;margin-bottom:10px;font-size:1.2rem;">📋 יומן השאלות</h3>
+  <div id="answer-log"></div>
+  <button class="big-btn" onclick="restartGame()">🔄 שחק שוב</button>
+</div>
 
-        // מערך לשמירת מצב הצביעה האינטראקטיבי של הילד בשאלות מסוג צביעה
-        let userColoredSlices = []; 
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════════════════════
 
-        // משפטי עידוד לטעויות
-        const tryAgainEncouragements = [
-            "קרוב מאוד! נסו לחשוב שוב כמה חלקים יש סך הכל.",
-            "לא נורא, טעות היא הזדמנות ללמוד! נסו שוב.",
-            "אני בטוח שאם תסתכלו שוב טוב טוב בעיגול תצליחו!",
-            "כמעט! ספרו שוב את הפרוסות ונסו פעם נוספת."
-        ];
+const COLORS = {
+  filled: ['#2196f3','#ff6b6b','#ffd600','#43e97b','#b39ddb','#ff9800','#26c6da'],
+  empty: '#f0f6ff',
+  stroke: '#90caf9',
+  clickFilled: '#1976d2',
+};
 
-        // משפטי עידוד להצלחות
-        const successCelebrations = [
-            "מדהים! אתם פשוט גאונים! ✨",
-            "כל הכבוד! תשובה מדויקת להפליא! 🚀",
-            "יש! עשיתם את זה נכון! 🎉",
-            "אלופי השברים! ממשיכים בכל הכוח! 🔥"
-        ];
+// Question bank — 10 questions, alternating identify/color types
+const QUESTIONS = [
+  // TYPE: identify — see colored circle, pick fraction
+  {
+    type: 'identify',
+    slices: 4, filled: 1,
+    question: 'כמה מהעיגול צבוע?',
+    correct: { n: 1, d: 4 },
+    distractors: [{ n:1,d:2 },{ n:1,d:3 },{ n:2,d:4 }],
+    color: '#ff6b6b',
+  },
+  // TYPE: color — given fraction, color the circle
+  {
+    type: 'color',
+    slices: 3, toFill: 2,
+    question: 'צבע את השבר:',
+    fraction: { n: 2, d: 3 },
+    color: '#2196f3',
+  },
+  // identify
+  {
+    type: 'identify',
+    slices: 6, filled: 3,
+    question: 'כמה מהעיגול צבוע?',
+    correct: { n:1, d:2 },
+    distractors: [{ n:3,d:6 },{ n:2,d:3 },{ n:3,d:4 }],
+    color: '#43e97b',
+    hint: 'שלוש שישיות — אפשר גם לכתוב כחצי!',
+  },
+  // color
+  {
+    type: 'color',
+    slices: 8, toFill: 3,
+    question: 'צבע את השבר:',
+    fraction: { n: 3, d: 8 },
+    color: '#ffd600',
+  },
+  // identify
+  {
+    type: 'identify',
+    slices: 5, filled: 2,
+    question: 'כמה מהעיגול צבוע?',
+    correct: { n:2, d:5 },
+    distractors: [{ n:1,d:5 },{ n:3,d:5 },{ n:2,d:3 }],
+    color: '#b39ddb',
+  },
+  // color
+  {
+    type: 'color',
+    slices: 4, toFill: 3,
+    question: 'צבע את השבר:',
+    fraction: { n: 3, d: 4 },
+    color: '#ff6b6b',
+  },
+  // identify — reducible
+  {
+    type: 'identify',
+    slices: 8, filled: 4,
+    question: 'כמה מהעיגול צבוע? (רמז: אפשר לצמצם!)',
+    correct: { n:1, d:2 },
+    distractors: [{ n:4,d:8 },{ n:3,d:4 },{ n:2,d:8 }],
+    color: '#ff9800',
+    hint: 'ארבע שמיניות = חצי!',
+  },
+  // color
+  {
+    type: 'color',
+    slices: 6, toFill: 1,
+    question: 'צבע את השבר:',
+    fraction: { n: 1, d: 6 },
+    color: '#43e97b',
+  },
+  // identify
+  {
+    type: 'identify',
+    slices: 7, filled: 3,
+    question: 'כמה מהעיגול צבוע?',
+    correct: { n:3, d:7 },
+    distractors: [{ n:4,d:7 },{ n:2,d:7 },{ n:1,d:3 }],
+    color: '#26c6da',
+  },
+  // color
+  {
+    type: 'color',
+    slices: 5, toFill: 4,
+    question: 'צבע את השבר:',
+    fraction: { n: 4, d: 5 },
+    color: '#ff6b6b',
+  },
+];
 
-        function startGame() {
-            currentQuestionIndex = 0;
-            lives = 3;
-            totalErrors = 0;
-            telemetry = [];
-            startTime = new Date();
-            
-            updateHeartsUI();
-            switchScreen('screen-game');
-            loadQuestion();
-        }
+let state = {};
 
-        function switchScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
+function initState() {
+  state = {
+    qIndex: 0,
+    hearts: 3,
+    wrongAttempts: 0, // wrong on current question
+    totalWrong: 0,
+    totalCorrect: 0,
+    startTime: Date.now(),
+    qStartTime: Date.now(),
+    log: [],          // { q, correct, time, wrongCount }
+    clickedSlices: new Set(),
+    answered: false,
+  };
+}
 
-        function updateHeartsUI() {
-            const hearts = document.querySelectorAll('#hearts-container .heart');
-            hearts.forEach((heart, index) => {
-                if (index < lives) {
-                    heart.classList.remove('lost');
-                } else {
-                    heart.classList.add('lost');
-                }
-            });
-        }
+// ═══════════════════════════════════════════════════════
+// CIRCLE DRAWING
+// ═══════════════════════════════════════════════════════
 
-        function loadQuestion() {
-            document.getElementById('feedback-message').innerHTML = "";
-            questionStartTime = new Date();
-            
-            let q = questionsDatabase[currentQuestionIndex];
-            document.getElementById('current-question-num').innerText = currentQuestionIndex + 1;
-            document.getElementById('instruction-text').innerHTML = q.text;
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
 
-            // יצירת ויזואל של העיגול מחולק
-            buildCircleVisual(q);
+function slicePath(cx, cy, r, startAngle, endAngle) {
+  const s = polarToCartesian(cx, cy, r, startAngle);
+  const e = polarToCartesian(cx, cy, r, endAngle);
+  const large = (endAngle - startAngle) > 180 ? 1 : 0;
+  return `M${cx},${cy} L${s.x},${s.y} A${r},${r} 0 ${large},1 ${e.x},${e.y} Z`;
+}
 
-            if (q.type === 'identify') {
-                document.getElementById('options-container').style.display = 'grid';
-                document.getElementById('action-container').style.display = 'none';
-                buildOptions(q);
-            } else {
-                document.getElementById('options-container').style.display = 'none';
-                document.getElementById('action-container').style.display = 'block';
-                userColoredSlices = new Array(q.totalSlices).fill(false);
-            }
-        }
+function buildCircle(slices, filledCount, color, clickable=false) {
+  const svg = document.getElementById('circle-svg');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  const cx=100, cy=100, r=92;
+  const angleStep = 360 / slices;
 
-        function buildCircleVisual(q) {
-            const container = document.getElementById('circle-visual');
-            container.innerHTML = '';
-            
-            const total = q.totalSlices;
-            const angleStep = 360 / total;
+  // background circle
+  const bg = document.createElementNS(ns,'circle');
+  bg.setAttribute('cx',cx); bg.setAttribute('cy',cy);
+  bg.setAttribute('r',r+3); bg.setAttribute('fill','#e8f4ff');
+  bg.setAttribute('stroke','#90caf9'); bg.setAttribute('stroke-width','3');
+  svg.appendChild(bg);
 
-            for (let i = 0; i < total; i++) {
-                const slice = document.createElement('div');
-                slice.style.position = 'absolute';
-                slice.style.width = '100%';
-                slice.style.height = '100%';
-                slice.style.top = '0';
-                slice.style.left = '0';
-                
-                // שימוש ב-clip-path ליצירת גזרת עיגול מדויקת
-                let startAngle = i * angleStep;
-                let endAngle = (i + 1) * angleStep;
-                
-                // התאמת ה-clip path לפי הגזרה
-                slice.style.clipPath = `polygon(50% 50%, ${50 + 50 * Math.cos((startAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((startAngle - 90) * Math.PI / 180)}%, ${50 + 50 * Math.cos((endAngle - 90) * Math.PI / 180)}% ${50 + 50 * Math.sin((endAngle - 90) * Math.PI / 180)}%)`;
-                
-                // צבע התחלתי
-                if (q.type === 'identify') {
-                    if (i < q.coloredSlices) {
-                        slice.style.background = 'linear-gradient(135deg, #ff007f, #7209b7)';
-                    } else {
-                        slice.style.background = '#cbd5e1';
-                    }
-                    // קו מפריד דק
-                    slice.style.border = '1px solid rgba(255,255,255,0.4)';
-                } else {
-                    // מצב שאלה מסוג צביעה עצמית
-                    slice.style.background = '#cbd5e1';
-                    slice.style.cursor = 'pointer';
-                    slice.style.transition = 'background 0.2s';
-                    slice.addEventListener('click', () => {
-                        userColoredSlices[i] = !userColoredSlices[i];
-                        slice.style.background = userColoredSlices[i] ? 'linear-gradient(135deg, #4cc9f0, #4895ef)' : '#cbd5e1';
-                    });
-                }
+  for (let i = 0; i < slices; i++) {
+    const start = i * angleStep;
+    const end = start + angleStep;
+    const path = document.createElementNS(ns,'path');
+    path.setAttribute('d', slicePath(cx, cy, r, start, end));
+    const isFilled = i < filledCount;
+    path.setAttribute('fill', isFilled ? color : COLORS.empty);
+    path.setAttribute('stroke', '#c9dff7');
+    path.setAttribute('stroke-width', '2.5');
+    path.classList.add('pie-slice');
+    if (clickable) {
+      path.classList.add('clickable');
+      path.dataset.index = i;
+      path.addEventListener('click', () => toggleSlice(path, i, color));
+    }
+    svg.appendChild(path);
+  }
 
-                // הוספת קו מפריד ויזואלי בין הגזרות
-                const line = document.createElement('div');
-                line.style.position = 'absolute';
-                line.style.width = '2px';
-                line.style.height = '50%';
-                line.style.background = '#fff';
-                line.style.top = '0';
-                line.style.left = '50%';
-                line.style.transformOrigin = 'bottom center';
-                line.style.transform = `rotate(${startAngle}deg)`;
-                
-                container.appendChild(slice);
-                container.appendChild(line);
-            }
-        }
+  // center dot
+  const dot = document.createElementNS(ns,'circle');
+  dot.setAttribute('cx',cx); dot.setAttribute('cy',cy);
+  dot.setAttribute('r','4'); dot.setAttribute('fill','#90caf9');
+  svg.appendChild(dot);
+}
 
-        function createFractionHTML(fractionStr) {
-            const parts = fractionStr.split('/');
-            return `<div class="fraction-display"><span class="numerator">${parts[0]}</span><span class="denominator">${parts[1]}</span></div>`;
-        }
+function toggleSlice(path, index, color) {
+  if (state.answered) return;
+  if (state.clickedSlices.has(index)) {
+    state.clickedSlices.delete(index);
+    path.setAttribute('fill', COLORS.empty);
+  } else {
+    state.clickedSlices.add(index);
+    path.setAttribute('fill', color);
+  }
+}
 
-        function buildOptions(q) {
-            const container = document.getElementById('options-container');
-            container.innerHTML = '';
-            
-            q.options.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'option-btn';
-                btn.innerHTML = createFractionHTML(opt);
-                btn.onclick = () => checkIdentifyAnswer(opt);
-                container.appendChild(btn);
-            });
-        }
+function updateSlices(color) {
+  const paths = document.querySelectorAll('.pie-slice');
+  paths.forEach((p, i) => {
+    if (state.clickedSlices.has(i)) {
+      p.setAttribute('fill', color);
+    } else {
+      p.setAttribute('fill', COLORS.empty);
+    }
+  });
+}
 
-        function handleWrongAnswer() {
-            lives--;
-            totalErrors++;
-            
-            // רישום הטעות באנליטיקה של השאלה הנוכחית
-            if(!telemetry[currentQuestionIndex]) {
-                telemetry[currentQuestionIndex] = { errorsInStep: 0 };
-            }
-            telemetry[currentQuestionIndex].errorsInStep++;
+// ═══════════════════════════════════════════════════════
+// FRACTION RENDERING
+// ═══════════════════════════════════════════════════════
 
-            updateHeartsUI();
+function fractionHTML(n, d) {
+  return `<span class="ans-fraction"><span class="an">${n}</span><span class="al"></span><span class="ad">${d}</span></span>`;
+}
 
-            if (lives <= 0) {
-                setTimeout(() => { switchScreen('screen-gameover'); }, 600);
-            } else {
-                const msgBox = document.getElementById('feedback-message');
-                msgBox.className = "feedback error";
-                msgBox.innerText = tryAgainEncouragements[Math.floor(Math.random() * tryAgainEncouragements.length)];
-            }
-        }
+function fractionDisplay(n, d) {
+  return `<span class="fraction-display"><span class="numer">${n}</span><span class="line"></span><span class="denom">${d}</span></span>`;
+}
 
-        function handleCorrectAnswer() {
-            const msgBox = document.getElementById('feedback-message');
-            msgBox.className = "feedback success";
-            msgBox.innerText = successCelebrations[Math.floor(Math.random() * successCelebrations.length)];
-            
-            // אפקטים מיוחדים של פיצוץ קונפטי וזיקוקים
-            triggerCelebrationEffects();
+// ═══════════════════════════════════════════════════════
+// QUESTION RENDERING
+// ═══════════════════════════════════════════════════════
 
-            // שמירת נתוני טלמטריה לשלב הנוכחי
-            let duration = Math.round((new Date() - questionStartTime) / 1000);
-            let currentStepErrors = telemetry[currentQuestionIndex]?.errorsInStep || 0;
-            
-            let q = questionsDatabase[currentQuestionIndex];
-            let typeText = q.type === 'identify' ? 'זיהוי שבר' : 'צביעת שבר';
-            let ansText = q.type === 'identify' ? q.answer : `${q.targetNumerator}/${q.targetDenominator}`;
+function renderQuestion() {
+  const q = QUESTIONS[state.qIndex];
+  state.answered = false;
+  state.clickedSlices = new Set();
+  state.wrongAttempts = 0;
+  state.qStartTime = Date.now();
 
-            telemetry[currentQuestionIndex] = {
-                id: q.id,
-                type: typeText,
-                answer: ansText,
-                errors: currentStepErrors,
-                time: duration
-            };
+  document.getElementById('q-counter').textContent = state.qIndex + 1;
+  document.getElementById('progress-bar-fill').style.width = (state.qIndex / 10 * 100) + '%';
+  document.getElementById('progress-label').textContent = `${state.qIndex} / 10 שאלות`;
+  document.getElementById('feedback-msg').textContent = '';
+  document.getElementById('feedback-msg').className = '';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('coloring-note').style.display = 'none';
 
-            currentQuestionIndex++;
+  if (q.type === 'identify') {
+    renderIdentify(q);
+  } else {
+    renderColor(q);
+  }
+}
 
-            setTimeout(() => {
-                if (currentQuestionIndex < 10) {
-                    loadQuestion();
-                } else {
-                    showSummaryScreen();
-                }
-            }, 2000);
-        }
+function renderIdentify(q) {
+  document.getElementById('question-text').textContent = q.question;
+  buildCircle(q.slices, q.filled, q.color, false);
+  document.getElementById('answers-area').style.display = '';
 
-        function checkIdentifyAnswer(selectedOption) {
-            let q = questionsDatabase[currentQuestionIndex];
-            if (selectedOption === q.answer) {
-                handleCorrectAnswer();
-            } else {
-                handleWrongAnswer();
-            }
-        }
+  // shuffle answers
+  const allAnswers = [q.correct, ...q.distractors];
+  shuffle(allAnswers);
 
-        function checkColoringQuestion() {
-            let q = questionsDatabase[currentQuestionIndex];
-            let coloredCount = userColoredSlices.filter(Boolean).length;
-            
-            // חישוב ערך השבר שהילד צבע מול שבר המטרה
-            let targetValue = q.targetNumerator / q.targetDenominator;
-            let userValue = coloredCount / q.totalSlices;
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  allAnswers.forEach(ans => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.innerHTML = fractionHTML(ans.n, ans.d);
+    btn.onclick = () => checkIdentify(q, ans, btn, allAnswers);
+    grid.appendChild(btn);
+  });
+}
 
-            if (Math.abs(targetValue - userValue) < 0.01) {
-                handleCorrectAnswer();
-            } else {
-                handleWrongAnswer();
-            }
-        }
+function renderColor(q) {
+  document.getElementById('question-text').innerHTML =
+    `${q.question} ${fractionDisplay(q.fraction.n, q.fraction.d)}`;
+  buildCircle(q.slices, 0, q.color, true);
 
-        function showSummaryScreen() {
-            switchScreen('screen-summary');
-            
-            // חישוב זמנים
-            let totalTimeSec = Math.round((new Date() - startTime) / 1000);
-            let mins = Math.floor(totalTimeSec / 60).toString().padStart(2, '0');
-            let secs = (totalTimeSec % 60).toString().padStart(2, '0');
-            
-            document.getElementById('sum-total-time').innerText = `${mins}:${secs}`;
-            document.getElementById('sum-total-errors').innerText = totalErrors;
+  document.getElementById('coloring-note').style.display = 'flex';
+  document.getElementById('coloring-instruction').textContent =
+    `לחץ על ${q.fraction.n} חלקים מתוך ${q.fraction.d} לצביעה!`;
+  document.getElementById('answers-area').style.display = 'none';
 
-            // בניית טבלת הדוח להורים
-            const tbody = document.getElementById('report-tbody');
-            tbody.innerHTML = '';
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
 
-            telemetry.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><b>משימה ${item.id}</b></td>
-                    <td>${item.type}</td>
-                    <td><div class="fraction-display"><span class="numerator">${item.answer.split('/')[0]}</span><span class="denominator">${item.answer.split('/')[1]}</span></div></td>
-                    <td style="color: ${item.errors > 0 ? 'var(--accent)' : '#16a34a'}; font-weight: bold;">${item.errors}</td>
-                    <td>${item.time} שניות</td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            // מטח זיקוקים חגיגי ממושך בסיום הלומדה
-            for(let i=0; i<5; i++) {
-                setTimeout(triggerCelebrationEffects, i * 600);
-            }
-        }
+  // show submit button
+  let sub = document.getElementById('coloring-submit');
+  if (!sub) {
+    sub = document.createElement('button');
+    sub.id = 'coloring-submit';
+    sub.textContent = '✅ בדוק את התשובה שלי!';
+    document.getElementById('next-wrap').insertAdjacentElement('beforebegin', sub);
+  }
+  sub.style.display = 'block';
+  sub.onclick = () => checkColor(q);
+}
 
-        // מערכת זיקוקים וחלקיקים דינמית ב-JavaScript טהור
-        function triggerCelebrationEffects() {
-            const container = document.getElementById('gameContainer');
-            const rect = container.getBoundingClientRect();
-            
-            // ייצור חלקיקים במקומות רנדומליים מעל הקונטיינר
-            for (let i = 0; i < 30; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                // צבעים מרהיבים אקראיים
-                const colors = ['#f72585', '#7209b7', '#3a0ca3', '#4361ee', '#4cc9f0', '#4ade80', '#facc15'];
-                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
-                // מיקום מרכז הפיצוץ אקראי
-                const originX = Math.random() * rect.width;
-                const originY = Math.random() * (rect.height / 2);
-                
-                particle.style.left = originX + 'px';
-                particle.style.top = originY + 'px';
-                
-                // כיוון פיצוץ אקראי לכל חלקיק (וקטור X ו-Y)
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = Math.random() * 120 + 40;
-                particle.style.setProperty('--x', Math.cos(angle) * velocity + 'px');
-                particle.style.setProperty('--y', Math.sin(angle) * velocity + 'px');
-                
-                container.appendChild(particle);
-                
-                // הסרה מה-DOM לאחר סיום האנימציה
-                setTimeout(() => particle.remove(), 1000);
-            }
-        }
-    </script>
+// ═══════════════════════════════════════════════════════
+// CHECK ANSWERS
+// ═══════════════════════════════════════════════════════
+
+function checkIdentify(q, chosen, btn, allAnswers) {
+  if (state.answered) return;
+  const isCorrect = chosen.n === q.correct.n && chosen.d === q.correct.d;
+  const btns = document.querySelectorAll('.ans-btn');
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    showCorrectFeedback(q);
+    btns.forEach(b => b.disabled = true);
+    recordResult(q, true);
+  } else {
+    btn.classList.add('wrong');
+    setTimeout(() => btn.classList.remove('wrong'), 500);
+    handleWrong(q);
+  }
+}
+
+function checkColor(q) {
+  if (state.answered) return;
+  const selected = state.clickedSlices.size;
+  const correct = q.fraction.n;
+
+  if (selected === correct) {
+    state.answered = true;
+    // color all selected
+    const paths = document.querySelectorAll('.pie-slice');
+    paths.forEach((p, i) => {
+      if (state.clickedSlices.has(i)) p.setAttribute('fill', q.color);
+      else p.setAttribute('fill', COLORS.empty);
+      p.classList.remove('clickable');
+      p.style.cursor = 'default';
+    });
+    document.getElementById('coloring-submit').style.display = 'none';
+    showCorrectFeedback(q);
+    recordResult(q, true);
+  } else {
+    handleWrong(q);
+    // visual shake
+    const svg = document.getElementById('circle-svg');
+    svg.style.animation = 'none';
+    svg.getBoundingClientRect();
+    svg.style.animation = 'wrongShake 0.4s';
+    setTimeout(() => svg.style.animation = '', 500);
+  }
+}
+
+function handleWrong(q) {
+  state.wrongAttempts++;
+  state.totalWrong++;
+  state.hearts--;
+  updateHearts();
+
+  const encouragements = [
+    'כמעט! נסה שוב 💪',
+    'לא נכון, אבל אתה יכול! 🌟',
+    'נסה עוד פעם, אתה חזק! 🔥',
+    'קרוב מאוד! עוד ניסיון! ✨',
+  ];
+  const msg = document.getElementById('feedback-msg');
+  msg.textContent = encouragements[Math.floor(Math.random()*encouragements.length)];
+  msg.className = 'bad';
+
+  if (state.hearts <= 0) {
+    setTimeout(() => document.getElementById('lose-overlay').classList.add('show'), 700);
+  }
+}
+
+function showCorrectFeedback(q) {
+  state.answered = true;
+  const praises = [
+    '🎉 מצוין! כל הכבוד!',
+    '⭐ יופי! ממש נכון!',
+    '🌈 פנטסטי! אתה מדהים!',
+    '🚀 בום! אחלה תשובה!',
+    '🏆 כבוד! ממש טוב!',
+  ];
+  const msg = document.getElementById('feedback-msg');
+  msg.innerHTML = `<span class="emoji-bounce">${praises[Math.floor(Math.random()*praises.length)]}</span>`;
+  if (q.hint) msg.innerHTML += `<br><small style="font-size:0.9rem;color:#5577aa">${q.hint}</small>`;
+  msg.className = 'good';
+
+  launchCelebration();
+
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function recordResult(q, correct) {
+  const elapsed = Math.round((Date.now() - state.qStartTime) / 1000);
+  state.totalCorrect++;
+  const label = q.type === 'identify'
+    ? `זיהוי: ${q.correct.n}/${q.correct.d}`
+    : `צביעה: ${q.fraction.n}/${q.fraction.d}`;
+  state.log.push({
+    label,
+    correct,
+    time: elapsed,
+    wrongCount: state.wrongAttempts,
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+
+function nextQuestion() {
+  state.qIndex++;
+  if (state.qIndex >= 10) {
+    showEndScreen();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// HEARTS
+// ═══════════════════════════════════════════════════════
+
+function updateHearts() {
+  ['h1','h2','h3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (i >= state.hearts) el.classList.add('lost');
+    else el.classList.remove('lost');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CELEBRATION
+// ═══════════════════════════════════════════════════════
+
+function launchCelebration() {
+  const container = document.getElementById('celebration');
+  container.innerHTML = '';
+
+  const confettiColors = ['#ffd600','#ff6b6b','#2196f3','#43e97b','#b39ddb','#ff9800','#26c6da'];
+  for (let i = 0; i < 60; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = '-20px';
+    c.style.background = confettiColors[Math.floor(Math.random()*confettiColors.length)];
+    c.style.width = (8 + Math.random()*12) + 'px';
+    c.style.height = (8 + Math.random()*12) + 'px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '3px';
+    c.style.animationDuration = (1.2 + Math.random()*1.5) + 's';
+    c.style.animationDelay = (Math.random()*0.5) + 's';
+    container.appendChild(c);
+  }
+
+  // fireworks
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => {
+      const cx = 20 + Math.random()*60;
+      const cy = 10 + Math.random()*40;
+      for (let j = 0; j < 18; j++) {
+        const f = document.createElement('div');
+        f.className = 'firework';
+        f.style.left = cx + 'vw';
+        f.style.top = cy + 'vh';
+        f.style.background = confettiColors[Math.floor(Math.random()*confettiColors.length)];
+        const angle = (j / 18) * 360;
+        const dist = 40 + Math.random()*60;
+        f.style.setProperty('--fx', Math.cos(angle*Math.PI/180)*dist + 'px');
+        f.style.setProperty('--fy', Math.sin(angle*Math.PI/180)*dist + 'px');
+        f.style.width = (4+Math.random()*5)+'px';
+        f.style.height = (4+Math.random()*5)+'px';
+        container.appendChild(f);
+      }
+    }, i * 300);
+  }
+
+  setTimeout(() => container.innerHTML = '', 3000);
+}
+
+function bigCelebration() {
+  const container = document.getElementById('celebration');
+  container.innerHTML = '';
+  const colors = ['#ffd600','#ff6b6b','#2196f3','#43e97b','#b39ddb','#ff9800','#26c6da','#fff'];
+  for (let i = 0; i < 150; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.top = '-30px';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.width = (8+Math.random()*16) + 'px';
+    c.style.height = (8+Math.random()*16) + 'px';
+    c.style.borderRadius = Math.random()>0.5?'50%':'3px';
+    c.style.animationDuration = (1.5+Math.random()*2.5)+'s';
+    c.style.animationDelay = (Math.random()*1)+'s';
+    container.appendChild(c);
+  }
+  for (let k = 0; k < 6; k++) {
+    setTimeout(() => {
+      const cx = 10 + Math.random()*80;
+      const cy = 5 + Math.random()*50;
+      for (let j = 0; j < 22; j++) {
+        const f = document.createElement('div');
+        f.className = 'firework';
+        f.style.left = cx+'vw'; f.style.top = cy+'vh';
+        f.style.background = colors[Math.floor(Math.random()*colors.length)];
+        const angle = (j/22)*360;
+        const dist = 50+Math.random()*80;
+        f.style.setProperty('--fx', Math.cos(angle*Math.PI/180)*dist+'px');
+        f.style.setProperty('--fy', Math.sin(angle*Math.PI/180)*dist+'px');
+        f.style.width = (5+Math.random()*7)+'px';
+        f.style.height = (5+Math.random()*7)+'px';
+        container.appendChild(f);
+      }
+    }, k*250);
+  }
+  setTimeout(() => container.innerHTML='', 5000);
+}
+
+// ═══════════════════════════════════════════════════════
+// END SCREEN
+// ═══════════════════════════════════════════════════════
+
+function showEndScreen() {
+  document.getElementById('game-area').style.display = 'none';
+  const endEl = document.getElementById('end-screen');
+  endEl.style.display = 'block';
+
+  const totalTime = Math.round((Date.now() - state.startTime) / 1000);
+  const avg = state.log.length > 0 ? Math.round(totalTime / state.log.length) : 0;
+
+  document.getElementById('r-correct').textContent = state.totalCorrect;
+  document.getElementById('r-wrong').textContent = state.totalWrong;
+  document.getElementById('r-time').textContent = formatTime(totalTime);
+  document.getElementById('r-avg').textContent = formatTime(avg);
+
+  const pct = (state.totalCorrect / 10) * 100;
+  let emoji = '🏆', title = 'מדהים! השגת 10 מתוך 10!';
+  if (pct < 60) { emoji='😊'; title='כל הכבוד שסיימת! נתרגל עוד?'; }
+  else if (pct < 80) { emoji='⭐'; title='יפה מאוד! כמעט שם!'; }
+  else if (pct < 100) { emoji='🎉'; title='ממש טוב! כמעט מושלם!'; }
+
+  document.getElementById('end-emoji').textContent = emoji;
+  document.getElementById('end-title').textContent = title;
+  document.getElementById('end-subtitle').textContent =
+    `ענית נכון על ${state.totalCorrect} שאלות מתוך 10, בזמן של ${formatTime(totalTime)}.`;
+
+  // Log
+  const logEl = document.getElementById('answer-log');
+  logEl.innerHTML = '';
+  state.log.forEach((entry, i) => {
+    const row = document.createElement('div');
+    row.className = 'log-row ' + (entry.correct ? 'ok' : 'nok');
+    row.innerHTML = `
+      <span class="log-icon">${entry.correct ? '✅' : '❌'}</span>
+      <span class="log-q">שאלה ${i+1}: ${entry.label}</span>
+      <span class="log-t">${formatTime(entry.time)} | טעויות: ${entry.wrongCount}</span>
+    `;
+    logEl.appendChild(row);
+  });
+
+  bigCelebration();
+}
+
+function formatTime(s) {
+  if (s < 60) return s + 'שנ\'';
+  return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0') + ' דק\'';
+}
+
+// ═══════════════════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════════════════
+
+function startGame() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('game-area').style.display = 'block';
+  initState();
+  updateHearts();
+  renderQuestion();
+}
+
+function restartGame() {
+  document.getElementById('lose-overlay').classList.remove('show');
+  document.getElementById('end-screen').style.display = 'none';
+  startGame();
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+</script>
 </body>
 </html>
