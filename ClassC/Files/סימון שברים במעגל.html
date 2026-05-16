@@ -636,17 +636,47 @@ function makeIdentifyQuestion(useReducible) {
   };
 }
 
-// Generate a random COLOR question
+// Pairs: { asked fraction shown to student, circleSlices, toFill }
+// The student sees a SIMPLE fraction but the circle is divided into more slices
+// e.g. show "1/2" but circle has 8 slices → must color 4 out of 8
+const COLOR_PAIRS = [
+  // halves
+  { asked:{n:1,d:2}, slices:4,  toFill:2 },
+  { asked:{n:1,d:2}, slices:6,  toFill:3 },
+  { asked:{n:1,d:2}, slices:8,  toFill:4 },
+  { asked:{n:1,d:2}, slices:10, toFill:5 },
+  { asked:{n:1,d:2}, slices:12, toFill:6 },
+  // thirds
+  { asked:{n:1,d:3}, slices:6,  toFill:2 },
+  { asked:{n:1,d:3}, slices:9,  toFill:3 },
+  { asked:{n:1,d:3}, slices:12, toFill:4 },
+  { asked:{n:2,d:3}, slices:6,  toFill:4 },
+  { asked:{n:2,d:3}, slices:9,  toFill:6 },
+  { asked:{n:2,d:3}, slices:12, toFill:8 },
+  // quarters
+  { asked:{n:1,d:4}, slices:8,  toFill:2 },
+  { asked:{n:1,d:4}, slices:12, toFill:3 },
+  { asked:{n:3,d:4}, slices:8,  toFill:6 },
+  { asked:{n:3,d:4}, slices:12, toFill:9 },
+  // fifths
+  { asked:{n:2,d:5}, slices:10, toFill:4 },
+  { asked:{n:3,d:5}, slices:10, toFill:6 },
+  { asked:{n:4,d:5}, slices:10, toFill:8 },
+  // sixths -> twelfths
+  { asked:{n:1,d:6}, slices:12, toFill:2 },
+  { asked:{n:5,d:6}, slices:12, toFill:10 },
+];
+
+// Generate a random COLOR question — shows simple fraction, circle has equivalent larger denom
 function makeColorQuestion() {
-  const d = randomFrom(DENOMS);
-  const n = 1 + Math.floor(Math.random()*(d-1));
+  const pair = randomFrom(COLOR_PAIRS);
   const color = randomColor();
   return {
     type: 'color',
-    slices: d,
-    toFill: n,
+    slices: pair.slices,
+    toFill: pair.toFill,
+    askedFraction: pair.asked,   // the SIMPLE fraction shown to the student
     question: 'צבע את השבר:',
-    fraction: { n, d },
     color,
   };
 }
@@ -865,13 +895,16 @@ function renderIdentify(q) {
 }
 
 function renderColor(q) {
+  // Show the ASKED fraction (simple), not the circle's actual denominator
+  const af = q.askedFraction;
   document.getElementById('question-text').innerHTML =
-    `${q.question} ${fractionDisplay(q.fraction.n, q.fraction.d)}`;
+    `${q.question} ${fractionDisplay(af.n, af.d)}`;
   buildCircle(q.slices, 0, q.color, true);
 
+  // Just a tap-hint with no spoiler — don't mention how many slices to fill
   document.getElementById('coloring-note').style.display = 'flex';
   document.getElementById('coloring-instruction').textContent =
-    `לחץ על ${q.fraction.n} חלקים מתוך ${q.fraction.d} לצביעה!`;
+    `העיגול מחולק ל-${q.slices} חלקים שווים — כמה צריך לצבוע?`;
   document.getElementById('answers-area').style.display = 'none';
 
   const grid = document.getElementById('answers-grid');
@@ -913,7 +946,7 @@ function checkIdentify(q, chosen, btn, allAnswers) {
 function checkColor(q) {
   if (state.answered) return;
   const selected = state.clickedSlices.size;
-  const correct = q.fraction.n;
+  const correct = q.toFill;  // actual number of slices to fill (equivalent to askedFraction)
 
   if (selected === correct) {
     state.answered = true;
@@ -971,7 +1004,13 @@ function showCorrectFeedback(q) {
   ];
   const msg = document.getElementById('feedback-msg');
   msg.innerHTML = `<span class="emoji-bounce">${praises[Math.floor(Math.random()*praises.length)]}</span>`;
-  if (q.hint) msg.innerHTML += `<br><small style="font-size:0.9rem;color:#5577aa">${q.hint}</small>`;
+  // For color questions: reveal the insight
+  if (q.type === 'color') {
+    const af = q.askedFraction;
+    msg.innerHTML += `<br><small style="font-size:0.9rem;color:#5577aa">כן! ${af.n}/${af.d} = ${q.toFill}/${q.slices} — אותו דבר! 🤩</small>`;
+  } else if (q.hint) {
+    msg.innerHTML += `<br><small style="font-size:0.9rem;color:#5577aa">${q.hint}</small>`;
+  }
   msg.className = 'good';
 
   launchCelebration();
@@ -984,7 +1023,7 @@ function recordResult(q, correct) {
   state.totalCorrect++;
   const label = q.type === 'identify'
     ? `זיהוי: ${q.correct.n}/${q.correct.d}`
-    : `צביעה: ${q.fraction.n}/${q.fraction.d}`;
+    : `צביעה: ${q.askedFraction.n}/${q.askedFraction.d} בעיגול של ${q.slices}`;
   state.log.push({
     label,
     correct,
