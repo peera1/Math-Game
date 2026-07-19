@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק השעות - Learn Clock Time</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .tab-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Page 1: Interactive Clock */
+        .clock-container {
+            text-align: center;
+        }
+
+        .clock {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: white;
+            border: 8px solid #667eea;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .clock-center {
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            cursor: grab;
+            z-index: 5;
+        }
+
+        .hand:active {
+            cursor: grabbing;
+        }
+
+        .hour-hand {
+            width: 8px;
+            height: 90px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            margin-left: -4px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        .minute-hand {
+            width: 6px;
+            height: 120px;
+            background: linear-gradient(to top, #f093fb, #f5576c);
+            margin-left: -3px;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(245, 87, 108, 0.5);
+        }
+
+        .clock-numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+
+        .number {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .digital-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+            font-family: 'Arial', monospace;
+        }
+
+        .word-display {
+            font-size: 1.3em;
+            color: #764ba2;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+
+        .instruction {
+            background: #f0f0ff;
+            padding: 15px;
+            border-radius: 10px;
+            color: #333;
+            margin: 20px 0;
+            border-right: 4px solid #667eea;
+        }
+
+        /* Page 2: Quiz */
+        .quiz-container {
+            text-align: center;
+        }
+
+        .quiz-clock {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: white;
+            border: 6px solid #667eea;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .quiz-clock-center {
+            width: 15px;
+            height: 15px;
+            background: #667eea;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .quiz-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            z-index: 5;
+        }
+
+        .quiz-hour-hand {
+            width: 6px;
+            height: 70px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            margin-left: -3px;
+            border-radius: 8px;
+        }
+
+        .quiz-minute-hand {
+            width: 4px;
+            height: 100px;
+            background: linear-gradient(to top, #f093fb, #f5576c);
+            margin-left: -2px;
+            border-radius: 6px;
+        }
+
+        .quiz-number {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            font-size: 1.1em;
+            border: 3px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .answer-btn:hover {
+            background: #f0f0ff;
+            transform: scale(1.05);
+        }
+
+        .answer-btn.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            animation: bounce 0.6s ease;
+        }
+
+        .answer-btn.wrong {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .hearts {
+            font-size: 2em;
+            margin: 15px 0;
+            letter-spacing: 5px;
+        }
+
+        .heart {
+            display: inline-block;
+            color: #f44336;
+            margin: 0 5px;
+        }
+
+        .heart.empty {
+            color: #ccc;
+        }
+
+        .score-info {
+            font-size: 1.2em;
+            color: #667eea;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+
+        /* Page 3: Word Problems */
+        .problems-container {
+            text-align: center;
+        }
+
+        .problem-text {
+            background: #f0f0ff;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            color: #333;
+            margin: 20px 0;
+            border-right: 4px solid #667eea;
+            line-height: 1.6;
+        }
+
+        .problem-question {
+            font-weight: bold;
+            color: #764ba2;
+            margin-top: 15px;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reset-btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            transform: scale(1.05);
+            background: #764ba2;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .clock, .quiz-clock {
+                width: 200px;
+                height: 200px;
+            }
+
+            .digital-display {
+                font-size: 2em;
+            }
+
+            .answer-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⏰ משחק השעות 🎮</h1>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchPage('page1')">📚 שעון אינטראקטיבי</button>
+            <button class="tab-btn" onclick="switchPage('page2')">🧠 בדיקה</button>
+            <button class="tab-btn" onclick="switchPage('page3')">📝 בעיות מילוליות</button>
+        </div>
+
+        <!-- Page 1: Interactive Clock -->
+        <div id="page1" class="page active">
+            <div class="clock-container">
+                <h2 style="color: #667eea; margin-bottom: 20px;">כוונו את המחוגים!</h2>
+                <p class="instruction">🖱️ לחץ על המחוג וגרור אותו כדי לכוונן את השעה</p>
+
+                <div class="clock">
+                    <div class="clock-center"></div>
+                    <div class="hand hour-hand" id="hourHand" style="transform: rotate(0deg)"></div>
+                    <div class="hand minute-hand" id="minuteHand" style="transform: rotate(0deg)"></div>
+                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 300 300">
+                        <text x="150" y="55" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 20px; font-weight: bold;">12</text>
+                        <text x="248" y="150" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 20px; font-weight: bold;">3</text>
+                        <text x="150" y="248" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 20px; font-weight: bold;">6</text>
+                        <text x="52" y="150" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 20px; font-weight: bold;">9</text>
+                    </svg>
+                </div>
+
+                <div class="digital-display" id="digitalDisplay">00:00</div>
+                <div class="word-display" id="wordDisplay">אפס</div>
+            </div>
+        </div>
+
+        <!-- Page 2: Quiz -->
+        <div id="page2" class="page">
+            <div class="quiz-container">
+                <h2 style="color: #667eea; margin-bottom: 20px;">🧪 בדקו את הידע שלכם!</h2>
+                
+                <div class="score-info">
+                    שאלה <span id="questionNumber">1</span> מתוך 10
+                </div>
+
+                <div class="hearts" id="heartsDisplay">❤️ ❤️ ❤️ ❤️</div>
+
+                <div class="quiz-clock">
+                    <div class="quiz-clock-center"></div>
+                    <div class="quiz-hand quiz-hour-hand" id="quizHourHand"></div>
+                    <div class="quiz-hand quiz-minute-hand" id="quizMinuteHand"></div>
+                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 250 250">
+                        <text x="125" y="45" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 18px; font-weight: bold;">12</text>
+                        <text x="206" y="125" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 18px; font-weight: bold;">3</text>
+                        <text x="125" y="206" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 18px; font-weight: bold;">6</text>
+                        <text x="44" y="125" text-anchor="middle" dominant-baseline="middle" fill="#667eea" style="font-size: 18px; font-weight: bold;">9</text>
+                    </svg>
+                </div>
+
+                <p class="question-text">מה השעה עכשיו?</p>
+
+                <div class="answer-options" id="answersContainer"></div>
+
+                <button class="next-btn" id="nextBtn" onclick="loadNextQuizQuestion()" disabled>שאלה הבאה ➜</button>
+            </div>
+        </div>
+
+        <!-- Page 3: Word Problems -->
+        <div id="page3" class="page">
+            <div class="problems-container">
+                <h2 style="color: #667eea; margin-bottom: 20px;">📚 בעיות מילוליות!</h2>
+                
+                <div class="score-info">
+                    שאלה <span id="problemNumber">1</span> מתוך 5
+                </div>
+
+                <div class="hearts" id="problemHeartsDisplay">❤️ ❤️ ❤️ ❤️</div>
+
+                <div class="problem-text">
+                    <div id="problemStatement"></div>
+                    <div class="problem-question" id="problemQuestion"></div>
+                </div>
+
+                <div class="answer-options" id="problemAnswersContainer"></div>
+
+                <button class="next-btn" id="nextProblemBtn" onclick="loadNextProblem()" disabled>שאלה הבאה ➜</button>
+
+                <div id="completionDiv"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== PAGE 1: Interactive Clock ==========
+        let isDraggingHour = false;
+        let isDraggingMinute = false;
+        const hourHand = document.getElementById('hourHand');
+        const minuteHand = document.getElementById('minuteHand');
+        const clock = document.querySelector('.clock');
+        let currentHour = 0;
+        let currentMinute = 0;
+
+        function setClockTime(hour, minute) {
+            currentHour = hour % 12;
+            currentMinute = minute % 60;
+            updateClockDisplay();
+        }
+
+        function updateClockDisplay() {
+            const hourDegrees = (currentHour * 30) + (currentMinute * 0.5);
+            const minuteDegrees = currentMinute * 6;
+
+            hourHand.style.transform = `rotate(${hourDegrees}deg)`;
+            minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
+
+            const displayHour = currentHour === 0 ? 12 : currentHour;
+            const displayMinute = currentMinute.toString().padStart(2, '0');
+            document.getElementById('digitalDisplay').textContent = `${displayHour}:${displayMinute}`;
+
+            updateWordDisplay();
+        }
+
+        function updateWordDisplay() {
+            // index 0='שתיים עשרה'(12), 1='אחת', 2='שתיים'... 11='אחת עשרה'
+            const hourNames = ['שתיים עשרה', 'אחת', 'שתיים', 'שלוש', 'ארבע', 'חמש', 'שש', 'שבע', 'שמונה', 'תשע', 'עשר', 'אחת עשרה'];
+            let text = hourNames[currentHour]; // currentHour 0..11 מתאים ישירות
+
+            if (currentMinute === 0) {
+                text += ' בדיוק';
+            } else if (currentMinute === 15) {
+                text += ' ורבע';
+            } else if (currentMinute === 30) {
+                text += ' וחצי';
+            } else if (currentMinute === 45) {
+                const nextIdx = (currentHour + 1) % 12;
+                text = 'רבע ל' + hourNames[nextIdx];
+            } else if (currentMinute < 30) {
+                text += ' ו' + getMinuteWord(currentMinute);
+            } else {
+                const minutesLeft = 60 - currentMinute;
+                const nextIdx = (currentHour + 1) % 12;
+                text = getMinuteWord(minutesLeft) + ' ל' + hourNames[nextIdx];
+            }
+
+            document.getElementById('wordDisplay').textContent = text;
+        }
+
+        function getMinuteWord(minutes) {
+            const units = ['', 'דקה', 'דקות', 'דקות', 'דקות', 'דקות', 'דקות', 'דקות', 'דקות', 'דקות'];
+            const unitWord = minutes === 1 ? 'דקה' : 'דקות';
+            return minutes + ' ' + unitWord;
+        }
+
+        hourHand.addEventListener('mousedown', () => { isDraggingHour = true; });
+        minuteHand.addEventListener('mousedown', () => { isDraggingMinute = true; });
+
+        document.addEventListener('mouseup', () => {
+            isDraggingHour = false;
+            isDraggingMinute = false;
+        });
+
+        clock.addEventListener('mousemove', (e) => {
+            if (!isDraggingHour && !isDraggingMinute) return;
+
+            const rect = clock.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            const x = e.clientX - centerX;
+            const y = e.clientY - centerY;
+
+            let angle = Math.atan2(y, x) * 180 / Math.PI + 90;
+            if (angle < 0) angle += 360;
+
+            if (isDraggingHour) {
+                currentHour = Math.round(angle / 30) % 12;
+            } else if (isDraggingMinute) {
+                currentMinute = Math.round(angle / 6) % 60;
+            }
+
+            updateClockDisplay();
+        });
+
+        // Draw tick marks on a clock SVG
+        function createClockTicks(svgElement, cx, cy, outerRadius) {
+            for (let i = 0; i < 60; i++) {
+                const angle = (i * 6 - 90) * Math.PI / 180;
+                const isMajor = i % 5 === 0;
+                const innerRadius = isMajor ? outerRadius - 16 : outerRadius - 7;
+                const x1 = cx + outerRadius * Math.cos(angle);
+                const y1 = cy + outerRadius * Math.sin(angle);
+                const x2 = cx + innerRadius * Math.cos(angle);
+                const y2 = cy + innerRadius * Math.sin(angle);
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x1.toFixed(2));
+                line.setAttribute('y1', y1.toFixed(2));
+                line.setAttribute('x2', x2.toFixed(2));
+                line.setAttribute('y2', y2.toFixed(2));
+                line.setAttribute('stroke', isMajor ? '#667eea' : '#bbbbdd');
+                line.setAttribute('stroke-width', isMajor ? '3' : '1');
+                line.setAttribute('stroke-linecap', 'round');
+                svgElement.insertBefore(line, svgElement.firstChild);
+            }
+        }
+
+        // Initialize clock
+        setClockTime(10, 10);
+        createClockTicks(document.querySelector('.clock svg'), 150, 150, 128);
+
+        // ========== PAGE 2: QUIZ ==========
+        let quizQuestions = [];
+        let currentQuizIndex = 0;
+        let quizHearts = 4;
+
+        const quizTimes = [
+            { hour: 3, minute: 0 },
+            { hour: 6, minute: 30 },
+            { hour: 9, minute: 15 },
+            { hour: 1, minute: 45 },
+            { hour: 12, minute: 0 },
+            { hour: 7, minute: 30 },
+            { hour: 2, minute: 15 },
+            { hour: 10, minute: 45 },
+            { hour: 5, minute: 0 },
+            { hour: 8, minute: 30 }
+        ];
+
+        function generateQuizQuestions() {
+            quizQuestions = [];
+            const shuffledTimes = [...quizTimes].sort(() => Math.random() - 0.5);
+
+            shuffledTimes.forEach((time, index) => {
+                const hour = time.hour;
+                const minute = time.minute;
+                const correctAnswer = formatTimeAnswer(hour, minute);
+
+                // Generate wrong answers
+                const wrongAnswers = new Set();
+                while (wrongAnswers.size < 3) {
+                    const wrongHour = Math.floor(Math.random() * 12) + 1;
+                    const wrongMinute = [0, 15, 30, 45][Math.floor(Math.random() * 4)];
+                    const wrongAnswer = formatTimeAnswer(wrongHour, wrongMinute);
+                    if (wrongAnswer !== correctAnswer) {
+                        wrongAnswers.add(wrongAnswer);
+                    }
+                }
+
+                const answers = [correctAnswer, ...wrongAnswers].sort(() => Math.random() - 0.5);
+
+                quizQuestions.push({
+                    hour,
+                    minute,
+                    correctAnswer,
+                    answers: Array.from(answers),
+                    answered: false,
+                    hearts: 4
+                });
+            });
+        }
+
+        function formatTimeAnswer(hour, minute) {
+            const h = hour === 0 ? 12 : hour;
+            const m = minute.toString().padStart(2, '0');
+            return `${h}:${m}`;
+        }
+
+        function loadQuizQuestion() {
+            if (currentQuizIndex === 0) {
+                generateQuizQuestions();
+            }
+
+            if (currentQuizIndex < quizQuestions.length) {
+                const q = quizQuestions[currentQuizIndex];
+                document.getElementById('questionNumber').textContent = currentQuizIndex + 1;
+                updateQuizHearts(q.hearts);
+                setQuizClockTime(q.hour, q.minute);
+
+                const answersContainer = document.getElementById('answersContainer');
+                answersContainer.innerHTML = '';
+
+                q.answers.forEach((answer, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn';
+                    btn.textContent = answer;
+                    btn.onclick = () => checkQuizAnswer(answer, q.correctAnswer, btn, q);
+                    answersContainer.appendChild(btn);
+                });
+
+                document.getElementById('nextBtn').disabled = true;
+            } else {
+                endQuiz();
+            }
+        }
+
+        function setQuizClockTime(hour, minute) {
+            const hourHand = document.getElementById('quizHourHand');
+            const minuteHand = document.getElementById('quizMinuteHand');
+
+            const hourDegrees = (hour * 30) + (minute * 0.5);
+            const minuteDegrees = minute * 6;
+
+            hourHand.style.transform = `rotate(${hourDegrees}deg)`;
+            minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
+        }
+
+        function checkQuizAnswer(selected, correct, btn, question) {
+            const allButtons = document.querySelectorAll('#answersContainer .answer-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                question.answered = true;
+                document.getElementById('nextBtn').disabled = false;
+            } else {
+                btn.classList.add('wrong');
+                question.hearts--;
+                updateQuizHearts(question.hearts);
+
+                if (question.hearts === 0) {
+                    allButtons.forEach(b => {
+                        if (b.textContent === correct) {
+                            b.classList.add('correct');
+                        }
+                    });
+                    setTimeout(() => {
+                        document.getElementById('nextBtn').disabled = false;
+                    }, 1500);
+                } else {
+                    allButtons.forEach(b => b.disabled = false);
+                }
+            }
+        }
+
+        function updateQuizHearts(hearts) {
+            let display = '';
+            for (let i = 0; i < 4; i++) {
+                display += i < hearts ? '❤️ ' : '🤍 ';
+            }
+            document.getElementById('heartsDisplay').textContent = display;
+        }
+
+        function loadNextQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizQuestions.length) {
+                loadQuizQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            const answersContainer = document.getElementById('answersContainer');
+            const scoreInfo = document.querySelector('.score-info');
+            const nextBtn = document.getElementById('nextBtn');
+
+            const correct = quizQuestions.filter(q => q.answered).length;
+            answersContainer.innerHTML = `
+                <div class="completion-message">
+                    🎉 כל הכבוד! 🎉<br>
+                    ענית נכון על ${correct} מתוך 10 שאלות!<br>
+                    <button class="reset-btn" onclick="resetQuiz()">🔄 התחל מחדש</button>
+                </div>
+            `;
+            scoreInfo.innerHTML = '';
+            nextBtn.style.display = 'none';
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizQuestions = [];
+            document.getElementById('nextBtn').style.display = 'block';
+            document.querySelector('.score-info').innerHTML = 'שאלה <span id="questionNumber">1</span> מתוך 10';
+            loadQuizQuestion();
+        }
+
+        // ========== PAGE 3: WORD PROBLEMS ==========
+        let problemQuestions = [];
+        let currentProblemIndex = 0;
+
+        // בנק שאלות מילוליות קבועות עם תשובה נכונה ו-3 מסיחים
+        const problemBank = [
+            {
+                text: 'השעה 7:00 בבוקר. בית הספר מתחיל בשעה 8:00. כמה זמן יש לדנה להתארגן?',
+                correct: 'שעה אחת',
+                wrong: ['חצי שעה', 'שעתיים', 'שעה וחצי']
+            },
+            {
+                text: 'הסרט מתחיל בשעה 5:00 אחר הצהריים. עכשיו השעה 3:00. כמה זמן צריך לחכות?',
+                correct: 'שעתיים',
+                wrong: ['שעה אחת', 'שלוש שעות', 'שעה וחצי']
+            },
+            {
+                text: 'אימון כדורגל מתחיל בשעה 4:00 ומסתיים בשעה 5:30. כמה זמן נמשך האימון?',
+                correct: 'שעה וחצי',
+                wrong: ['שעה אחת', 'שעתיים', 'חצי שעה']
+            },
+            {
+                text: 'השיעור בבית הספר מתחיל בשעה 8:00. נדב הגיע בשעה 8:30. בכמה זמן איחר?',
+                correct: 'חצי שעה',
+                wrong: ['שעה אחת', 'רבע שעה', 'שעה וחצי']
+            },
+            {
+                text: 'הסרט מתחיל בשעה 6:00 ונמשך שעתיים. באיזו שעה הסרט יסתיים?',
+                correct: '8:00',
+                wrong: ['7:00', '9:00', '6:30']
+            },
+            {
+                text: 'ילד הלך לישון בשעה 9:00 בלילה וישן 8 שעות. באיזו שעה הוא קם?',
+                correct: '5:00',
+                wrong: ['6:00', '4:00', '7:00']
+            },
+            {
+                text: 'הבישול התחיל בשעה 12:00 ונמשך שעה אחת. באיזו שעה הסתיים הבישול?',
+                correct: '1:00',
+                wrong: ['2:00', '12:30', '3:00']
+            },
+            {
+                text: 'אוטובוס יצא מהתחנה בשעה 8:00 ונסע שעה אחת. באיזו שעה הגיע ליעד?',
+                correct: '9:00',
+                wrong: ['10:00', '8:30', '7:00']
+            },
+            {
+                text: 'השעה 6:00 בערב. אבא חוזר הביתה בעוד שעתיים. באיזו שעה אבא יגיע?',
+                correct: '8:00',
+                wrong: ['7:00', '9:00', '6:30']
+            },
+            {
+                text: 'ילדה הלכה לישון בשעה 9:00 בלילה וקמה בשעה 7:00 בבוקר. כמה שעות ישנה?',
+                correct: '10 שעות',
+                wrong: ['8 שעות', '9 שעות', '11 שעות']
+            },
+            {
+                text: 'השעה 3:00 אחרי הצהריים. סבתא תגיע בעוד 3 שעות. באיזו שעה סבתא תגיע?',
+                correct: '6:00',
+                wrong: ['5:00', '7:00', '4:00']
+            },
+            {
+                text: 'שיעור מתמטיקה מתחיל בשעה 10:00 ונמשך שעה אחת. באיזו שעה השיעור מסתיים?',
+                correct: '11:00',
+                wrong: ['10:30', '12:00', '9:00']
+            },
+            {
+                text: 'הספרייה פתוחה משעה 9:00 עד שעה 12:00. כמה שעות הספרייה פתוחה?',
+                correct: 'שלוש שעות',
+                wrong: ['שעתיים', 'ארבע שעות', 'שעה אחת']
+            },
+            {
+                text: 'מסיבת יום הולדת מתחילה בשעה 4:00 ומסתיימת בשעה 7:00. כמה זמן נמשכת המסיבה?',
+                correct: 'שלוש שעות',
+                wrong: ['שעתיים', 'ארבע שעות', 'שעה וחצי']
+            },
+            {
+                text: 'ריצה בפארק מתחילה בשעה 7:00 ומסתיימת בשעה 7:30. כמה זמן רצו?',
+                correct: 'חצי שעה',
+                wrong: ['שעה אחת', 'רבע שעה', 'שעה וחצי']
+            },
+            {
+                text: 'חוג ציור מתחיל בשעה 2:00 ומסתיים בשעה 4:00. כמה זמן נמשך החוג?',
+                correct: 'שעתיים',
+                wrong: ['שעה אחת', 'שלוש שעות', 'שעה וחצי']
+            },
+            {
+                text: 'הרכבת יוצאת בשעה 9:00 ומגיעה ביעד בשעה 11:00. כמה זמן נמשכת הנסיעה?',
+                correct: 'שעתיים',
+                wrong: ['שעה אחת', 'שלוש שעות', 'שעה וחצי']
+            },
+            {
+                text: 'הצגת ילדים מתחילה בשעה 7:00 בערב ונמשכת שעה וחצי. באיזו שעה ההצגה מסתיימת?',
+                correct: '8:30',
+                wrong: ['8:00', '9:00', '7:30']
+            },
+            {
+                text: 'יוסי התחיל לעשות שיעורים בשעה 3:00 וסיים בשעה 5:00. כמה זמן עשה שיעורים?',
+                correct: 'שעתיים',
+                wrong: ['שעה אחת', 'שלוש שעות', 'חצי שעה']
+            },
+            {
+                text: 'טיול בטבע מתחיל בשעה 8:00 בבוקר ומסתיים בשעה 1:00 אחר הצהריים. כמה שעות נמשך הטיול?',
+                correct: 'חמש שעות',
+                wrong: ['ארבע שעות', 'שש שעות', 'שלוש שעות']
+            },
+            {
+                text: 'הגנן התחיל לעבוד בגינה בשעה 6:00 בבוקר ועבד 3 שעות. באיזו שעה סיים?',
+                correct: '9:00',
+                wrong: ['8:00', '10:00', '7:00']
+            },
+            {
+                text: 'תחרות שחייה מתחילה בשעה 10:00 ונמשכת שעתיים. באיזו שעה היא מסתיימת?',
+                correct: '12:00',
+                wrong: ['11:00', '1:00', '10:30']
+            },
+            {
+                text: 'אמא יצאה לקניות בשעה 2:00 אחר הצהריים וחזרה בשעה 4:00. כמה זמן הייתה בחוץ?',
+                correct: 'שעתיים',
+                wrong: ['שעה אחת', 'שלוש שעות', 'חצי שעה']
+            },
+            {
+                text: 'השעה 11:00 בבוקר. ארוחת הצהריים תהיה בעוד שעה. באיזו שעה תהיה ארוחת הצהריים?',
+                correct: '12:00',
+                wrong: ['1:00', '11:30', '2:00']
+            },
+            {
+                text: 'הספר ישן בשעה 10:00 בלילה וישן 7 שעות. באיזו שעה קם בבוקר?',
+                correct: '5:00',
+                wrong: ['6:00', '4:00', '7:00']
+            }
+        ];
+
+        function generateProblemQuestions() {
+            problemQuestions = [];
+            // ערבוב הבנק ובחירת 5 שאלות
+            const shuffled = [...problemBank].sort(() => Math.random() - 0.5).slice(0, 5);
+            shuffled.forEach(prob => {
+                const answers = [prob.correct, ...prob.wrong].sort(() => Math.random() - 0.5);
+                problemQuestions.push({
+                    text: prob.text,
+                    correctAnswer: prob.correct,
+                    answers,
+                    answered: false,
+                    hearts: 4
+                });
+            });
+        }
+
+        function loadProblem() {
+            if (currentProblemIndex === 0) {
+                generateProblemQuestions();
+            }
+
+            if (currentProblemIndex < problemQuestions.length) {
+                const p = problemQuestions[currentProblemIndex];
+                document.getElementById('problemNumber').textContent = currentProblemIndex + 1;
+                document.getElementById('problemStatement').textContent = p.text;
+                document.getElementById('problemQuestion').textContent = '?';
+                updateProblemHearts(p.hearts);
+
+                const answersContainer = document.getElementById('problemAnswersContainer');
+                answersContainer.innerHTML = '';
+
+                p.answers.forEach((answer, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn';
+                    btn.textContent = answer;
+                    btn.onclick = () => checkProblemAnswer(answer, p.correctAnswer, btn, p);
+                    answersContainer.appendChild(btn);
+                });
+
+                document.getElementById('nextProblemBtn').disabled = true;
+            } else {
+                endProblems();
+            }
+        }
+
+        function checkProblemAnswer(selected, correct, btn, question) {
+            const allButtons = document.querySelectorAll('#problemAnswersContainer .answer-btn');
+            allButtons.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                question.answered = true;
+                document.getElementById('nextProblemBtn').disabled = false;
+            } else {
+                btn.classList.add('wrong');
+                question.hearts--;
+                updateProblemHearts(question.hearts);
+
+                if (question.hearts === 0) {
+                    allButtons.forEach(b => {
+                        if (b.textContent === correct) {
+                            b.classList.add('correct');
+                        }
+                    });
+                    setTimeout(() => {
+                        document.getElementById('nextProblemBtn').disabled = false;
+                    }, 1500);
+                } else {
+                    allButtons.forEach(b => b.disabled = false);
+                }
+            }
+        }
+
+        function updateProblemHearts(hearts) {
+            let display = '';
+            for (let i = 0; i < 4; i++) {
+                display += i < hearts ? '❤️ ' : '🤍 ';
+            }
+            document.getElementById('problemHeartsDisplay').textContent = display;
+        }
+
+        function loadNextProblem() {
+            currentProblemIndex++;
+            if (currentProblemIndex < problemQuestions.length) {
+                loadProblem();
+            } else {
+                endProblems();
+            }
+        }
+
+        function endProblems() {
+            const answersContainer = document.getElementById('problemAnswersContainer');
+            const scoreInfo = document.querySelector('.score-info');
+            const nextBtn = document.getElementById('nextProblemBtn');
+
+            const correct = problemQuestions.filter(p => p.answered).length;
+            const completionDiv = document.getElementById('completionDiv');
+            completionDiv.innerHTML = `
+                <div class="completion-message">
+                    🎉 כל הכבוד! 🎉<br>
+                    ענית נכון על ${correct} מתוך 5 שאלות!<br>
+                    <button class="reset-btn" onclick="resetProblems()">🔄 התחל מחדש</button>
+                </div>
+            `;
+            answersContainer.innerHTML = '';
+            scoreInfo.innerHTML = '';
+            nextBtn.style.display = 'none';
+        }
+
+        function resetProblems() {
+            currentProblemIndex = 0;
+            problemQuestions = [];
+            document.getElementById('nextProblemBtn').style.display = 'block';
+            document.querySelector('#page3 .score-info').innerHTML = 'שאלה <span id="problemNumber">1</span> מתוך 5';
+            document.getElementById('completionDiv').innerHTML = '';
+            loadProblem();
+        }
+
+        // ========== NAVIGATION ==========
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (pageId === 'page2') {
+                if (quizQuestions.length === 0) loadQuizQuestion();
+                const quizSvg = document.querySelector('.quiz-clock svg');
+                if (quizSvg && !quizSvg.dataset.ticks) {
+                    createClockTicks(quizSvg, 125, 125, 107);
+                    quizSvg.dataset.ticks = '1';
+                }
+            } else if (pageId === 'page3' && problemQuestions.length === 0) {
+                loadProblem();
+            }
+        }
+    </script>
+</body>
+</html>
