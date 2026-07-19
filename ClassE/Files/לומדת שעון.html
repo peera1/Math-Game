@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>שעון החברים - לומדים להגיד את השעה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;700;800;900&family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#bfe8ff;
+    --sky-bottom:#fff6e0;
+    --card:#fffdf7;
+    --ink:#233255;
+    --ink-soft:#5b6a8f;
+    --teal:#0f8b8d;
+    --teal-dark:#0a5f60;
+    --coral:#ff6b5b;
+    --coral-dark:#e04d3d;
+    --sun:#ffc93c;
+    --sun-dark:#e8a800;
+    --grass:#41b07d;
+    --grass-dark:#2c8c5f;
+    --berry:#e24e7b;
+    --berry-dark:#c22f5c;
+    --shadow: 0 12px 30px rgba(35,50,85,0.16);
+    --radius-lg: 28px;
+    --radius-md: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    min-height:100%;
+    font-family:'Assistant', sans-serif;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 65%, #ffe9c7 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      radial-gradient(circle 60px at 12% 18%, rgba(255,255,255,0.7), transparent 70%),
+      radial-gradient(circle 90px at 85% 12%, rgba(255,255,255,0.55), transparent 70%),
+      radial-gradient(circle 70px at 78% 82%, rgba(255,255,255,0.5), transparent 70%),
+      radial-gradient(circle 50px at 6% 78%, rgba(255,255,255,0.5), transparent 70%);
+    pointer-events:none;
+    z-index:0;
+  }
+  #app{position:relative; z-index:1; max-width:960px; margin:0 auto; padding:18px 16px 60px;}
+
+  header.top{
+    text-align:center;
+    padding: 8px 0 18px;
+  }
+  header.top h1{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size: clamp(28px, 5vw, 42px);
+    color: var(--teal-dark);
+    margin: 0 0 4px;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+  }
+  header.top p.sub{
+    margin:0;
+    font-weight:600;
+    color: var(--ink-soft);
+    font-size: 16px;
+  }
+
+  nav.tabs{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin: 20px auto 26px;
+    flex-wrap:wrap;
+  }
+  nav.tabs button{
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    font-size:17px;
+    border:none;
+    border-radius: 999px;
+    padding: 12px 22px;
+    cursor:pointer;
+    background: #ffffffcc;
+    color: var(--ink);
+    box-shadow: var(--shadow);
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  nav.tabs button:hover{ transform: translateY(-2px); }
+  nav.tabs button.active{
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    color:#fff;
+  }
+
+  section.page{ display:none; animation: fadeIn .35s ease; }
+  section.page.active{ display:block; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .card{
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 26px;
+    position:relative;
+  }
+
+  /* ---------- LEARN PAGE ---------- */
+  .learn-layout{
+    display:flex;
+    gap:34px;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .clock-holder{
+    width: min(360px, 82vw);
+    filter: drop-shadow(0 14px 18px rgba(35,50,85,0.18));
+  }
+  .clock-holder svg{ width:100%; height:auto; display:block; touch-action:none; }
+  .readout{
+    flex: 1 1 260px;
+    min-width: 240px;
+    text-align:center;
+  }
+  .digital-time{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    font-size: clamp(46px, 8vw, 68px);
+    color: var(--coral-dark);
+    background: #fff2ee;
+    border: 3px solid #ffd7d0;
+    border-radius: var(--radius-md);
+    padding: 10px 22px;
+    display:inline-block;
+    min-width: 200px;
+    letter-spacing: 1px;
+  }
+  .words-time{
+    margin-top:18px;
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    font-size: clamp(20px, 3.4vw, 26px);
+    color: var(--teal-dark);
+    background: #eafbf6;
+    border: 3px dashed var(--teal);
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    min-height: 30px;
+  }
+  .learn-actions{
+    margin-top:22px;
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    border:none;
+    border-radius: 999px;
+    padding: 12px 20px;
+    cursor:pointer;
+    color:#fff;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.12);
+    transition: transform .1s ease, box-shadow .1s ease;
+  }
+  .btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,0.12); }
+  .btn.grass{ background: linear-gradient(135deg, var(--grass), var(--grass-dark)); }
+  .btn.sun{ background: linear-gradient(135deg, var(--sun), var(--sun-dark)); color:#5a4200; }
+  .btn.coral{ background: linear-gradient(135deg, var(--coral), var(--coral-dark)); }
+  .btn.teal{ background: linear-gradient(135deg, var(--teal), var(--teal-dark)); }
+  .btn.berry{ background: linear-gradient(135deg, var(--berry), var(--berry-dark)); }
+  .hint-line{
+    text-align:center;
+    color: var(--ink-soft);
+    font-weight:600;
+    margin-top:14px;
+    font-size:15px;
+  }
+
+  /* ---------- QUIZ / WORD SHARED ---------- */
+  .quiz-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom: 18px;
+  }
+  .progress-pill{
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    background: #eef3ff;
+    color: var(--teal-dark);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size:15px;
+  }
+  .hearts{ display:flex; gap:6px; font-size:26px; }
+  .heart{ transition: transform .25s ease; }
+  .heart.lost{ opacity:0.25; transform: scale(0.7); }
+
+  .start-screen, .end-screen{
+    text-align:center;
+    padding: 30px 10px;
+  }
+  .start-screen h2, .end-screen h2{
+    font-family:'Rubik', sans-serif;
+    font-weight:900;
+    color: var(--teal-dark);
+    font-size: clamp(24px, 4vw, 32px);
+  }
+  .start-screen p, .end-screen p{
+    color: var(--ink-soft);
+    font-weight:600;
+    font-size:17px;
+    max-width: 480px;
+    margin: 10px auto 22px;
+  }
+
+  .quiz-clock{
+    width: min(230px, 60vw);
+    margin: 0 auto 20px;
+    filter: drop-shadow(0 10px 14px rgba(35,50,85,0.16));
+  }
+  .quiz-clock svg{ width:100%; height:auto; display:block; }
+
+  .word-question{
+    font-family:'Rubik', sans-serif;
+    font-weight:700;
+    font-size: clamp(19px, 3vw, 24px);
+    color: var(--ink);
+    background: #eef7ff;
+    border: 3px solid #d5ecff;
+    border-radius: var(--radius-md);
+    padding: 22px;
+    text-align:center;
+    line-height:1.6;
+    margin-bottom: 22px;
+  }
+
+  .answers-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  @media (max-width:480px){ .answers-grid{ grid-template-columns: 1fr; } }
+  .answer-btn{
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size: 20px;
+    background:#fff;
+    border: 3px solid #e3e9f5;
+    border-radius: var(--radius-md);
+    padding: 16px 10px;
+    cursor:pointer;
+    color: var(--ink);
+    transition: all .15s ease;
+    box-shadow: 0 4px 0 #e3e9f5;
+  }
+  .answer-btn:hover:not(:disabled){ border-color: var(--teal); transform: translateY(-2px); }
+  .answer-btn:active:not(:disabled){ transform: translateY(2px); box-shadow:none; }
+  .answer-btn.correct{ background: #e5f8ee; border-color: var(--grass); color: var(--grass-dark); }
+  .answer-btn.wrong{ background: #ffecec; border-color: var(--coral); color: var(--coral-dark); animation: shake .4s ease; }
+  .answer-btn:disabled{ cursor:default; }
+  @keyframes shake{
+    0%,100%{ transform: translateX(0); }
+    20%{ transform: translateX(-8px); }
+    40%{ transform: translateX(8px); }
+    60%{ transform: translateX(-6px); }
+    80%{ transform: translateX(6px); }
+  }
+
+  .feedback{
+    text-align:center;
+    font-family:'Rubik', sans-serif;
+    font-weight:800;
+    font-size:19px;
+    min-height:30px;
+    margin-top:18px;
+  }
+  .feedback.good{ color: var(--grass-dark); }
+  .feedback.bad{ color: var(--coral-dark); }
+
+  .next-wrap{ text-align:center; margin-top:16px; min-height: 50px; }
+
+  .big-emoji{ font-size:64px; margin-bottom:6px; }
+
+  footer.credits{
+    text-align:center;
+    color: var(--ink-soft);
+    font-weight:600;
+    font-size:13px;
+    margin-top: 30px;
+    opacity:0.8;
+  }
+
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="top">
+    <h1>🕐 שעון החברים</h1>
+    <p class="sub">לומדים להגיד את השעה, משחקים ומתאמנים!</p>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab-btn active" data-page="learn">🎓 לומדים שעון</button>
+    <button type="button" class="tab-btn" data-page="quiz">📝 מבדק שעון</button>
+    <button type="button" class="tab-btn" data-page="word">🧮 בעיות מילוליות</button>
+  </nav>
+
+  <!-- ===================== PAGE 1: LEARN ===================== -->
+  <section id="page-learn" class="page active">
+    <div class="card">
+      <div class="learn-layout">
+        <div class="clock-holder" id="learnClockHolder"></div>
+        <div class="readout">
+          <div class="digital-time" id="learnDigital">3:00</div>
+          <div class="words-time" id="learnWords">השעה שלוש בדיוק</div>
+        </div>
+      </div>
+      <div class="learn-actions">
+        <button class="btn sun" id="btnRandomTime">🎲 שעה אקראית</button>
+        <button class="btn teal" id="btnResetTime">↺ איפוס לשעה 12:00</button>
+      </div>
+      <p class="hint-line">גררו עם העכבר (או האצבע) את המחוג הארוך (דקות) והמחוג הקצר (שעות) כדי לשנות את השעה!</p>
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 2: QUIZ ===================== -->
+  <section id="page-quiz" class="page">
+    <div class="card" id="quizCard">
+      <!-- populated by JS -->
+    </div>
+  </section>
+
+  <!-- ===================== PAGE 3: WORD PROBLEMS ===================== -->
+  <section id="page-word" class="page">
+    <div class="card" id="wordCard">
+      <!-- populated by JS -->
+    </div>
+  </section>
+
+  <footer class="credits">בהצלחה בלמידה! ⏰✨</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     0. HEBREW TIME HELPERS
+  ========================================================= */
+  const HOUR_WORDS = ["", "אחת","שתיים","שלוש","ארבע","חמש","שש","שבע","שמונה","תשע","עשר","אחת עשרה","שתים עשרה"];
+
+  function hourWord(h){
+    let hh = ((h - 1) % 12) + 1;
+    if(hh <= 0) hh += 12;
+    return HOUR_WORDS[hh];
+  }
+
+  function nextHour(h){
+    let hh = h % 12;
+    return hh + 1; // 12 -> 1, 1 -> 2 ... 11 -> 12
+  }
+
+  function timeToHebrewWords(hour, minute){
+    const h = ((hour - 1) % 12) + 1;
+    const nh = nextHour(h);
+    switch(minute){
+      case 0:  return `השעה ${hourWord(h)} בדיוק`;
+      case 5:  return `השעה ${hourWord(h)} וחמש`;
+      case 10: return `השעה ${hourWord(h)} ועשר`;
+      case 15: return `השעה ${hourWord(h)} ורבע`;
+      case 20: return `השעה ${hourWord(h)} ועשרים`;
+      case 25: return `השעה ${hourWord(h)} ועשרים וחמש`;
+      case 30: return `השעה חצי ${hourWord(nh)}`;
+      case 35: return `השעה עשרים וחמש דקות ל${hourWord(nh)}`;
+      case 40: return `השעה עשרים ל${hourWord(nh)}`;
+      case 45: return `השעה רבע ל${hourWord(nh)}`;
+      case 50: return `השעה עשר ל${hourWord(nh)}`;
+      case 55: return `השעה חמש ל${hourWord(nh)}`;
+      default: {
+        // fallback for non-5 multiples, shouldn't normally happen
+        return `השעה ${hourWord(h)} ו-${minute} דקות`;
+      }
+    }
+  }
+
+  function formatDigital(hour, minute){
+    let h = ((hour - 1) % 12) + 1;
+    if(h <= 0) h += 12;
+    return `${h}:${String(minute).padStart(2,'0')}`;
+  }
+
+  /* generic 12h-cycle minute-of-cycle helpers (0..719), hour 1-12 mapped so 12 -> 0 */
+  function toCycleMinutes(hour, minute){
+    let h = hour % 12; // 12 -> 0
+    return h * 60 + minute;
+  }
+  function fromCycleMinutes(cm){
+    cm = ((cm % 720) + 720) % 720;
+    let h = Math.floor(cm / 60);
+    let m = cm % 60;
+    if(h === 0) h = 12;
+    return { hour: h, minute: m };
+  }
+
+  /* =========================================================
+     1. CLOCK SVG BUILDER
+  ========================================================= */
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const CX = 150, CY = 150, R = 140;
+
+  function svgEl(tag, attrs){
+    const el = document.createElementNS(SVG_NS, tag);
+    for(const k in attrs){ el.setAttribute(k, attrs[k]); }
+    return el;
+  }
+
+  function buildClockFace(){
+    const svg = svgEl("svg", { viewBox: "0 0 300 300" });
+
+    // outer rim
+    svg.appendChild(svgEl("circle", { cx:CX, cy:CY, r:R+6, fill:"#ffffff" }));
+    svg.appendChild(svgEl("circle", { cx:CX, cy:CY, r:R+6, fill:"none", stroke:"#ff6b5b", "stroke-width":10 }));
+    svg.appendChild(svgEl("circle", { cx:CX, cy:CY, r:R-6, fill:"#fffdf7", stroke:"#ffc93c", "stroke-width":4 }));
+
+    // minute ticks
+    for(let i=0;i<60;i++){
+      const ang = (i*6) * Math.PI/180;
+      const isHour = (i % 5 === 0);
+      const rOuter = R - 12;
+      const rInner = isHour ? R - 26 : R - 19;
+      const x1 = CX + rOuter*Math.sin(ang), y1 = CY - rOuter*Math.cos(ang);
+      const x2 = CX + rInner*Math.sin(ang), y2 = CY - rInner*Math.cos(ang);
+      svg.appendChild(svgEl("line", {
+        x1, y1, x2, y2,
+        stroke: isHour ? "#233255" : "#b9c3da",
+        "stroke-width": isHour ? 4 : 2,
+        "stroke-linecap":"round"
+      }));
+    }
+
+    // numbers
+    const accentSet = new Set([12,3,6,9]);
+    for(let n=1;n<=12;n++){
+      const ang = (n*30) * Math.PI/180;
+      const rNum = R - 42;
+      const x = CX + rNum*Math.sin(ang);
+      const y = CY - rNum*Math.cos(ang);
+      const t = svgEl("text", {
+        x, y, "text-anchor":"middle", "dominant-baseline":"central",
+        "font-family":"Rubik, sans-serif",
+        "font-weight": accentSet.has(n) ? 900 : 700,
+        "font-size": accentSet.has(n) ? 30 : 24,
+        fill: accentSet.has(n) ? "#ff6b5b" : "#233255"
+      });
+      t.textContent = n;
+      svg.appendChild(t);
+    }
+
+    return svg;
+  }
+
+  function angleForHour(hour, minute){ return (hour % 12) * 30 + minute * 0.5; }
+  function angleForMinute(minute){ return minute * 6; }
+
+  function buildHands(svg, opts){
+    opts = opts || {};
+    const interactive = !!opts.interactive;
+
+    const hourHit = svgEl("line", { x1:CX, y1:CY, x2:CX, y2:CY-62, stroke:"transparent", "stroke-width":30, "stroke-linecap":"round", "data-hand":"hour", style: interactive ? "cursor:grab;" : "" });
+    const hourHand = svgEl("line", { x1:CX, y1:CY, x2:CX, y2:CY-62, stroke:"#ff6b5b", "stroke-width":10, "stroke-linecap":"round", "pointer-events":"none" });
+    const minHit = svgEl("line", { x1:CX, y1:CY, x2:CX, y2:CY-98, stroke:"transparent", "stroke-width":26, "stroke-linecap":"round", "data-hand":"minute", style: interactive ? "cursor:grab;" : "" });
+    const minHand = svgEl("line", { x1:CX, y1:CY, x2:CX, y2:CY-98, stroke:"#0f8b8d", "stroke-width":6, "stroke-linecap":"round", "pointer-events":"none" });
+
+    const centerRing = svgEl("circle", { cx:CX, cy:CY, r:12, fill:"#ffc93c", stroke:"#e8a800", "stroke-width":3 });
+    const centerDot = svgEl("circle", { cx:CX, cy:CY, r:4, fill:"#233255" });
+
+    if(interactive){
+      svg.appendChild(hourHand);
+      svg.appendChild(minHand);
+      svg.appendChild(hourHit);
+      svg.appendChild(minHit);
+    } else {
+      svg.appendChild(hourHand);
+      svg.appendChild(minHand);
+    }
+    svg.appendChild(centerRing);
+    svg.appendChild(centerDot);
+
+    return { hourHand, minHand, hourHit, minHit };
+  }
+
+  function setHandAngles(hands, hour, minute){
+    hands.hourHand.setAttribute("transform", `rotate(${angleForHour(hour,minute)} ${CX} ${CY})`);
+    hands.minHand.setAttribute("transform", `rotate(${angleForMinute(minute)} ${CX} ${CY})`);
+    if(hands.hourHit) hands.hourHit.setAttribute("transform", `rotate(${angleForHour(hour,minute)} ${CX} ${CY})`);
+    if(hands.minHit) hands.minHit.setAttribute("transform", `rotate(${angleForMinute(minute)} ${CX} ${CY})`);
+  }
+
+  function renderStaticClock(container, hour, minute){
+    container.innerHTML = "";
+    const svg = buildClockFace();
+    const hands = buildHands(svg, { interactive:false });
+    setHandAngles(hands, hour, minute);
+    container.appendChild(svg);
+  }
+
+  /* =========================================================
+     2. LEARN PAGE (interactive clock)
+  ========================================================= */
+  const learnHolder = document.getElementById("learnClockHolder");
+  const learnDigital = document.getElementById("learnDigital");
+  const learnWords = document.getElementById("learnWords");
+
+  let learnHour = 3, learnMinute = 0;
+  let learnSvg, learnHands;
+
+  function buildLearnClock(){
+    learnHolder.innerHTML = "";
+    learnSvg = buildClockFace();
+    learnHands = buildHands(learnSvg, { interactive:true });
+    setHandAngles(learnHands, learnHour, learnMinute);
+    learnHolder.appendChild(learnSvg);
+    attachDrag();
+  }
+
+  function updateLearnReadout(){
+    learnDigital.textContent = formatDigital(learnHour, learnMinute);
+    learnWords.textContent = timeToHebrewWords(learnHour, learnMinute);
+  }
+
+  function attachDrag(){
+    let draggingHand = null;
+
+    function getAngleFromEvent(evt){
+      const pt = learnSvg.createSVGPoint();
+      pt.x = evt.clientX; pt.y = evt.clientY;
+      const ctm = learnSvg.getScreenCTM().inverse();
+      const loc = pt.matrixTransform(ctm);
+      const dx = loc.x - CX, dy = loc.y - CY;
+      let deg = Math.atan2(dx, -dy) * 180 / Math.PI;
+      if(deg < 0) deg += 360;
+      return deg;
+    }
+
+    function onPointerDown(hand, evt){
+      draggingHand = hand;
+      evt.target.setPointerCapture(evt.pointerId);
+      evt.preventDefault();
+    }
+
+    function onPointerMove(evt){
+      if(!draggingHand) return;
+      evt.preventDefault();
+      const deg = getAngleFromEvent(evt);
+      if(draggingHand === "minute"){
+        let m = Math.round(deg / 30) * 5; // snap to 5-minute steps
+        m = ((m % 60) + 60) % 60;
+        learnMinute = m;
+      } else {
+        let hFloat = deg / 30;
+        let h = Math.round(hFloat) % 12;
+        if(h === 0) h = 12;
+        learnHour = h;
+      }
+      setHandAngles(learnHands, learnHour, learnMinute);
+      updateLearnReadout();
+    }
+
+    function onPointerUp(evt){
+      draggingHand = null;
+    }
+
+    learnHands.hourHit.addEventListener("pointerdown", (e)=>onPointerDown("hour", e));
+    learnHands.minHit.addEventListener("pointerdown", (e)=>onPointerDown("minute", e));
+    learnHands.hourHit.addEventListener("pointermove", onPointerMove);
+    learnHands.minHit.addEventListener("pointermove", onPointerMove);
+    learnHands.hourHit.addEventListener("pointerup", onPointerUp);
+    learnHands.minHit.addEventListener("pointerup", onPointerUp);
+    learnHands.hourHit.addEventListener("pointercancel", onPointerUp);
+    learnHands.minHit.addEventListener("pointerup", onPointerUp);
+  }
+
+  document.getElementById("btnRandomTime").addEventListener("click", ()=>{
+    learnHour = 1 + Math.floor(Math.random()*12);
+    learnMinute = Math.floor(Math.random()*12) * 5;
+    setHandAngles(learnHands, learnHour, learnMinute);
+    updateLearnReadout();
+  });
+  document.getElementById("btnResetTime").addEventListener("click", ()=>{
+    learnHour = 12; learnMinute = 0;
+    setHandAngles(learnHands, learnHour, learnMinute);
+    updateLearnReadout();
+  });
+
+  buildLearnClock();
+  updateLearnReadout();
+
+  /* =========================================================
+     3. NAVIGATION
+  ========================================================= */
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const pages = {
+    learn: document.getElementById("page-learn"),
+    quiz: document.getElementById("page-quiz"),
+    word: document.getElementById("page-word")
+  };
+  tabButtons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabButtons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(pages).forEach(p=>p.classList.remove("active"));
+      pages[btn.dataset.page].classList.add("active");
+    });
+  });
+
+  /* =========================================================
+     4. SHARED MINI HELPERS FOR GAMES
+  ========================================================= */
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+  function randInt(min, max){ return min + Math.floor(Math.random()*(max-min+1)); }
+  function pick(arr){ return arr[randInt(0, arr.length-1)]; }
+
+  /* =========================================================
+     5. QUIZ PAGE (clock reading, 10 questions, 4 hearts)
+  ========================================================= */
+  const quizCard = document.getElementById("quizCard");
+
+  const QUIZ_TOTAL = 10;
+  const QUIZ_LIVES = 4;
+
+  let quiz = null; // state object
+
+  function quizGenerateQuestions(){
+    const used = new Set();
+    const qs = [];
+    while(qs.length < QUIZ_TOTAL){
+      const h = randInt(1,12);
+      const m = randInt(0,11) * 5;
+      const key = h+"_"+m;
+      if(used.has(key)) continue;
+      used.add(key);
+      qs.push({ hour:h, minute:m });
+    }
+    return qs;
+  }
+
+  function quizDistractorTimes(correctHour, correctMinute){
+    const correctCm = toCycleMinutes(correctHour, correctMinute);
+    const deltas = [5,10,15,20,25,30,35,40,45,60,-5,-10,-15,-20,-25,-30,-35,-40,-45,-60];
+    const seen = new Set([correctCm]);
+    const options = [];
+    shuffle(deltas);
+    for(const d of deltas){
+      if(options.length >= 3) break;
+      const cm = ((correctCm + d) % 720 + 720) % 720;
+      if(seen.has(cm)) continue;
+      seen.add(cm);
+      options.push(cm);
+    }
+    // fallback safety in the unlikely event of not enough unique options
+    while(options.length < 3){
+      const cm = randInt(0,719);
+      if(seen.has(cm)) continue;
+      seen.add(cm);
+      options.push(cm);
+    }
+    return options.map(cm => fromCycleMinutes(cm));
+  }
+
+  function quizRenderStart(){
+    quizCard.innerHTML = `
+      <div class="start-screen">
+        <div class="big-emoji">🕐</div>
+        <h2>מבדק השעון</h2>
+        <p>תראו שעון עם מחוגים, ותצטרכו לבחור מתוך 4 אפשרויות מה השעה הנכונה.<br>
+        יש לכם ${QUIZ_LIVES} לבבות לכל המבדק - כל טעות מורידה לב אחד, אבל תמיד אפשר לנסות שוב באותה שאלה!</p>
+        <button class="btn grass" id="quizStartBtn">בואו נתחיל! 🚀</button>
+      </div>
+    `;
+    document.getElementById("quizStartBtn").addEventListener("click", quizStart);
+  }
+
+  function quizStart(){
+    quiz = {
+      questions: quizGenerateQuestions(),
+      index: 0,
+      lives: QUIZ_LIVES,
+      correctCount: 0
+    };
+    quizRenderQuestion();
+  }
+
+  function quizRenderQuestion(){
+    if(quiz.lives <= 0){ quizRenderEnd(false); return; }
+    if(quiz.index >= QUIZ_TOTAL){ quizRenderEnd(true); return; }
+
+    const q = quiz.questions[quiz.index];
+    const correctStr = formatDigital(q.hour, q.minute);
+    const distractors = quizDistractorTimes(q.hour, q.minute).map(t => formatDigital(t.hour, t.minute));
+    const optionStrs = shuffle([correctStr, ...distractors]);
+
+    let heartsHtml = "";
+    for(let i=0;i<QUIZ_LIVES;i++){
+      heartsHtml += `<span class="heart ${i < quiz.lives ? "" : "lost"}">❤️</span>`;
+    }
+
+    quizCard.innerHTML = `
+      <div class="quiz-top">
+        <div class="progress-pill">שאלה ${quiz.index+1} מתוך ${QUIZ_TOTAL}</div>
+        <div class="hearts">${heartsHtml}</div>
+      </div>
+      <div class="quiz-clock" id="quizClockHolder"></div>
+      <p style="text-align:center; font-weight:800; font-family:'Rubik',sans-serif; color:var(--ink); font-size:19px; margin-bottom:16px;">מה השעה עכשיו?</p>
+      <div class="answers-grid" id="quizAnswers"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div class="next-wrap" id="quizNextWrap"></div>
+    `;
+
+    renderStaticClock(document.getElementById("quizClockHolder"), q.hour, q.minute);
+
+    const answersGrid = document.getElementById("quizAnswers");
+    optionStrs.forEach(opt=>{
+      const b = document.createElement("button");
+      b.className = "answer-btn";
+      b.textContent = opt;
+      b.addEventListener("click", ()=>quizHandleAnswer(b, opt, correctStr));
+      answersGrid.appendChild(b);
+    });
+  }
+
+  function quizHandleAnswer(btn, chosen, correctStr){
+    const allBtns = document.querySelectorAll("#quizAnswers .answer-btn");
+    const feedback = document.getElementById("quizFeedback");
+
+    if(chosen === correctStr){
+      allBtns.forEach(b=>b.disabled = true);
+      btn.classList.add("correct");
+      feedback.textContent = "כל הכבוד! תשובה נכונה! 🎉";
+      feedback.className = "feedback good";
+      quiz.correctCount++;
+      quiz.index++;
+      const nextWrap = document.getElementById("quizNextWrap");
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn teal";
+      nextBtn.textContent = (quiz.index >= QUIZ_TOTAL) ? "לתוצאות הסופיות 🏁" : "לשאלה הבאה ⏭️";
+      nextBtn.addEventListener("click", quizRenderQuestion);
+      nextWrap.appendChild(nextBtn);
+    } else {
+      btn.classList.add("wrong");
+      btn.disabled = true;
+      quiz.lives--;
+      document.querySelectorAll(".hearts .heart").forEach((el, i)=>{
+        el.classList.toggle("lost", i >= quiz.lives);
+      });
+      if(quiz.lives <= 0){
+        feedback.textContent = "נגמרו הלבבות... בואו ננסה שוב מההתחלה!";
+        feedback.className = "feedback bad";
+        allBtns.forEach(b=>b.disabled = true);
+        const nextWrap = document.getElementById("quizNextWrap");
+        const endBtn = document.createElement("button");
+        endBtn.className = "btn coral";
+        endBtn.textContent = "לצפייה בתוצאה";
+        endBtn.addEventListener("click", ()=>quizRenderEnd(false));
+        nextWrap.appendChild(endBtn);
+      } else {
+        feedback.textContent = "לא מדויק... נסו שוב! 💪";
+        feedback.className = "feedback bad";
+      }
+    }
+  }
+
+  function quizRenderEnd(won){
+    const emoji = won ? "🏆" : "🌟";
+    const title = won ? "סיימתם את המבדק!" : "כמעט הצלחתם!";
+    quizCard.innerHTML = `
+      <div class="end-screen">
+        <div class="big-emoji">${emoji}</div>
+        <h2>${title}</h2>
+        <p>ענית נכון על ${quiz.correctCount} מתוך ${QUIZ_TOTAL} שאלות.</p>
+        <button class="btn grass" id="quizRestartBtn">משחקים שוב 🔁</button>
+      </div>
+    `;
+    document.getElementById("quizRestartBtn").addEventListener("click", quizRenderStart);
+  }
+
+  quizRenderStart();
+
+  /* =========================================================
+     6. WORD PROBLEMS PAGE (5 questions, 4 hearts, huge template bank)
+  ========================================================= */
+  const wordCard = document.getElementById("wordCard");
+  const WORD_TOTAL = 5;
+  const WORD_LIVES = 4;
+
+  const KID_NAMES = ["נדב","מאיה","עידו","נועה","יונתן","שירה","עמית","טליה","דניאל","רוני","איתי","הדר"];
+  const PLACES = [
+    { where:"בית הספר", verb:"להגיע ל" },
+    { where:"החוג לכדורגל", verb:"להגיע ל" },
+    { where:"הבריכה", verb:"להגיע ל" },
+    { where:"בית סבתא", verb:"להגיע ל" },
+    { where:"הרופא", verb:"להגיע ל" },
+    { where:"תחנת האוטובוס", verb:"להגיע ל" }
+  ];
+  const EVENTS = ["השיעור","האימון","הסרט","המסיבה","החוג","המופע","המבחן"];
+
+  function fmtDuration(mins){
+    mins = Math.round(mins);
+    if(mins <= 0) mins = 5;
+    if(mins < 60) return `${mins} דקות`;
+    const h = Math.floor(mins/60), rem = mins % 60;
+    let hPart;
+    if(h === 1) hPart = "שעה";
+    else if(h === 2) hPart = "שעתיים";
+    else hPart = `${h} שעות`;
+    if(rem === 0) return hPart;
+    return `${hPart} ו-${rem} דקות`;
+  }
+
+  function randomClockTime(){
+    return { hour: randInt(1,12), minute: randInt(0,11)*5 };
+  }
+
+  function durationDistractors(correctMins){
+    const deltas = [5,10,15,20,25,30,-5,-10,-15,-20,-25,-30];
+    const seen = new Set([correctMins]);
+    const opts = [];
+    shuffle(deltas);
+    for(const d of deltas){
+      if(opts.length >= 3) break;
+      const v = correctMins + d;
+      if(v <= 0 || seen.has(v)) continue;
+      seen.add(v);
+      opts.push(v);
+    }
+    while(opts.length < 3){
+      const v = randInt(5, correctMins + 60);
+      if(v <=0 || seen.has(v)) continue;
+      seen.add(v);
+      opts.push(v);
+    }
+    return opts;
+  }
+
+  function timeDistractors(correctHour, correctMinute){
+    const correctCm = toCycleMinutes(correctHour, correctMinute);
+    const deltas = [5,10,15,30,45,60,-5,-10,-15,-30,-45,-60];
+    const seen = new Set([correctCm]);
+    const opts = [];
+    shuffle(deltas);
+    for(const d of deltas){
+      if(opts.length >= 3) break;
+      const cm = ((correctCm + d) % 720 + 720) % 720;
+      if(seen.has(cm)) continue;
+      seen.add(cm);
+      opts.push(cm);
+    }
+    return opts.map(cm => fromCycleMinutes(cm));
+  }
+
+  /* ---- Template generators: each returns {question, correct, distractors[3]} ---- */
+
+  function tmplGetReady(){
+    const start = randomClockTime();
+    const gapOptions = [15,20,25,30,35,40,45,50,60,75,90];
+    const gap = pick(gapOptions);
+    const endCm = toCycleMinutes(start.hour, start.minute) + gap;
+    const end = fromCycleMinutes(endCm);
+    const place = pick(PLACES);
+    const question = `השעה עכשיו ${formatDigital(start.hour,start.minute)} וצריך ${place.verb}${place.where} עד השעה ${formatDigital(end.hour,end.minute)}. כמה זמן יש להתארגן?`;
+    const correct = fmtDuration(gap);
+    const distractors = durationDistractors(gap).map(fmtDuration);
+    return { question, correct, distractors };
+  }
+
+  function tmplLateness(){
+    const start = randomClockTime();
+    const lateBy = pick([5,10,15,20,25,30,35,40,45]);
+    const arrCm = toCycleMinutes(start.hour, start.minute) + lateBy;
+    const arr = fromCycleMinutes(arrCm);
+    const name = pick(KID_NAMES);
+    const event = pick(EVENTS);
+    const question = `${event} מתחיל/ה בשעה ${formatDigital(start.hour,start.minute)}. ${name} הגיע/ה בשעה ${formatDigital(arr.hour,arr.minute)}. בכמה זמן ${name} איחר/ה?`;
+    const correct = fmtDuration(lateBy);
+    const distractors = durationDistractors(lateBy).map(fmtDuration);
+    return { question, correct, distractors };
+  }
+
+  function tmplEndTime(){
+    const start = randomClockTime();
+    const dur = pick([15,20,25,30,35,40,45,50,60,75,90,120]);
+    const endCm = toCycleMinutes(start.hour, start.minute) + dur;
+    const end = fromCycleMinutes(endCm);
+    const event = pick(EVENTS);
+    const question = `${event} מתחיל/ה בשעה ${formatDigital(start.hour,start.minute)} ונמשך/ת ${fmtDuration(dur)}. באיזו שעה ${event === "המבחן" ? "הוא נגמר" : "הוא/היא נגמר/ת"}?`;
+    const correct = formatDigital(end.hour, end.minute);
+    const distractors = timeDistractors(end.hour, end.minute).map(t => formatDigital(t.hour, t.minute));
+    return { question, correct, distractors };
+  }
+
+  function tmplElapsed(){
+    const start = randomClockTime();
+    const dur = pick([15,20,25,30,35,40,45,50,60,75,90]);
+    const endCm = toCycleMinutes(start.hour, start.minute) + dur;
+    const end = fromCycleMinutes(endCm);
+    const event = pick(EVENTS);
+    const question = `${event} התחיל/ה בשעה ${formatDigital(start.hour,start.minute)} ונגמר/ה בשעה ${formatDigital(end.hour,end.minute)}. כמה זמן נמשך/ה ${event}?`;
+    const correct = fmtDuration(dur);
+    const distractors = durationDistractors(dur).map(fmtDuration);
+    return { question, correct, distractors };
+  }
+
+  function tmplFuture(){
+    const start = randomClockTime();
+    const gap = pick([10,15,20,25,30,35,40,45,50,55,60]);
+    const endCm = toCycleMinutes(start.hour, start.minute) + gap;
+    const end = fromCycleMinutes(endCm);
+    const name = pick(KID_NAMES);
+    const question = `השעה עכשיו ${formatDigital(start.hour,start.minute)}. בעוד ${fmtDuration(gap)} ${name} צריך/ה לצאת מהבית. באיזו שעה זה יהיה?`;
+    const correct = formatDigital(end.hour, end.minute);
+    const distractors = timeDistractors(end.hour, end.minute).map(t => formatDigital(t.hour, t.minute));
+    return { question, correct, distractors };
+  }
+
+  function tmplPast(){
+    const end = randomClockTime();
+    const gap = pick([10,15,20,25,30,35,40,45,50,55,60]);
+    const startCm = toCycleMinutes(end.hour, end.minute) - gap;
+    const start = fromCycleMinutes(startCm);
+    const name = pick(KID_NAMES);
+    const question = `השעה עכשיו ${formatDigital(end.hour,end.minute)}. לפני ${fmtDuration(gap)} ${name} התחיל/ה לשחק. באיזו שעה ${name} התחיל/ה לשחק?`;
+    const correct = formatDigital(start.hour, start.minute);
+    const distractors = timeDistractors(start.hour, start.minute).map(t => formatDigital(t.hour, t.minute));
+    return { question, correct, distractors };
+  }
+
+  function tmplHalfway(){
+    // total trip duration split, ask how much time remains after part has passed
+    const start = randomClockTime();
+    const totalDur = pick([30,40,50,60,80,90,100,120]);
+    const passed = pick([10,15,20,25,30,35,40]);
+    const remaining = totalDur - passed;
+    if(remaining <= 5){ return tmplGetReady(); } // safety fallback
+    const event = pick(["הנסיעה","הטיול","השיעור","המשחק"]);
+    const question = `${event} אמור/ה להימשך ${fmtDuration(totalDur)} בסך הכל. כבר עברו ${fmtDuration(passed)}. כמה זמן נשאר עד הסוף?`;
+    const correct = fmtDuration(remaining);
+    const distractors = durationDistractors(remaining).map(fmtDuration);
+    return { question, correct, distractors };
+  }
+
+  const WORD_TEMPLATES = [tmplGetReady, tmplLateness, tmplEndTime, tmplElapsed, tmplFuture, tmplPast, tmplHalfway];
+
+  let wordState = null;
+
+  function wordGenerateQuestions(){
+    const templates = shuffle(WORD_TEMPLATES);
+    const chosen = templates.slice(0, WORD_TOTAL);
+    // if not enough unique templates for WORD_TOTAL, fill with random repeats
+    while(chosen.length < WORD_TOTAL){ chosen.push(pick(WORD_TEMPLATES)); }
+    return chosen.map(fn => {
+      let q = fn();
+      // ensure distractors are unique strings and different from correct
+      const uniq = [];
+      const seenStr = new Set([q.correct]);
+      for(const d of q.distractors){
+        if(seenStr.has(d)) continue;
+        seenStr.add(d);
+        uniq.push(d);
+      }
+      while(uniq.length < 3){
+        uniq.push(q.correct + " "); // extremely unlikely fallback, keeps 4 options
+      }
+      q.distractors = uniq.slice(0,3);
+      return q;
+    });
+  }
+
+  function wordRenderStart(){
+    wordCard.innerHTML = `
+      <div class="start-screen">
+        <div class="big-emoji">🧮</div>
+        <h2>בעיות מילוליות בזמן</h2>
+        <p>תקראו כל שאלה בעיון ותבחרו את התשובה הנכונה מתוך 4 אפשרויות.<br>
+        יש לכם ${WORD_LIVES} לבבות לכל המשחק - כל טעות מורידה לב אחד, ותמיד אפשר לנסות שוב באותה שאלה!</p>
+        <button class="btn berry" id="wordStartBtn">בואו נתחיל! 🚀</button>
+      </div>
+    `;
+    document.getElementById("wordStartBtn").addEventListener("click", wordStart);
+  }
+
+  function wordStart(){
+    wordState = {
+      questions: wordGenerateQuestions(),
+      index: 0,
+      lives: WORD_LIVES,
+      correctCount: 0
+    };
+    wordRenderQuestion();
+  }
+
+  function wordRenderQuestion(){
+    if(wordState.lives <= 0){ wordRenderEnd(false); return; }
+    if(wordState.index >= WORD_TOTAL){ wordRenderEnd(true); return; }
+
+    const q = wordState.questions[wordState.index];
+    const optionStrs = shuffle([q.correct, ...q.distractors]);
+
+    let heartsHtml = "";
+    for(let i=0;i<WORD_LIVES;i++){
+      heartsHtml += `<span class="heart ${i < wordState.lives ? "" : "lost"}">❤️</span>`;
+    }
+
+    wordCard.innerHTML = `
+      <div class="quiz-top">
+        <div class="progress-pill">שאלה ${wordState.index+1} מתוך ${WORD_TOTAL}</div>
+        <div class="hearts">${heartsHtml}</div>
+      </div>
+      <div class="word-question">${q.question}</div>
+      <div class="answers-grid" id="wordAnswers"></div>
+      <div class="feedback" id="wordFeedback"></div>
+      <div class="next-wrap" id="wordNextWrap"></div>
+    `;
+
+    const answersGrid = document.getElementById("wordAnswers");
+    optionStrs.forEach(opt=>{
+      const b = document.createElement("button");
+      b.className = "answer-btn";
+      b.textContent = opt;
+      b.addEventListener("click", ()=>wordHandleAnswer(b, opt, q.correct));
+      answersGrid.appendChild(b);
+    });
+  }
+
+  function wordHandleAnswer(btn, chosen, correct){
+    const allBtns = document.querySelectorAll("#wordAnswers .answer-btn");
+    const feedback = document.getElementById("wordFeedback");
+
+    if(chosen === correct){
+      allBtns.forEach(b=>b.disabled = true);
+      btn.classList.add("correct");
+      feedback.textContent = "מצוין! תשובה נכונה! 🎉";
+      feedback.className = "feedback good";
+      wordState.correctCount++;
+      wordState.index++;
+      const nextWrap = document.getElementById("wordNextWrap");
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn teal";
+      nextBtn.textContent = (wordState.index >= WORD_TOTAL) ? "לתוצאות הסופיות 🏁" : "לשאלה הבאה ⏭️";
+      nextBtn.addEventListener("click", wordRenderQuestion);
+      nextWrap.appendChild(nextBtn);
+    } else {
+      btn.classList.add("wrong");
+      btn.disabled = true;
+      wordState.lives--;
+      document.querySelectorAll("#page-word .hearts .heart").forEach((el, i)=>{
+        el.classList.toggle("lost", i >= wordState.lives);
+      });
+      if(wordState.lives <= 0){
+        feedback.textContent = "נגמרו הלבבות... בואו ננסה שוב מההתחלה!";
+        feedback.className = "feedback bad";
+        allBtns.forEach(b=>b.disabled = true);
+        const nextWrap = document.getElementById("wordNextWrap");
+        const endBtn = document.createElement("button");
+        endBtn.className = "btn coral";
+        endBtn.textContent = "לצפייה בתוצאה";
+        endBtn.addEventListener("click", ()=>wordRenderEnd(false));
+        nextWrap.appendChild(endBtn);
+      } else {
+        feedback.textContent = "לא מדויק... נסו שוב! 💪";
+        feedback.className = "feedback bad";
+      }
+    }
+  }
+
+  function wordRenderEnd(won){
+    const emoji = won ? "🏆" : "🌟";
+    const title = won ? "סיימתם את הבעיות!" : "כמעט הצלחתם!";
+    wordCard.innerHTML = `
+      <div class="end-screen">
+        <div class="big-emoji">${emoji}</div>
+        <h2>${title}</h2>
+        <p>ענית נכון על ${wordState.correctCount} מתוך ${WORD_TOTAL} שאלות.</p>
+        <button class="btn berry" id="wordRestartBtn">משחקים שוב 🔁</button>
+      </div>
+    `;
+    document.getElementById("wordRestartBtn").addEventListener("click", wordRenderStart);
+  }
+
+  wordRenderStart();
+
+})();
+</script>
+</body>
+</html>
