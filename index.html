@@ -3,400 +3,431 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- ================= SEO - START ================= -->
-    <title>לומדת חשבון חינם לילדים | משחקי חשבון אונליין | תרגול חשבון</title>
-    <meta name="description" content="לומדת חשבון חינמית ואינטראקטיבית לילדים! גלו עשרות משחקי חשבון אונליין לתרגול חיבור, חיסור, כפל,משחקי חשבון עדי פאר , חילוק ושברים, ללא צורך בהרשמה או תשלום. כיף ללמוד חשבון!">
-    <meta name="keywords" content="משחקי חשבון לילדים, לומדת חשבון חינם, תרגול חשבון אונליין, חשבון ללא תשלום, משחקי לוח כפל, חיבור, חיסור, כפל, חילוק, שברים,משחקי חשבון עדי פאר, מתמטיקה לילדים, לימוד חשבון כיפי, ללא הרשמה">
-    <!-- הוסף כאן את תג האימות של Google Search Console כשתקבל אותו -->
-    <!-- ================= SEO - END =================== -->
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPNZZJWSF8"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-BPNZZJWSF8');
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>HEBREW LEARNING - בית הספר שלנו 🌟</title>
+    <meta name="description" content="אינדקס ניווט לכל משחקי הלמידה בעברית - אותיות, קריאה, וחשבון. מותאם לילדים, חינמי, צבעוני ומזמין.">
+    <meta name="keywords" content="עברית, אותיות, לימוד, משחקים, גן חובה, כיתה א, כיתה ב, כיתה ג, אינדקס, ניווט, ילדים, חינם">
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap');
-        
         :root {
-            --primary-gradient-start: #2A0944; /* סגול כהה עמוק */
-            --primary-gradient-end: #A12568; /* ורוד-סגול אלגנטי */
-            --secondary-color: #FEC260; /* זהב חם */
-            --text-color: #333;
-            --background-overlay: rgba(255, 255, 255, 0.15);
-            --button-shadow: rgba(42, 9, 68, 0.3);
+            --font: 'Varela Round', Arial, sans-serif;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Rubik', Arial, sans-serif;
-            background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+            font-family: var(--font);
             min-height: 100vh;
-            margin: 0;
             direction: rtl;
-            color: var(--text-color);
-            line-height: 1.6;
-            overflow-y: auto;
-            position: relative;
+            background: #0f0a2e;
+            overflow-x: hidden;
+            color: #fff;
         }
 
-        .background-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--background-overlay);
-            pointer-events: none;
-            z-index: 1;
+        /* ── Animated starfield background ── */
+        .stars {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 0;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            animation: twinkle ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%,100% { opacity: 0.15; transform: scale(1); }
+            50%      { opacity: 1;    transform: scale(1.4); }
         }
 
+        /* ── Rainbow wave at top ── */
+        .rainbow-bar {
+            width: 100%; height: 7px;
+            background: linear-gradient(90deg,
+                #f43f5e, #f97316, #fbbf24, #22c55e,
+                #06b6d4, #6366f1, #a855f7, #f43f5e);
+            background-size: 200%;
+            animation: rainbowSlide 3s linear infinite;
+            position: fixed; top: 0; left: 0; z-index: 100;
+        }
+        @keyframes rainbowSlide {
+            0%  { background-position: 0%; }
+            100%{ background-position: 200%; }
+        }
+
+        /* ── Page layout ── */
+        .page {
+            position: relative; z-index: 2;
+            padding: 70px 16px 60px;
+            min-height: 100vh;
+        }
         .container {
-            background-color: white;
-            border-radius: 30px;
-            box-shadow: 0 30px 60px var(--button-shadow);
-            padding: 50px;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            margin: 30px auto;
-            position: relative;
-            transition: all 0.5s ease;
-            border: 3px solid rgba(254, 194, 96, 0.3);
-            z-index: 2;
+            max-width: 680px;
+            margin: 0 auto;
         }
 
-        h1 {
-            color: var(--primary-gradient-start);
-            margin-bottom: 20px;
-            font-size: 2.8rem;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-            background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
+        /* ── Hero header ── */
+        .hero {
+            text-align: center;
+            margin-bottom: 52px;
+            animation: heroIn 0.8s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        @keyframes heroIn {
+            from { opacity: 0; transform: translateY(-50px) scale(0.85); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .hero-logo {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f97316);
+            border-radius: 28px;
+            width: 100px; height: 100px;
+            font-size: 3.2rem;
+            line-height: 100px;
+            margin-bottom: 22px;
+            box-shadow: 0 0 40px rgba(251,191,36,0.5), 0 0 80px rgba(249,115,22,0.2);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        @keyframes logoFloat {
+            0%,100% { transform: translateY(0) rotate(-3deg); }
+            50%     { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            background: linear-gradient(90deg, #fbbf24, #f472b6, #a78bfa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .intro-text {
+        .hero-sub {
+            color: rgba(255,255,255,0.65);
             font-size: 1.1rem;
-            color: #555;
-            max-width: 500px;
-            margin: 0 auto 30px auto;
             line-height: 1.7;
         }
 
-        h2 {
-            font-size: 1.8rem;
-            margin: 20px 0 15px;
-            color: #ff5722;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-            background: linear-gradient(to right, #ff5722, var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero-chips {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        .chip {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(6px);
+            border-radius: 50px;
+            padding: 5px 16px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
         }
 
-        .quote {
-            font-style: italic;
-            color: #555;
-            margin-bottom: 25px;
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            padding: 0 20px;
-        }
-
-        .quote::before, .quote::after {
-            content: '"';
-            color: var(--secondary-color);
-            font-size: 2rem;
-            position: absolute;
-            opacity: 0.7;
-        }
-
-        .quote::before {
-            left: 0;
-            top: -10px;
-        }
-
-        .quote::after {
-            right: 0;
-            bottom: -10px;
-        }
-
-        .button {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 20px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            position: relative;
+        /* ── Grade section cards ── */
+        .section-card {
+            border-radius: 26px;
+            margin-bottom: 28px;
             overflow: hidden;
-            box-shadow: 0 8px 16px var(--button-shadow);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: white;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: cardIn 0.7s cubic-bezier(.34,1.56,.64,1) both;
+        }
+        .section-card:nth-child(1) { animation-delay: 0.15s; }
+        .section-card:nth-child(2) { animation-delay: 0.25s; }
+        .section-card:nth-child(3) { animation-delay: 0.35s; }
+        .section-card:nth-child(4) { animation-delay: 0.45s; }
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .section-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
         }
 
-        .button:hover {
-            background: linear-gradient(to right, var(--secondary-color), #FFD700);
-            box-shadow: 0 0 20px rgba(254, 194, 96, 0.6);
-            transform: scale(1.05);
+        /* Card color themes */
+        .card-gan    { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+        .card-kita-a { background: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%); }
+        .card-kita-b { background: linear-gradient(135deg, #059669 0%, #34d399 100%); }
+        .card-kita-c { background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%); }
+
+        /* Card header strip */
+        .card-header {
+            padding: 22px 26px 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .card-badge {
+            font-size: 2.4rem;
+            background: rgba(255,255,255,0.18);
+            border-radius: 18px;
+            width: 62px; height: 62px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .card-label h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .card-label p {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.9rem;
+            margin-top: 2px;
+        }
+        .card-count {
+            margin-right: auto;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            padding: 4px 14px;
+            font-size: 0.8rem;
+            color: #fff;
+            font-weight: 600;
+            white-space: nowrap;
         }
 
-        .button i {
-            margin-left: 10px;
-            animation: bounce 1s infinite;
+        /* Links inside card */
+        .card-links {
+            background: rgba(0,0,0,0.18);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #fff;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            gap: 12px;
+            letter-spacing: 0.5px;
+        }
+        .nav-link:hover, .nav-link:focus {
+            background: rgba(255,255,255,0.25);
+            transform: translateX(-4px);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .nav-link .link-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .nav-link .link-arrow {
+            margin-right: auto;
+            opacity: 0.6;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .nav-link:hover .link-arrow {
+            transform: translateX(-4px);
+            opacity: 1;
         }
 
-        .blue { background: linear-gradient(to right, #3B4F7D, #6B728E); }
-        .green { background: linear-gradient(to right, #355E3B, #7D9D72); }
-        .yellow { background: linear-gradient(to right, #F4A261, #E9C46A); }
-        .red { background: linear-gradient(to right, #8B1E3F, #C84767); }
-        .pink { background: linear-gradient(to right, #A63C6D, #D47B9A); }
-        .coral { background: linear-gradient(to right, #D76A03, #F89F5B); }
-        .purple { background: linear-gradient(to right, #4A235A, #8E44AD); }
-        .deep-purple { background: linear-gradient(to right, #6a1b9a, #ab47bc); }
-        .radiant { background: linear-gradient(to right, #2A0944, #A12568); }
-        .mario { background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); }
-        .teal { background: linear-gradient(to right, #1A535C, #4ECDC4); }
-        .emerald { background: linear-gradient(to right, #1B4332, #52B788); }
-        .indigo { background: linear-gradient(to right, #2C3E50, #5D8AA8); }
-        .lime { background: linear-gradient(to right, #6A994E, #A3BFFA); }
-        .orange { background: linear-gradient(to right, #ff9800, #ffeb3b); }
-        .science-blue { background: linear-gradient(to right, #0077b6, #00b4d8); }
-        .maroon { background: linear-gradient(to right, #800000, #b22222); }
-
-        .grade-section {
-            margin-bottom: 30px;
+        /* Coming soon state */
+        .coming-soon-banner {
+            background: rgba(0,0,0,0.18);
             padding: 20px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed var(--secondary-color);
-            transition: all 0.3s ease;
+            text-align: center;
         }
-
-        .grade-section:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        .coming-soon-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.15);
+            border: 1px dashed rgba(255,255,255,0.35);
+            border-radius: 50px;
+            padding: 10px 24px;
+            color: rgba(255,255,255,0.75);
+            font-size: 1rem;
+            font-weight: 600;
         }
+        .coming-soon-pill span { font-size: 1.1rem; }
 
-        .info-text {
-            background: linear-gradient(to right, #F6F4E6, #EDE4E0);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 25px;
-            color: #4A235A;
-            font-size: 15px;
-            border: 1px solid rgba(254, 194, 96, 0.4);
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            animation: cardIn 0.7s 0.6s both;
         }
+        .footer strong { color: rgba(255,255,255,0.5); }
 
-        @media (max-width: 600px) {
-            .container { padding: 30px; margin: 15px auto; }
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.5rem; }
-            .button { font-size: 16px; padding: 12px; }
+        @media (max-width: 580px) {
+            .hero h1 { font-size: 1.8rem; }
+            .hero-logo { width: 76px; height: 76px; font-size: 2.3rem; line-height: 76px; border-radius: 20px; }
+            .card-header { padding: 16px 18px 14px; gap: 12px; }
+            .card-badge { width: 50px; height: 50px; font-size: 1.8rem; border-radius: 14px; }
+            .card-links { padding: 12px 14px; gap: 8px; }
+            .nav-link { padding: 12px 16px; font-size: 0.97rem; }
         }
     </style>
 </head>
 <body>
-    <div class="background-overlay"></div>
-    <div class="container">
-        <div class="quote">
-            "הַזֹּרְעִים בְּדִמְעָה בְּרִנָּה יִקְצֹרוּ" - תהילים קכ״ו
-        </div>
-        
-        <h1>ברוכים הבאים ללומדת החשבון!</h1>
-        
-        <p class="intro-text">
-            מחפשים דרך מהנה, חינמית ויעילה לילדכם ללמוד ולתרגל חשבון? 
-            הגעתם למקום הנכון! לומדת החשבון מציעה מגוון עצום של 
-            משחקי חשבון אונליין לילדים בכל הגילאים, ללא צורך בהרשמה או בתשלום.
-            כאן תמצאו תרגול חשבון חינם בנושאים כמו חיבור, חיסור, לוח הכפל, 
-            חילוק, שברים ועוד. כל המשחקים עוצבו בקפידה כדי להפוך את לימוד החשבון 
-            לחוויה אינטראקטיבית, מהנה ומעשירה. הצטרפו אלינו והתחילו לשחק, לתרגל ולהצליח עוד היום!
+
+<div class="rainbow-bar"></div>
+<div class="stars" id="stars"></div>
+
+<div class="page">
+<div class="container">
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-logo">📖</div>
+        <h1>HEBREW LEARNING</h1>
+        <p class="hero-sub">
+            ברוכים הבאים לאתר הלמידה שלנו! 🎉<br>
+            בחרו כיתה ולחצו להתחיל ללמוד ולשחק
         </p>
-
-        <div class="buttons-container">
-            <!-- סקשן חדש - משחקי חשבון כלליים ובהתאמה אישית -->
-            <div class="grade-section">
-                <h2>משחקי חשבון כלליים ובהתאמה אישית</h2>
-                <button class="button purple" onclick="openLinkWithConfetti('GenericGames/לוח הכפל.html')">
-                    <i class="fas fa-times"></i> משחק לוח הכפל
-                </button>
-                <button class="button red" onclick="openLinkWithConfetti('GenericGames/BridgeGame.html')">
-                    <i class="fa-solid fa-road"></i> גשר המספרים
-                </button>
-                <button class="button deep-purple" onclick="openLinkWithConfetti('GenericGames/memory-game.html')">
-                    <i class="fas fa-brain"></i> משחק זיכרון
-                </button>
-                <button class="button yellow" onclick="openLinkWithConfetti('GenericGames/MilionerGame.html')">
-                    <i class="fas fa-money-bill-wave"></i> מתמטיקאי המיליון!
-                </button>
-                <button class="button mario" onclick="openLinkWithConfetti('GenericGames/SuperMario.html')">
-                    <i class="fas fa-gamepad"></i> סופר מריו חשבון!
-                </button>
-                <button class="button pink" onclick="openLinkWithConfetti('GenericGames/ClassA-Puzzle.html')">
-                    <i class="fas fa-puzzle-piece"></i> הרפתקת פאזל
-                </button>
-            </div>
-
-            <!-- כיתה א -->
-            <div class="grade-section">
-                <h2>משחקי חשבון לכיתה א'</h2>
-                <button class="button blue" onclick="openLinkWithConfetti('ClassA/core-1.html')">
-                    <i class="fas fa-plus"></i> חיבור
-                </button>
-                <button class="button teal" onclick="openLinkWithConfetti('ClassA/core-1-minus.html')">
-                    <i class="fas fa-minus"></i> חיסור
-                </button>
-            </div>
-
-            <!-- כיתה ב -->
-            <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ב'</h2>
-                <button class="button green" onclick="openLinkWithConfetti('ClassB/core-2.html')">
-                    <i class="fas fa-calculator"></i> פעולות יסוד
-                </button>
-                <button class="button teal" onclick="openLinkWithConfetti('ClassB/classB_advanced.html')">
-                    <i class="fas fa-rocket"></i> פעולות יסוד - מתקדם
-                </button>
-                <button class="button emerald" onclick="openLinkWithConfetti('ClassB/core-2-adding-with-transit.html')">
-                    <i class="fas fa-exchange-alt"></i> חיבור עם המרה
-                </button>
-                <button class="button lime" onclick="openLinkWithConfetti('ClassB/core-2-decrease-with-transit.html')">
-                    <i class="fas fa-minus"></i> חיסור עם המרה
-                </button>
-                <button class="button coral" onclick="openLinkWithConfetti('ClassB/classB_Geometry.html')">
-                    <i class="fas fa-draw-polygon"></i> שטח והיקף
-                </button>
-                <button class="button pink" onclick="openLinkWithConfetti('ClassB/Word-Problems.html')">
-                    <i class="fas fa-question"></i> בעיות מילוליות - חיבור וחיסור
-                </button>
-                <button class="button indigo" onclick="openLinkWithConfetti('ClassB/word-problems-+*:-core2.html')">
-                    <i class="fas fa-brain"></i> בעיות מילוליות - חיבור, חיסור, כפל, חילוק
-                </button>
-            </div>
-
-            <!-- כיתה ג -->
-            <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ג'</h2>
-                <button class="button radiant" onclick="openLinkWithConfetti('ClassC/core-3.html')">
-                    <i class="fas fa-arrow-up-9-1"></i> סדר פעולות חשבון
-                </button>
-                <button class="button science-blue" onclick="openLinkWithConfetti('ClassC/StraightNumbers.html')">
-                    <i class="fas fa-ruler-combined"></i> גיבורי ישר המספרים
-                </button>
-                <button class="button emerald" onclick="openLinkWithConfetti('ClassC/Downloads.html')">
-                    <i class="fas fa-download"></i> הורדה וצפייה בקבצים רלוונטיים
-                </button>
-            </div>
-
-            <!-- כיתה ד -->
-            <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ד'</h2>
-                <button class="button yellow" onclick="openLinkWithConfetti('ClassD/core-4.html')">
-                    <i class="fas fa-chart-line"></i> חשבון מתקדם
-                </button>
-                <button class="button orange" onclick="openLinkWithConfetti('ClassD/mul_advanced.html')">
-                    <i class="fas fa-times"></i> כפל מתקדם
-                </button>
-                <button class="button deep-purple" onclick="openLinkWithConfetti('ClassD/div_advanced.html')">
-                    <i class="fas fa-divide"></i> חילוק מתקדם
-                </button>
-                <button class="button radiant" onclick="openLinkWithConfetti('ClassD/pow.html')">
-                    <i class="fas fa-bolt"></i> חזקות
-                </button>
-                <button class="button science-blue" onclick="openLinkWithConfetti('ClassD/prime_number.html')">
-                    <i class="fas fa-atom"></i> מספרים ראשוניים
-                </button>
-                <button class="button red" onclick="openLinkWithConfetti('ClassD/frictions.html')">
-                    <i class="fas fa-divide"></i> שברים
-                </button>
-                <button class="button purple" onclick="openLinkWithConfetti('ClassD/frictions_simple.html')">
-                    <i class="fas fa-umbrella"></i> שבר פשוט
-                </button>
-                <button class="button indigo" onclick="openLinkWithConfetti('ClassD/FrictionsAdvancedD.html')">
-                    <i class="fas fa-layer-group"></i> חיבור וחיסור שברים
-                </button>
-                <button class="button coral" onclick="openLinkWithConfetti('ClassD/Word-Problems-Advanced.html')">
-                    <i class="fas fa-wand-magic-sparkles"></i> בעיות מילוליות - שברים
-                </button>
-                <button class="button teal" onclick="openLinkWithConfetti('ClassD/ClassD-Mix.html')">
-                    <i class="fas fa-puzzle-piece"></i> משחק פאזל אקראי
-                </button>
-            </div>
-
-            <!-- כיתה ה -->
-            <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ה'</h2>
-                <button class="button teal" onclick="openLinkWithConfetti('ClassE/FractionComp.html')">
-                    <i class="fas fa-balance-scale"></i> השוואת וסידור שברים
-                </button>
-                <button class="button maroon" onclick="openLinkWithConfetti('ClassE/October25ExamePrep.html')">
-                    <i class="fas fa-graduation-cap"></i> הכנה למבחן 1 - שברים כיתה ה
-                </button>
-                <button class="button emerald" onclick="openLinkWithConfetti('ClassE/downloads.html')">
-                    <i class="fas fa-download"></i> הורדה וצפייה בקבצים רלוונטיים
-                </button>
-            </div>
-        </div>
-
-        <div class="info-text">
-            טיפ מהמורה: למידה היא מסע של גילוי. כל תרגיל שאתה פותר מקרב אותך להצלחה גדולה!
+        <div class="hero-chips">
+            <div class="chip">✅ חינמי לחלוטין</div>
+            <div class="chip">🎮 משחקים מהנים</div>
+            <div class="chip">🌈 צבעוני לילדים</div>
         </div>
     </div>
 
-    <script>
-        function openLinkWithConfetti(url) {
-            confetti({
-                particleCount: 150,
-                spread: 80,
-                origin: { y: 0.6 },
-                colors: ['#FEC260', '#A12568', '#2A0944', '#8E44AD']
-            });
+    <!-- גן חובה -->
+    <div class="section-card card-gan">
+        <div class="card-header">
+            <div class="card-badge">🎒</div>
+            <div class="card-label">
+                <h2>גן חובה</h2>
+                <p>אותיות ראשונות ולמידה בסיסית</p>
+            </div>
+            <div class="card-count">4 פעילויות</div>
+        </div>
+        <div class="card-links">
+            <a class="nav-link" href="GanHova/Learn Letters.html">
+                <span class="link-icon">🔤</span>
+                לימוד אותיות א-ב
+                <span class="link-arrow">←</span>
+            </a>
+            <a class="nav-link" href="GanHova/letter_a.html">
+                <span class="link-icon">🔵</span>
+                אות א
+                <span class="link-arrow">←</span>
+            </a>
+            <a class="nav-link" href="GanHova/try.html">
+                <span class="link-icon">🎯</span>
+                באיזו אות מתחילה המילה?
+                <span class="link-arrow">←</span>
+            </a>
+            <a class="nav-link" href="GanHova/גן חובה מתקדם.html">
+                <span class="link-icon">🌟</span>
+                משחק האלף-בית המתקדם
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+    </div>
 
-            setTimeout(() => {
-                window.open(url, '_blank'); 
-            }, 500);
+    <!-- כיתה א -->
+    <div class="section-card card-kita-a">
+        <div class="card-header">
+            <div class="card-badge">🅰️</div>
+            <div class="card-label">
+                <h2>כיתה א</h2>
+                <p>קריאה, כתיבה ומשחקים</p>
+            </div>
+            <div class="card-count">3 פעילויות</div>
+        </div>
+        <div class="card-links">
+            <a class="nav-link" href="Class-a/index.html">
+                <span class="link-icon">📖</span>
+                משחק קריאה לכיתה א
+                <span class="link-arrow">←</span>
+            </a>
+            <a class="nav-link" href="Class-a/math.html">
+                <span class="link-icon">➕</span>
+                משחק חשבון לכיתה א
+                <span class="link-arrow">←</span>
+            </a>
+            <a class="nav-link" href="Class-a/%D7%97%D7%99%D7%91%D7%95%D7%A8%20%D7%95%D7%97%D7%99%D7%A1%D7%95%D7%A8%20%D7%A2%D7%93%2012.html">
+                <span class="link-icon">🧮</span>
+                חיבור וחיסור עד 12
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- כיתה ב -->
+    <div class="section-card card-kita-b">
+        <div class="card-header">
+            <div class="card-badge">🅱️</div>
+            <div class="card-label">
+                <h2>כיתה ב</h2>
+                <p>קריאה מתקדמת ושפה</p>
+            </div>
+            <div class="card-count">בקרוב</div>
+        </div>
+        <div class="coming-soon-banner">
+            <div class="coming-soon-pill">
+                <span>🚧</span> תוכן בפיתוח — בקרוב!
+            </div>
+        </div>
+    </div>
+
+    <!-- כיתה ג -->
+    <div class="section-card card-kita-c">
+        <div class="card-header">
+            <div class="card-badge">🎓</div>
+            <div class="card-label">
+                <h2>כיתה ג</h2>
+                <p>קבצים וחומרי לימוד</p>
+            </div>
+            <div class="card-count">כל הקבצים</div>
+        </div>
+        <div class="card-links">
+            <a class="nav-link" href="Class-C/index.html">
+                <span class="link-icon">📁</span>
+                קבצים ומשאבים — כיתה ג
+                <span class="link-arrow">←</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <strong>HEBREW LEARNING</strong><br>
+        כל התכנים חינמיים ומותאמים לילדים 💛<br>
+        נבנה באהבה ❤️
+    </div>
+
+</div>
+</div>
+
+<script>
+    // Starfield
+    (function() {
+        const container = document.getElementById("stars");
+        for (let i = 0; i < 120; i++) {
+            const s = document.createElement("div");
+            s.className = "star";
+            const size = 1 + Math.random() * 3;
+            s.style.cssText = `
+                width:${size}px; height:${size}px;
+                top:${Math.random()*100}%;
+                left:${Math.random()*100}%;
+                animation-duration:${2 + Math.random()*4}s;
+                animation-delay:${-Math.random()*5}s;
+            `;
+            container.appendChild(s);
         }
+    })();
+</script>
 
-        function createBackgroundConfetti() {
-            confetti({
-                particleCount: 15,
-                spread: 60,
-                origin: { 
-                    x: Math.random(),
-                    y: Math.random()
-                },
-                colors: ['#FEC260', '#A12568', '#2A0944'],
-                opacity: 0.5
-            });
-        }
-
-        setInterval(createBackgroundConfetti, 5000);
-    </script>
 </body>
 </html>
-
-
