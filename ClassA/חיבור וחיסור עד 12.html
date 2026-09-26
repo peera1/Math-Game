@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#176b87">
+  <title>משחק חשבון | כיתה א</title>
+  <style>
+    :root {
+      --ink: #15343b;
+      --muted: #527078;
+      --paper: #fffdf7;
+      --sky: #dff5f1;
+      --teal: #176b87;
+      --teal-dark: #0d4d65;
+      --yellow: #ffd166;
+      --coral: #ef8354;
+      --green: #2f9e72;
+      --red: #d95d62;
+      --line: #c9e4df;
+      --shadow: 0 18px 45px rgba(21, 52, 59, .15);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      color: var(--ink);
+      background: linear-gradient(145deg, #fff4d6 0%, var(--sky) 58%, #d9eafd 100%);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    button, a { font: inherit; }
+    button { cursor: pointer; }
+    .page { width: min(100%, 760px); margin: 0 auto; }
+    .back { display: inline-block; margin: 4px 0 14px; color: var(--teal-dark); font-weight: 700; text-decoration: none; }
+    .game {
+      overflow: hidden;
+      padding: clamp(20px, 5vw, 42px);
+      text-align: center;
+      background: rgba(255, 253, 247, .95);
+      border: 2px solid rgba(255, 255, 255, .8);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+    .eyebrow { margin: 0 0 4px; color: var(--teal); font-weight: 800; letter-spacing: .04em; }
+    h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.4rem); line-height: 1.1; }
+    .subtitle { margin: 12px auto 26px; max-width: 34ch; color: var(--muted); line-height: 1.6; }
+    .screen { animation: appear .35s ease both; }
+    @keyframes appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .hero-number { display: block; margin: 0 auto 14px; font-size: 4.5rem; line-height: 1; }
+    .start-button, .restart-button {
+      border: 0;
+      border-radius: 999px;
+      padding: 16px 30px;
+      color: #fff;
+      background: var(--coral);
+      font-weight: 800;
+      box-shadow: 0 8px 0 #c66542;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .start-button:hover, .restart-button:hover, .answer:hover { transform: translateY(-2px); }
+    .start-button:active, .restart-button:active { transform: translateY(4px); box-shadow: 0 4px 0 #c66542; }
+    .status { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; color: var(--muted); font-weight: 700; }
+    .score { padding: 8px 14px; color: var(--teal-dark); background: #e8f6df; border-radius: 999px; }
+    .progress { height: 12px; margin-bottom: 28px; overflow: hidden; background: #e7eeeb; border-radius: 99px; }
+    .progress-bar { width: 0; height: 100%; background: var(--teal); border-radius: inherit; transition: width .3s ease; }
+    .question-label { margin: 0 0 10px; color: var(--muted); font-weight: 700; }
+    .equation { min-height: 1.25em; margin: 0 0 26px; color: var(--teal-dark); direction: ltr; unicode-bidi: isolate; font-size: clamp(2.5rem, 12vw, 5.5rem); font-weight: 900; letter-spacing: .04em; line-height: 1.1; }
+    .answers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 530px; margin: 0 auto; }
+    .answer { min-height: 78px; border: 3px solid var(--line); border-radius: 18px; color: var(--teal-dark); background: #fff; font-size: clamp(1.8rem, 7vw, 2.5rem); font-weight: 900; transition: transform .15s, background .15s, border-color .15s; }
+    .answer:focus-visible, .start-button:focus-visible, .restart-button:focus-visible, .back:focus-visible { outline: 4px solid rgba(239, 131, 84, .4); outline-offset: 3px; }
+    .answer.correct { border-color: var(--green); background: #dff5e9; }
+    .answer.wrong { border-color: var(--red); background: #ffe5e4; animation: shake .3s ease; }
+    .answer:disabled { cursor: default; }
+    @keyframes shake { 25% { transform: translateX(7px); } 75% { transform: translateX(-7px); } }
+    .feedback { min-height: 3.2em; margin: 20px auto 0; color: var(--teal-dark); font-size: 1.15rem; font-weight: 800; line-height: 1.5; }
+    .feedback.good { color: var(--green); }
+    .feedback.try { color: var(--red); }
+    .hearts { margin-top: 10px; font-size: 1.4rem; letter-spacing: .12em; }
+    .result-icon { display: block; margin-bottom: 8px; font-size: 4.4rem; }
+    .result-title { margin: 0; font-size: clamp(1.8rem, 7vw, 3rem); }
+    .result-copy { margin: 12px auto 24px; max-width: 34ch; color: var(--muted); line-height: 1.7; }
+    .result-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 auto 28px; max-width: 520px; }
+    .stat { padding: 14px 8px; border: 2px solid var(--line); border-radius: 16px; background: #fff; }
+    .stat strong { display: block; color: var(--teal); font-size: 1.8rem; }
+    .stat span { color: var(--muted); font-size: .9rem; }
+    .hidden { display: none; }
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .game { border-radius: 22px; }
+      .status { align-items: flex-start; flex-direction: column; }
+      .score { align-self: stretch; }
+      .answers { gap: 8px; }
+      .answer { min-height: 68px; border-radius: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <a class="back" href="index.html">← חזרה לפעילויות כיתה א</a>
+    <main class="game" aria-live="polite">
+      <section id="startScreen" class="screen">
+        <span class="hero-number" aria-hidden="true">🔢</span>
+        <p class="eyebrow">כיתה א · משחק חשבון</p>
+        <h1>חיבור וחיסור עד 12</h1>
+        <p class="subtitle">פותרים תרגילים עם שניים עד ארבעה מספרים. יש זמן לחשוב, וכל ניסיון הוא צעד קדימה.</p>
+        <button id="startButton" class="start-button" type="button">מתחילים לשחק 🚀</button>
+      </section>
+
+      <section id="gameScreen" class="screen hidden">
+        <div class="status">
+          <span id="questionCount">תרגיל 1 מתוך 10</span>
+          <span class="score">⭐ ניקוד: <b id="score">0</b></span>
+        </div>
+        <div class="progress" aria-label="התקדמות במשחק"><div id="progressBar" class="progress-bar"></div></div>
+        <p class="question-label">כמה יוצא?</p>
+        <div id="equation" class="equation" aria-label="תרגיל חשבון"></div>
+        <div id="answers" class="answers"></div>
+        <div id="feedback" class="feedback" role="status"></div>
+        <div id="hearts" class="hearts" aria-label="לבבות שנותרו"></div>
+      </section>
+
+      <section id="resultScreen" class="screen hidden">
+        <span id="resultIcon" class="result-icon" aria-hidden="true">🏆</span>
+        <h2 id="resultTitle" class="result-title">איזה אלוף או אלופה!</h2>
+        <p id="resultCopy" class="result-copy"></p>
+        <div class="result-stats">
+          <div class="stat"><strong id="finalScore">0</strong><span>נקודות</span></div>
+          <div class="stat"><strong id="correctCount">0</strong><span>תשובות נכונות</span></div>
+          <div class="stat"><strong id="bestStreak">0</strong><span>רצף שיא</span></div>
+        </div>
+        <button id="restartButton" class="restart-button" type="button">משחק נוסף 🔄</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const TOTAL_QUESTIONS = 10;
+    const MAX_RESULT = 12;
+    const MAX_HEARTS = 5;
+    const startScreen = document.getElementById('startScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const equationElement = document.getElementById('equation');
+    const answersElement = document.getElementById('answers');
+    const feedbackElement = document.getElementById('feedback');
+    const heartsElement = document.getElementById('hearts');
+    const scoreElement = document.getElementById('score');
+    const questionCountElement = document.getElementById('questionCount');
+    const progressBar = document.getElementById('progressBar');
+    let state;
+
+    function randomNumber(max) {
+      return Math.floor(Math.random() * (max + 1));
+    }
+
+    function shuffle(items) {
+      return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function createQuestion(questionIndex = 0) {
+      for (let attempt = 0; attempt < 300; attempt += 1) {
+        const numberCount = [2, 3, 4][questionIndex % 3];
+        const easyQuestion = numberCount === 4;
+        const wantsZero = questionIndex === 4;
+        const numberLimit = easyQuestion ? 3 : 8;
+        const subtractionChance = easyQuestion ? 0.2 : 0.45;
+        const numbers = [1 + randomNumber(numberLimit)];
+        const operators = [];
+        let result = numbers[0];
+        let subtractionCount = 0;
+        let valid = true;
+
+        for (let index = 1; index < numberCount; index += 1) {
+          const canSubtract = result > 0 && (!easyQuestion || (subtractionCount === 0 && index === numberCount - 1));
+          const isFinalZeroStep = wantsZero && index === numberCount - 1 && canSubtract;
+          const operator = isFinalZeroStep || (canSubtract && Math.random() < subtractionChance) ? '-' : '+';
+          const number = operator === '-'
+            ? isFinalZeroStep ? result : 1 + randomNumber(result - 1)
+            : 1 + randomNumber(numberLimit);
+          operators.push(operator);
+          numbers.push(number);
+          if (operator === '-') subtractionCount += 1;
+          result = operator === '+' ? result + number : result - number;
+          if (result < 0 || result > (easyQuestion ? 8 : MAX_RESULT)) valid = false;
+        }
+
+        if (valid) return { numbers, operators, result };
+      }
+      return { numbers: [1, 2, 1, 1], operators: ['+', '+', '+'], result: 5 };
+    }
+
+    function formatQuestion(question) {
+      return question.numbers.reduce((text, number, index) => {
+        if (index === 0) return String(number);
+        return `${text} ${question.operators[index - 1]} ${number}`;
+      }, '') + ' =';
+    }
+
+    function makeAnswers(correct) {
+      const choices = new Set([correct]);
+      while (choices.size < 3) {
+        const distance = 1 + randomNumber(3);
+        const choice = Math.random() < 0.5 ? correct - distance : correct + distance;
+        if (choice >= 1 && choice <= MAX_RESULT) choices.add(choice);
+      }
+      return shuffle([...choices]);
+    }
+
+    function showScreen(screen) {
+      [startScreen, gameScreen, resultScreen].forEach((item) => item.classList.add('hidden'));
+      screen.classList.remove('hidden');
+    }
+
+    function renderHearts() {
+      heartsElement.textContent = '❤️'.repeat(state.hearts) + '🤍'.repeat(MAX_HEARTS - state.hearts);
+    }
+
+    function renderQuestion() {
+      state.question = createQuestion(state.questionIndex);
+      equationElement.textContent = formatQuestion(state.question);
+      questionCountElement.textContent = `תרגיל ${state.questionIndex + 1} מתוך ${TOTAL_QUESTIONS}`;
+      scoreElement.textContent = state.score;
+      progressBar.style.width = `${(state.questionIndex / TOTAL_QUESTIONS) * 100}%`;
+      feedbackElement.textContent = '';
+      feedbackElement.className = 'feedback';
+      renderHearts();
+      state.answerLocked = false;
+      answersElement.innerHTML = '';
+      makeAnswers(state.question.result).forEach((answer) => {
+        const button = document.createElement('button');
+        button.className = 'answer';
+        button.type = 'button';
+        button.textContent = answer;
+        button.addEventListener('click', () => chooseAnswer(button, answer));
+        answersElement.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(button, answer) {
+      const buttons = [...answersElement.querySelectorAll('button')];
+      if (state.answerLocked) return;
+      const correct = answer === state.question.result;
+
+      if (correct) {
+        state.answerLocked = true;
+        button.classList.add('correct');
+        buttons.forEach((item) => { item.disabled = true; });
+        state.score += 10 + state.streak * 2;
+        state.correct += 1;
+        state.streak += 1;
+        state.bestStreak = Math.max(state.bestStreak, state.streak);
+        scoreElement.textContent = state.score;
+        feedbackElement.textContent = state.streak > 1 ? `מעולה! רצף של ${state.streak} תשובות נכונות 🌟` : 'כל הכבוד! תשובה נכונה 🎉';
+        feedbackElement.className = 'feedback good';
+        state.questionIndex += 1;
+        setTimeout(() => state.questionIndex === TOTAL_QUESTIONS ? finishGame() : renderQuestion(), 850);
+      } else {
+        button.classList.add('wrong');
+        button.disabled = true;
+        state.hearts -= 1;
+        state.streak = 0;
+        renderHearts();
+        feedbackElement.textContent = state.hearts > 0 ? 'כמעט! נסו שוב, אתם בדרך הנכונה 💪' : 'לא נורא, טעויות עוזרות ללמוד. ממשיכים יחד 💛';
+        feedbackElement.className = 'feedback try';
+        if (state.hearts === 0) {
+          buttons.forEach((item) => { item.disabled = true; });
+          setTimeout(startGame, 1100);
+        }
+      }
+    }
+
+    function startGame() {
+      state = { questionIndex: 0, score: 0, correct: 0, hearts: MAX_HEARTS, streak: 0, bestStreak: 0, question: null };
+      showScreen(gameScreen);
+      renderQuestion();
+    }
+
+    function finishGame() {
+      const percentage = Math.round((state.correct / TOTAL_QUESTIONS) * 100);
+      document.getElementById('finalScore').textContent = state.score;
+      document.getElementById('correctCount').textContent = `${state.correct}/${TOTAL_QUESTIONS}`;
+      document.getElementById('bestStreak').textContent = state.bestStreak;
+      document.getElementById('resultIcon').textContent = percentage >= 80 ? '🏆' : '🌱';
+      document.getElementById('resultTitle').textContent = percentage >= 80 ? 'איזה אלוף או אלופה!' : 'כל הכבוד על המאמץ!';
+      document.getElementById('resultCopy').textContent = percentage >= 80
+        ? 'עבדתם בריכוז והצלחתם לפתור המון תרגילים. ממשיכים לתרגול הבא?'
+        : 'כל תשובה היא אימון למוח. נסו שוב ותראו כמה אפשר להשתפר!';
+      showScreen(resultScreen);
+    }
+
+    document.getElementById('startButton').addEventListener('click', startGame);
+    document.getElementById('restartButton').addEventListener('click', startGame);
+  </script>
+</body>
+</html>
