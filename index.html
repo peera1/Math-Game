@@ -23,15 +23,16 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap');
         
         :root {
             --primary-gradient-start: #2A0944; /* סגול כהה עמוק */
             --primary-gradient-end: #A12568; /* ורוד-סגול אלגנטי */
             --secondary-color: #FEC260; /* זהב חם */
-            --text-color: #333;
-            --background-overlay: rgba(255, 255, 255, 0.15);
-            --button-shadow: rgba(42, 9, 68, 0.3);
+            --text-color: #2D3748;
+            --background-overlay: rgba(15, 5, 29, 0.45);
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --button-shadow: rgba(42, 9, 68, 0.25);
         }
 
         * {
@@ -43,6 +44,7 @@
         body {
             font-family: 'Rubik', Arial, sans-serif;
             background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             margin: 0;
             direction: rtl;
@@ -64,17 +66,19 @@
         }
 
         .container {
-            background-color: white;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 30px;
-            box-shadow: 0 30px 60px var(--button-shadow);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
             padding: 50px;
             text-align: center;
             width: 90%;
-            max-width: 600px;
-            margin: 30px auto;
+            max-width: 680px;
+            margin: 40px auto;
             position: relative;
-            transition: all 0.5s ease;
-            border: 3px solid rgba(254, 194, 96, 0.3);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.4);
             z-index: 2;
         }
 
@@ -82,140 +86,139 @@
             color: var(--primary-gradient-start);
             margin-bottom: 20px;
             font-size: 2.8rem;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-            background: linear-gradient(to right, var(--primary-gradient-start), var(--secondary-color));
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .intro-text {
-            font-size: 1.1rem;
-            color: #555;
-            max-width: 500px;
-            margin: 0 auto 30px auto;
-            line-height: 1.7;
+            font-size: 1.15rem;
+            color: #4A5568;
+            max-width: 540px;
+            margin: 0 auto 35px auto;
+            line-height: 1.8;
+            font-weight: 400;
         }
 
         h2 {
-            font-size: 1.8rem;
-            margin: 20px 0 15px;
-            color: #ff5722;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-            background: linear-gradient(to right, #ff5722, var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            margin: 10px 0 20px;
+            color: var(--primary-gradient-start);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .quote {
             font-style: italic;
-            color: #555;
-            margin-bottom: 25px;
-            font-size: 1.1rem;
-            opacity: 0.9;
+            color: #5A6578;
+            margin-bottom: 30px;
+            font-size: 1.15rem;
             position: relative;
-            padding: 0 20px;
-        }
-
-        .quote::before, .quote::after {
-            content: '"';
-            color: var(--secondary-color);
-            font-size: 2rem;
-            position: absolute;
-            opacity: 0.7;
-        }
-
-        .quote::before {
-            left: 0;
-            top: -10px;
-        }
-
-        .quote::after {
-            right: 0;
-            bottom: -10px;
+            padding: 10px 30px;
+            display: inline-block;
+            background: rgba(254, 194, 96, 0.12);
+            border-radius: 15px;
+            border: 1px dashed rgba(254, 194, 96, 0.6);
         }
 
         .button {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
             border: none;
-            border-radius: 20px;
+            border-radius: 16px;
             font-size: 18px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 16px var(--button-shadow);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            box-shadow: 0 4px 12px var(--button-shadow);
             color: white;
+            letter-spacing: 0.3px;
         }
 
         .button:hover {
-            background: linear-gradient(to right, var(--secondary-color), #FFD700);
-            box-shadow: 0 0 20px rgba(254, 194, 96, 0.6);
-            transform: scale(1.05);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+            filter: brightness(1.08);
+        }
+
+        .button:active {
+            transform: translateY(-1px) scale(0.99);
         }
 
         .button i {
-            margin-left: 10px;
-            animation: bounce 1s infinite;
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .button:hover i {
+            transform: scale(1.2) rotate(-5deg);
         }
 
-        .blue { background: linear-gradient(to right, #3B4F7D, #6B728E); }
-        .green { background: linear-gradient(to right, #355E3B, #7D9D72); }
-        .yellow { background: linear-gradient(to right, #F4A261, #E9C46A); }
-        .red { background: linear-gradient(to right, #8B1E3F, #C84767); }
-        .pink { background: linear-gradient(to right, #A63C6D, #D47B9A); }
-        .coral { background: linear-gradient(to right, #D76A03, #F89F5B); }
-        .purple { background: linear-gradient(to right, #4A235A, #8E44AD); }
-        .deep-purple { background: linear-gradient(to right, #6a1b9a, #ab47bc); }
-        .radiant { background: linear-gradient(to right, #2A0944, #A12568); }
-        .mario { background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%); }
-        .teal { background: linear-gradient(to right, #1A535C, #4ECDC4); }
-        .emerald { background: linear-gradient(to right, #1B4332, #52B788); }
-        .indigo { background: linear-gradient(to right, #2C3E50, #5D8AA8); }
-        .lime { background: linear-gradient(to right, #6A994E, #A3BFFA); }
-        .orange { background: linear-gradient(to right, #ff9800, #ffeb3b); }
-        .science-blue { background: linear-gradient(to right, #0077b6, #00b4d8); }
-        .maroon { background: linear-gradient(to right, #800000, #b22222); }
+        /* צבעים משודרגים ואלגנטיים */
+        .blue { background: linear-gradient(135deg, #2B6CB0, #4299E1); }
+        .green { background: linear-gradient(135deg, #2F855A, #48BB78); }
+        .yellow { background: linear-gradient(135deg, #D69E2E, #ECC94B); }
+        .red { background: linear-gradient(135deg, #C53030, #F56565); }
+        .pink { background: linear-gradient(135deg, #B83280, #ED64A6); }
+        .coral { background: linear-gradient(135deg, #DD6B20, #ED8936); }
+        .purple { background: linear-gradient(135deg, #6B46C1, #9F7AEA); }
+        .deep-purple { background: linear-gradient(135deg, #553C9A, #805AD5); }
+        .radiant { background: linear-gradient(135deg, #2A0944, #A12568); }
+        .mario { background: linear-gradient(135deg, #E53E3E, #FF8C42); }
+        .teal { background: linear-gradient(135deg, #2C7A7B, #38B2AC); }
+        .emerald { background: linear-gradient(135deg, #22543D, #38A169); }
+        .indigo { background: linear-gradient(135deg, #3182CE, #63B3ED); }
+        .lime { background: linear-gradient(135deg, #478547, #68D391); }
+        .orange { background: linear-gradient(135deg, #C05621, #DD6B20); }
+        .science-blue { background: linear-gradient(135deg, #0984E3, #74B9FF); }
+        .maroon { background: linear-gradient(135deg, #742A2A, #9B2C2C); }
 
         .grade-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px dashed var(--secondary-color);
+            margin-bottom: 35px;
+            padding: 24px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(254, 194, 96, 0.4);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.03);
             transition: all 0.3s ease;
         }
 
         .grade-section:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border-color: var(--secondary-color);
         }
 
         .info-text {
-            background: linear-gradient(to right, #F6F4E6, #EDE4E0);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 25px;
+            background: linear-gradient(135deg, #FFFDF5, #F7F5EC);
+            padding: 22px;
+            border-radius: 18px;
+            margin-top: 30px;
             color: #4A235A;
             font-size: 15px;
-            border: 1px solid rgba(254, 194, 96, 0.4);
+            font-weight: 500;
+            border: 1px solid rgba(254, 194, 96, 0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
 
         @media (max-width: 600px) {
-            .container { padding: 30px; margin: 15px auto; }
-            h1 { font-size: 2rem; }
-            h2 { font-size: 1.5rem; }
-            .button { font-size: 16px; padding: 12px; }
+            .container { padding: 25px 18px; margin: 20px auto; width: 94%; }
+            h1 { font-size: 2.1rem; }
+            h2 { font-size: 1.35rem; }
+            .button { font-size: 16px; padding: 14px; }
+            .intro-text { font-size: 1rem; }
         }
     </style>
 </head>
@@ -238,9 +241,9 @@
         </p>
 
         <div class="buttons-container">
-            <!-- סקשן חדש - משחקי חשבון כלליים ובהתאמה אישית -->
+            <!-- סקשן - משחקי חשבון כלליים ובהתאמה אישית -->
             <div class="grade-section">
-                <h2>משחקי חשבון כלליים ובהתאמה אישית</h2>
+                <h2><i class="fas fa-gamepad"></i> משחקי חשבון כלליים ובהתאמה אישית</h2>
                 <button class="button purple" onclick="openLinkWithConfetti('GenericGames/לוח הכפל.html')">
                     <i class="fas fa-times"></i> משחק לוח הכפל
                 </button>
@@ -254,7 +257,7 @@
                     <i class="fas fa-money-bill-wave"></i> מתמטיקאי המיליון!
                 </button>
                 <button class="button mario" onclick="openLinkWithConfetti('GenericGames/SuperMario.html')">
-                    <i class="fas fa-gamepad"></i> סופר מריו חשבון!
+                    <i class="fas fa-ghost"></i> סופר מריו חשבון!
                 </button>
                 <button class="button pink" onclick="openLinkWithConfetti('GenericGames/ClassA-Puzzle.html')">
                     <i class="fas fa-puzzle-piece"></i> הרפתקת פאזל
@@ -263,18 +266,22 @@
 
             <!-- כיתה א -->
             <div class="grade-section">
-                <h2>משחקי חשבון לכיתה א'</h2>
+                <h2><i class="fas fa-shapes"></i> משחקי חשבון לכיתה א'</h2>
                 <button class="button blue" onclick="openLinkWithConfetti('ClassA/core-1.html')">
                     <i class="fas fa-plus"></i> חיבור
                 </button>
                 <button class="button teal" onclick="openLinkWithConfetti('ClassA/core-1-minus.html')">
                     <i class="fas fa-minus"></i> חיסור
                 </button>
+                <!-- המשחק החדש שנוסף -->
+                <button class="button indigo" onclick="openLinkWithConfetti('ClassA/חיבור וחיסור עד 12.html')">
+                    <i class="fas fa-calculator"></i> חיבור וחיסור עד 12
+                </button>
             </div>
 
             <!-- כיתה ב -->
             <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ב'</h2>
+                <h2><i class="fas fa-graduation-cap"></i> משחקי חשבון לכיתה ב'</h2>
                 <button class="button green" onclick="openLinkWithConfetti('ClassB/core-2.html')">
                     <i class="fas fa-calculator"></i> פעולות יסוד
                 </button>
@@ -300,7 +307,7 @@
 
             <!-- כיתה ג -->
             <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ג'</h2>
+                <h2><i class="fas fa-award"></i> משחקי חשבון לכיתה ג'</h2>
                 <button class="button radiant" onclick="openLinkWithConfetti('ClassC/core-3.html')">
                     <i class="fas fa-arrow-up-9-1"></i> סדר פעולות חשבון
                 </button>
@@ -314,7 +321,7 @@
 
             <!-- כיתה ד -->
             <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ד'</h2>
+                <h2><i class="fas fa-star"></i> משחקי חשבון לכיתה ד'</h2>
                 <button class="button yellow" onclick="openLinkWithConfetti('ClassD/core-4.html')">
                     <i class="fas fa-chart-line"></i> חשבון מתקדם
                 </button>
@@ -349,7 +356,7 @@
 
             <!-- כיתה ה -->
             <div class="grade-section">
-                <h2>משחקי חשבון לכיתה ה'</h2>
+                <h2><i class="fas fa-trophy"></i> משחקי חשבון לכיתה ה'</h2>
                 <button class="button teal" onclick="openLinkWithConfetti('ClassE/FractionComp.html')">
                     <i class="fas fa-balance-scale"></i> השוואת וסידור שברים
                 </button>
@@ -363,7 +370,7 @@
         </div>
 
         <div class="info-text">
-            טיפ מהמורה: למידה היא מסע של גילוי. כל תרגיל שאתה פותר מקרב אותך להצלחה גדולה!
+            💡 טיפ מהמורה: למידה היא מסע של גילוי. כל תרגיל שאתה פותר מקרב אותך להצלחה גדולה!
         </div>
     </div>
 
@@ -398,4 +405,3 @@
     </script>
 </body>
 </html>
-
