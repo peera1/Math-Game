@@ -2,11 +2,24 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>גיבורי החזקות</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
+
+        * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        input {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
 
         body {
             font-family: 'Assistant', sans-serif;
@@ -20,6 +33,99 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+        }
+
+        /* Modal for preventing accidental actions */
+        #prevent-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #prevent-modal.active {
+            display: flex;
+        }
+
+        .prevent-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            max-width: 400px;
+            animation: modalAppear 0.3s ease-out;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .prevent-modal-content h2 {
+            color: #e74c3c;
+            font-size: 28px;
+            margin: 0 0 15px 0;
+        }
+
+        .prevent-modal-content p {
+            color: #2c3e50;
+            font-size: 18px;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .modal-btn-cancel {
+            background: #3498db;
+            color: white;
+        }
+
+        .modal-btn-cancel:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-btn-leave {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .modal-btn-leave:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         #game-container {
@@ -118,6 +224,7 @@
             margin-bottom: 20px;
             text-align: center;
             transition: all 0.3s;
+            -webkit-user-select: text !important;
         }
 
         #answer:focus {
@@ -138,6 +245,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             border-bottom: 4px solid #96281b;
+            -webkit-user-select: none;
         }
 
         button:hover {
@@ -237,6 +345,19 @@
 </head>
 
 <body>
+    <!-- Modal for preventing accidental navigation -->
+    <div id="prevent-modal">
+        <div class="prevent-modal-content">
+            <h2>⚠️ עצור!</h2>
+            <p>המשחק שלך עדיין בעיצומו!</p>
+            <p>התשובות שלך לא יישמרו אם תעזוב עכשיו.</p>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-cancel" onclick="cancelLeave()">המשך משחק</button>
+                <button class="modal-btn modal-btn-leave" onclick="confirmLeave()">עזוב</button>
+            </div>
+        </div>
+    </div>
+
     <div id="game-container">
         <h1>גיבורי החזקות</h1>
         
@@ -290,6 +411,35 @@
         let gameStartTime;
         let gameEndTime;
         let gameInProgress = false;
+        let allowLeave = false;
+        let history_length = window.history.length;
+
+        // Detect mobile devices
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function showPreventModal() {
+            document.getElementById('prevent-modal').classList.add('active');
+        }
+
+        function hidePreventModal() {
+            document.getElementById('prevent-modal').classList.remove('active');
+        }
+
+        function cancelLeave() {
+            hidePreventModal();
+        }
+
+        function confirmLeave() {
+            allowLeave = true;
+            hidePreventModal();
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        }
 
         function formatTime(date) {
             return date.toLocaleTimeString('he-IL', { 
@@ -455,12 +605,59 @@
             }, 250);
         }
 
-        // Prevent accidental refresh
+        // Prevent accidental refresh - Works on both desktop and mobile
         window.addEventListener('beforeunload', function(event) {
-            if (gameInProgress) {
+            if (gameInProgress && !allowLeave) {
                 event.preventDefault();
                 event.returnValue = 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
                 return 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
+            }
+        });
+
+        // Handle back button and navigation (Mobile & Desktop)
+        window.addEventListener('popstate', function(event) {
+            if (gameInProgress && !allowLeave) {
+                event.preventDefault();
+                showPreventModal();
+                // Push state again to keep the current page
+                window.history.pushState(null, document.title, window.location.href);
+            }
+        });
+
+        // Push initial history state for back button detection
+        window.history.pushState(null, document.title, window.location.href);
+
+        // Handle page visibility change (app goes to background on mobile)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && gameInProgress) {
+                // Game is still active even when app goes to background
+                // This preserves the game state
+                console.log('Game paused - app in background');
+            } else if (!document.hidden && gameInProgress) {
+                console.log('Game resumed');
+            }
+        });
+
+        // Prevent pull-to-refresh on mobile (especially effective on Android)
+        let lastYPos = 0;
+        document.addEventListener('touchmove', function(e) {
+            let scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollPosition === 0 && gameInProgress) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Handle window close attempts
+        window.addEventListener('pagehide', function(event) {
+            if (gameInProgress && !allowLeave) {
+                // Store game state in sessionStorage as backup
+                sessionStorage.setItem('gameState', JSON.stringify({
+                    gameInProgress: gameInProgress,
+                    currentQuestion: currentQuestion,
+                    score: score,
+                    questionDetails: questionDetails,
+                    gameStartTime: gameStartTime
+                }));
             }
         });
 
