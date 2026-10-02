@@ -170,6 +170,26 @@
             font-size: 40px;
             color: #27ae60;
         }
+
+        .time-stats {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 18px;
+        }
+
+        .time-stat-item {
+            margin: 12px 0;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .time-stat-label {
+            color: #e74c3c;
+            font-weight: 700;
+        }
         
         #summary-table {
             margin: 30px auto;
@@ -235,6 +255,19 @@
 
         <div id="summary" class="hidden">
             <h2>משימה הושלמה, את/ה גיבור/ת על!</h2>
+            
+            <div class="time-stats">
+                <div class="time-stat-item">
+                    <span class="time-stat-label">זמן התחלה:</span> <span id="game-start-time"></span>
+                </div>
+                <div class="time-stat-item">
+                    <span class="time-stat-label">זמן סיום:</span> <span id="game-end-time"></span>
+                </div>
+                <div class="time-stat-item">
+                    <span class="time-stat-label">זמן כולל:</span> <span id="total-game-time"></span>
+                </div>
+            </div>
+
             <table id="summary-table">
                 <thead>
                     <tr><th>שאלה</th><th>האתגר</th><th>התוצאה</th><th>זמן (שניות)</th></tr>
@@ -242,7 +275,7 @@
                 <tbody id="summary-body"></tbody>
             </table>
             <div id="summary-message">
-                כל הכבוד על המאמץ וההשקעה! השלמת את משימת החזקות כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את "שריר המוח" והופך את כוח העל שלך במתמטיקה לחזק עוד יותר! אבא ואמא גאים בך מאוד על הנחישות והרצון להצליח!
+                כל הכבוד על המאמץ וההשקעה! השלמת את משימת החזקות כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את כושר המוח שלך!
             </div>
         </div>
     </div>
@@ -254,6 +287,25 @@
         let startTime;
         let score = 0;
         let questionDetails = [];
+        let gameStartTime;
+        let gameEndTime;
+        let gameInProgress = false;
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('he-IL', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit' 
+            });
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('he-IL', { 
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
 
         function generateQuestion() {
             // בסיס בין 2 ל-10
@@ -267,6 +319,8 @@
         }
 
         function startGame() {
+            gameInProgress = true;
+            gameStartTime = new Date();
             for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
                 let newQ;
                 // לוודא שאין שאלות כפולות
@@ -355,8 +409,20 @@
         }
 
         function showSummary() {
+            gameInProgress = false;
+            gameEndTime = new Date();
+            const totalTimeSeconds = Math.round((gameEndTime - gameStartTime) / 1000);
+            const minutes = Math.floor(totalTimeSeconds / 60);
+            const seconds = totalTimeSeconds % 60;
+            const totalTimeFormatted = `${minutes}:${seconds.toString().padStart(2, '0')} דקות:שניות`;
+
             document.getElementById("game-area").classList.add("hidden");
             
+            // Display time statistics
+            document.getElementById("game-start-time").innerText = `${formatDate(gameStartTime)} בשעה ${formatTime(gameStartTime)}`;
+            document.getElementById("game-end-time").innerText = `${formatDate(gameEndTime)} בשעה ${formatTime(gameEndTime)}`;
+            document.getElementById("total-game-time").innerText = totalTimeFormatted;
+
             let summaryBody = document.getElementById("summary-body");
             summaryBody.innerHTML = "";
             questionDetails.forEach((detail, i) => {
@@ -388,6 +454,15 @@
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#3498db', '#ffffff'] }));
             }, 250);
         }
+
+        // Prevent accidental refresh
+        window.addEventListener('beforeunload', function(event) {
+            if (gameInProgress) {
+                event.preventDefault();
+                event.returnValue = 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
+                return 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', startGame);
     </script>
