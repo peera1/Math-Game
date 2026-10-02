@@ -2,24 +2,11 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>גיבורי החזקות</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap');
-
-        * {
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-        }
-
-        input {
-            -webkit-user-select: text !important;
-            user-select: text !important;
-        }
 
         body {
             font-family: 'Assistant', sans-serif;
@@ -33,99 +20,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overscroll-behavior: none;
-            -webkit-user-select: none;
-        }
-
-        /* Modal for preventing accidental actions */
-        #prevent-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #prevent-modal.active {
-            display: flex;
-        }
-
-        .prevent-modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 25px;
-            text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            max-width: 400px;
-            animation: modalAppear 0.3s ease-out;
-        }
-
-        @keyframes modalAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .prevent-modal-content h2 {
-            color: #e74c3c;
-            font-size: 28px;
-            margin: 0 0 15px 0;
-        }
-
-        .prevent-modal-content p {
-            color: #2c3e50;
-            font-size: 18px;
-            margin: 15px 0;
-            line-height: 1.5;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-            justify-content: center;
-        }
-
-        .modal-btn {
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: 700;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            flex: 1;
-        }
-
-        .modal-btn-cancel {
-            background: #3498db;
-            color: white;
-        }
-
-        .modal-btn-cancel:active {
-            transform: scale(0.95);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-btn-leave {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .modal-btn-leave:active {
-            transform: scale(0.95);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         #game-container {
@@ -224,7 +118,6 @@
             margin-bottom: 20px;
             text-align: center;
             transition: all 0.3s;
-            -webkit-user-select: text !important;
         }
 
         #answer:focus {
@@ -245,7 +138,6 @@
             transition: transform 0.2s, box-shadow 0.2s;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             border-bottom: 4px solid #96281b;
-            -webkit-user-select: none;
         }
 
         button:hover {
@@ -277,26 +169,6 @@
         #summary h2 {
             font-size: 40px;
             color: #27ae60;
-        }
-
-        .time-stats {
-            background: #fff3cd;
-            border: 3px solid #ffc107;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            font-size: 18px;
-        }
-
-        .time-stat-item {
-            margin: 12px 0;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-
-        .time-stat-label {
-            color: #e74c3c;
-            font-weight: 700;
         }
         
         #summary-table {
@@ -340,24 +212,54 @@
             border-radius: 15px;
             border: 3px dashed #1abc9c;
         }
+
+        #summary-timing {
+            margin: 25px 0;
+            padding: 18px;
+            background: #f3f9ff;
+            border: 2px solid #b8d4f8;
+            border-radius: 15px;
+            color: #2c3e50;
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: right;
+        }
+
+        #summary-duration {
+            margin: 30px 0;
+        }
+
+        #summary-duration-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #summary-duration-table th,
+        #summary-duration-table td {
+            border: 2px solid #2980b9;
+            padding: 12px;
+            text-align: center;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+
+        #summary-duration-table th {
+            background: linear-gradient(to right, #27ae60, #2ecc71);
+            color: #fff;
+        }
+
+        #summary-duration-table tr:nth-child(even) {
+            background-color: #ecfdf5;
+        }
         
     </style>
 </head>
 
 <body>
-    <!-- Modal for preventing accidental navigation -->
-    <div id="prevent-modal">
-        <div class="prevent-modal-content">
-            <h2>⚠️ עצור!</h2>
-            <p>המשחק שלך עדיין בעיצומו!</p>
-            <p>התשובות שלך לא יישמרו אם תעזוב עכשיו.</p>
-            <div class="modal-buttons">
-                <button class="modal-btn modal-btn-cancel" onclick="cancelLeave()">המשך משחק</button>
-                <button class="modal-btn modal-btn-leave" onclick="confirmLeave()">עזוב</button>
-            </div>
-        </div>
-    </div>
-
     <div id="game-container">
         <h1>גיבורי החזקות</h1>
         
@@ -376,19 +278,16 @@
 
         <div id="summary" class="hidden">
             <h2>משימה הושלמה, את/ה גיבור/ת על!</h2>
-            
-            <div class="time-stats">
-                <div class="time-stat-item">
-                    <span class="time-stat-label">זמן התחלה:</span> <span id="game-start-time"></span>
-                </div>
-                <div class="time-stat-item">
-                    <span class="time-stat-label">זמן סיום:</span> <span id="game-end-time"></span>
-                </div>
-                <div class="time-stat-item">
-                    <span class="time-stat-label">זמן כולל:</span> <span id="total-game-time"></span>
-                </div>
+            <div id="summary-timing"></div>
+            <div id="summary-duration">
+                <h3>משך זמן לכל שאלה</h3>
+                <table id="summary-duration-table">
+                    <thead>
+                        <tr><th>שאלה</th><th>האתגר</th><th>זמן (שניות)</th></tr>
+                    </thead>
+                    <tbody id="summary-duration-body"></tbody>
+                </table>
             </div>
-
             <table id="summary-table">
                 <thead>
                     <tr><th>שאלה</th><th>האתגר</th><th>התוצאה</th><th>זמן (שניות)</th></tr>
@@ -396,7 +295,7 @@
                 <tbody id="summary-body"></tbody>
             </table>
             <div id="summary-message">
-                כל הכבוד על המאמץ וההשקעה! השלמת את משימת החזקות כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/ת מחזק את כושר המוח שלך!
+                כל הכבוד על המאמץ וההשקעה! השלמת את משימת החזקות כמו גיבור/ה אמיתי/ת. תזכור/י תמיד, כל תרגיל שאת/ה פותר/י מסייע לך לגדול ולהשתפר.
             </div>
         </div>
     </div>
@@ -408,59 +307,31 @@
         let startTime;
         let score = 0;
         let questionDetails = [];
-        let gameStartTime;
-        let gameEndTime;
-        let gameInProgress = false;
-        let allowLeave = false;
-        let history_length = window.history.length;
+        let gameStartTime = null;
+        let gameEndTime = null;
+        let isGameActive = true;
 
-        // Detect mobile devices
-        function isMobileDevice() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
-        function showPreventModal() {
-            document.getElementById('prevent-modal').classList.add('active');
-        }
-
-        function hidePreventModal() {
-            document.getElementById('prevent-modal').classList.remove('active');
-        }
-
-        function cancelLeave() {
-            hidePreventModal();
-        }
-
-        function confirmLeave() {
-            allowLeave = true;
-            hidePreventModal();
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.close();
-            }
-        }
-
-        function formatTime(date) {
-            return date.toLocaleTimeString('he-IL', { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit' 
-            });
-        }
-
-        function formatDate(date) {
-            return date.toLocaleDateString('he-IL', { 
-                year: 'numeric',
+        function formatDateTime(dateValue) {
+            const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+            return date.toLocaleString('he-IL', {
+                day: '2-digit',
                 month: '2-digit',
-                day: '2-digit'
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
             });
+        }
+
+        function handleBeforeUnload(event) {
+            if (!isGameActive) return;
+            event.preventDefault();
+            event.returnValue = 'המשחק עדיין בעיצומו. האם ברצונך לעזוב?';
+            return 'המשחק עדיין בעיצומו. האם ברצונך לעזוב?';
         }
 
         function generateQuestion() {
-            // בסיס בין 2 ל-10
             const base = Math.floor(Math.random() * 9) + 2; 
-            // חזקה 2 או 3 - מתאים לכיתה ד'
             const exponent = Math.floor(Math.random() * 2) + 2; 
             
             const questionStr = `${base}<sup>${exponent}</sup>`;
@@ -469,11 +340,16 @@
         }
 
         function startGame() {
-            gameInProgress = true;
+            questions = [];
+            currentQuestion = 0;
+            score = 0;
+            questionDetails = [];
             gameStartTime = new Date();
+            gameEndTime = null;
+            isGameActive = true;
+
             for (let i = 0; i < NUM_OF_QUESTIONS; i++) {
                 let newQ;
-                // לוודא שאין שאלות כפולות
                 do {
                     newQ = generateQuestion();
                 } while (questions.some(q => q.questionStr === newQ.questionStr));
@@ -501,7 +377,7 @@
                 return;
             }
             document.getElementById("game-area").style.animation = 'none';
-            void document.getElementById("game-area").offsetWidth; // Trigger reflow
+            void document.getElementById("game-area").offsetWidth;
             document.getElementById("game-area").style.animation = 'newQuestionPop 0.5s ease';
 
             document.getElementById("question-number").innerText = `משימה ${currentQuestion + 1} מתוך ${NUM_OF_QUESTIONS}`;
@@ -522,28 +398,30 @@
                 return;
             }
 
-            let correctAnswer = questions[currentQuestion].answer;
-            if (userAnswer === correctAnswer) {
-                const endTime = new Date();
-                const timeTaken = Math.round((endTime - startTime) / 1000);
-                
-                // עדכון ניקוד ותגמול
-                score += 10 + (timeTaken < 10 ? 5 : 0); // בונוס על מהירות
-                document.getElementById("score").innerText = `ניקוד: ${score}`;
-                questionDetails.push({
-                    question: questions[currentQuestion].questionStr,
-                    answer: correctAnswer,
-                    time: timeTaken
-                });
+            const correctAnswer = questions[currentQuestion].answer;
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+            const isCorrect = userAnswer === correctAnswer;
 
-                // אפקטים ומשוב חיובי
+            questionDetails[currentQuestion] = {
+                question: questions[currentQuestion].questionStr,
+                answer: correctAnswer,
+                userAnswer: userAnswer,
+                time: timeTaken,
+                correct: isCorrect
+            };
+
+            if (isCorrect) {
+                score += 10 + (timeTaken < 10 ? 5 : 0);
+                document.getElementById("score").innerText = `ניקוד: ${score}`;
+
                 createConfetti();
                 document.getElementById("feedback").innerText = "כוח אדיר! תשובה נכונה!";
                 document.getElementById("feedback").style.color = "#27ae60";
                 
                 currentQuestion++;
                 updateProgress();
-                setTimeout(nextQuestion, 1500); // עיכוב להנאה מההצלחה
+                setTimeout(nextQuestion, 1500);
             } else {
                 document.getElementById("feedback").innerText = "אוי... כמעט! נסה/י לרכז את הכוח שוב!";
                 document.getElementById("feedback").style.color = "#c0392b";
@@ -559,30 +437,32 @@
         }
 
         function showSummary() {
-            gameInProgress = false;
+            isGameActive = false;
             gameEndTime = new Date();
-            const totalTimeSeconds = Math.round((gameEndTime - gameStartTime) / 1000);
-            const minutes = Math.floor(totalTimeSeconds / 60);
-            const seconds = totalTimeSeconds % 60;
-            const totalTimeFormatted = `${minutes}:${seconds.toString().padStart(2, '0')} דקות:שניות`;
-
             document.getElementById("game-area").classList.add("hidden");
-            
-            // Display time statistics
-            document.getElementById("game-start-time").innerText = `${formatDate(gameStartTime)} בשעה ${formatTime(gameStartTime)}`;
-            document.getElementById("game-end-time").innerText = `${formatDate(gameEndTime)} בשעה ${formatTime(gameEndTime)}`;
-            document.getElementById("total-game-time").innerText = totalTimeFormatted;
 
-            let summaryBody = document.getElementById("summary-body");
+            const summaryBody = document.getElementById("summary-body");
+            const durationBody = document.getElementById("summary-duration-body");
+            const summaryTiming = document.getElementById("summary-timing");
+
             summaryBody.innerHTML = "";
+            durationBody.innerHTML = "";
+
             questionDetails.forEach((detail, i) => {
-                let row = `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
-                summaryBody.innerHTML += row;
+                if (!detail) return;
+
+                summaryBody.innerHTML += `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.answer}</td><td>${detail.time}</td></tr>`;
+                durationBody.innerHTML += `<tr><td>${i + 1}</td><td>${detail.question}</td><td>${detail.time} שניות</td></tr>`;
             });
+
+            summaryTiming.innerHTML = `
+                <div><strong>שעת התחלה:</strong> ${formatDateTime(gameStartTime)}</div>
+                <div><strong>שעת סיום:</strong> ${formatDateTime(gameEndTime)}</div>
+            `;
+
             document.getElementById("summary").classList.remove("hidden");
             updateProgress();
 
-            // חגיגת סיום מפוארת
             const duration = 5 * 1000;
             const animationEnd = Date.now() + duration;
             const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
@@ -599,68 +479,12 @@
               }
 
               const particleCount = 50 * (timeLeft / duration);
-              // since particles fall down, start a bit higher than random
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#e74c3c', '#f1c40f'] }));
               confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#3498db', '#ffffff'] }));
             }, 250);
         }
 
-        // Prevent accidental refresh - Works on both desktop and mobile
-        window.addEventListener('beforeunload', function(event) {
-            if (gameInProgress && !allowLeave) {
-                event.preventDefault();
-                event.returnValue = 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
-                return 'התשובות שלך לא יישמרו אם תעזוב את הדף. את/ה בטוח/ה?';
-            }
-        });
-
-        // Handle back button and navigation (Mobile & Desktop)
-        window.addEventListener('popstate', function(event) {
-            if (gameInProgress && !allowLeave) {
-                event.preventDefault();
-                showPreventModal();
-                // Push state again to keep the current page
-                window.history.pushState(null, document.title, window.location.href);
-            }
-        });
-
-        // Push initial history state for back button detection
-        window.history.pushState(null, document.title, window.location.href);
-
-        // Handle page visibility change (app goes to background on mobile)
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && gameInProgress) {
-                // Game is still active even when app goes to background
-                // This preserves the game state
-                console.log('Game paused - app in background');
-            } else if (!document.hidden && gameInProgress) {
-                console.log('Game resumed');
-            }
-        });
-
-        // Prevent pull-to-refresh on mobile (especially effective on Android)
-        let lastYPos = 0;
-        document.addEventListener('touchmove', function(e) {
-            let scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollPosition === 0 && gameInProgress) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        // Handle window close attempts
-        window.addEventListener('pagehide', function(event) {
-            if (gameInProgress && !allowLeave) {
-                // Store game state in sessionStorage as backup
-                sessionStorage.setItem('gameState', JSON.stringify({
-                    gameInProgress: gameInProgress,
-                    currentQuestion: currentQuestion,
-                    score: score,
-                    questionDetails: questionDetails,
-                    gameStartTime: gameStartTime
-                }));
-            }
-        });
-
+        window.addEventListener('beforeunload', handleBeforeUnload);
         document.addEventListener('DOMContentLoaded', startGame);
     </script>
 </body>
