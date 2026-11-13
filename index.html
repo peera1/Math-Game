@@ -4,71 +4,241 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="משחקי חשבון ותרגול מתמטיקה לילדים בכיתות א׳ עד ה׳.">
-  <title>לומדת החשבון – משחקי חשבון לילדים</title>
+  <meta name="theme-color" content="#f6f7ff">
+  <title>לומדת החשבון – לומדים ומשחקים</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:24px 14px;font-family:Rubik,Arial,sans-serif;color:#2d3748;background:linear-gradient(135deg,#2a0944,#a12568)}main{width:min(100%,760px);margin:auto;padding:clamp(22px,5vw,44px);border-radius:28px;background:#fffffff2;box-shadow:0 20px 50px #0004;text-align:center}.quote{display:inline-block;padding:8px 18px;border:1px dashed #fec260;border-radius:14px;background:#fff9ed;color:#5a6578}.intro{max-width:560px;margin:12px auto 28px;line-height:1.7;color:#4a5568}h1{margin:14px 0;color:#6b287e;font-size:clamp(2rem,7vw,2.8rem)}h2{margin:0 0 16px;color:#4a235a;font-size:1.4rem}.group{margin:18px 0;padding:20px;border:1px solid #f1d9a6;border-radius:20px;background:#fffdf9}.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}a.game{display:flex;align-items:center;justify-content:center;min-height:52px;padding:12px;border-radius:14px;background:linear-gradient(135deg,#3182ce,#63b3ed);color:#fff;text-decoration:none;font-weight:700;box-shadow:0 4px 10px #0002;transition:transform .15s,filter .15s}a.game:hover{transform:translateY(-2px);filter:brightness(1.08)}a.game:focus-visible{outline:3px solid #ffb703;outline-offset:3px}.money{background:linear-gradient(135deg,#d69e2e,#ecc94b)!important;color:#352600!important;font-size:1.05rem}.tip{margin-top:24px;padding:16px;border-radius:16px;background:#fff8e9;line-height:1.6}@media(max-width:480px){body{padding:12px}.group{padding:15px}.links{grid-template-columns:1fr}}
+    :root {
+      color-scheme: light;
+      --ink: #202346;
+      --muted: #737895;
+      --purple: #6b59d3;
+      --purple-dark: #4a3aa8;
+      --line: #e9e9f4;
+      --surface: #fff;
+      --shadow: 0 16px 45px rgba(49, 43, 105, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 20px 48px;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 10% 4%, rgba(166, 154, 255, .18), transparent 34rem),
+        radial-gradient(ellipse at 95% 35%, rgba(255, 207, 151, .15), transparent 30rem),
+        #f7f8fd;
+      font-family: Rubik, Arial, sans-serif;
+    }
+
+    main { width: min(100%, 1050px); margin: 0 auto; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(30px, 6vw, 64px);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 30px;
+      color: white;
+      text-align: center;
+      background: linear-gradient(125deg, #39317d 0%, #6957cb 56%, #8b70df 100%);
+      box-shadow: 0 24px 60px rgba(73, 58, 158, .22);
+    }
+    .hero::before, .hero::after {
+      position: absolute;
+      content: "";
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .hero::before { width: 280px; height: 280px; top: -165px; right: -65px; }
+    .hero::after { width: 200px; height: 200px; bottom: -135px; left: -45px; }
+    .quote {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding: 9px 15px;
+      border: 1px solid rgba(255,255,255,.23);
+      border-radius: 999px;
+      color: #f1edff;
+      background: rgba(255,255,255,.1);
+      font-size: .88rem;
+    }
+    h1 { position: relative; margin: 0; font-size: clamp(2rem, 5vw, 3.45rem); line-height: 1.15; letter-spacing: -.04em; }
+    .intro { position: relative; max-width: 600px; margin: 16px auto 0; color: #eeebff; font-size: clamp(1rem, 2vw, 1.16rem); line-height: 1.75; }
+    .search-wrap { position: relative; width: min(100%, 510px); margin: 30px auto 0; }
+    .search-wrap input {
+      width: 100%; min-height: 56px; padding: 0 52px 0 18px;
+      border: 1px solid rgba(255,255,255,.45); border-radius: 16px;
+      outline: none; color: var(--ink); background: white;
+      font: inherit; font-size: 1rem; box-shadow: 0 8px 25px rgba(33, 25, 95, .15);
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .search-wrap input::placeholder { color: #999bb0; }
+    .search-wrap input:focus { border-color: #e0d9ff; box-shadow: 0 0 0 4px rgba(255,255,255,.2), 0 8px 25px rgba(33,25,95,.15); }
+    .search-icon { position: absolute; top: 50%; right: 18px; transform: translateY(-50%); font-size: 1.15rem; pointer-events: none; }
+
+    .catalog { display: grid; gap: 22px; margin-top: 30px; }
+    .group {
+      padding: clamp(20px, 4vw, 30px);
+      border: 1px solid rgba(231,232,244,.9);
+      border-radius: 24px;
+      background: rgba(255,255,255,.92);
+      box-shadow: var(--shadow);
+      animation: rise .55s both;
+    }
+    .group:nth-child(2) { animation-delay: .04s; }
+    .group:nth-child(3) { animation-delay: .08s; }
+    .group:nth-child(4) { animation-delay: .12s; }
+    .group:nth-child(5) { animation-delay: .16s; }
+    .group:nth-child(6) { animation-delay: .2s; }
+    .group-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 19px; }
+    .group-icon { display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; border-radius: 14px; background: #f1efff; font-size: 1.35rem; }
+    h2 { margin: 0; font-size: clamp(1.12rem, 2.5vw, 1.38rem); letter-spacing: -.02em; }
+    .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr)); gap: 11px; }
+    .game {
+      display: flex;
+      min-height: 58px;
+      align-items: center;
+      gap: 11px;
+      padding: 12px 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      color: #343653;
+      background: #fff;
+      text-decoration: none;
+      font-size: .98rem;
+      font-weight: 500;
+      line-height: 1.45;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .game:hover { transform: translateY(-3px); border-color: #c9c1ff; background: #fbfaff; box-shadow: 0 8px 20px rgba(74,58,168,.09); }
+    .game:focus-visible { outline: 3px solid #8a79eb; outline-offset: 3px; }
+    .game[hidden], .group[hidden] { display: none; }
+    .tip { margin: 26px 0 0; padding: 18px 22px; border: 1px solid #ece8ff; border-radius: 18px; color: #5b538c; background: #f1efff; text-align: center; font-weight: 500; line-height: 1.7; }
+    .empty { display: none; margin: 24px 0; color: var(--muted); text-align: center; }
+    .empty.visible { display: block; }
+    footer { padding-top: 24px; color: #9295aa; text-align: center; font-size: .88rem; }
+
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    @media (max-width: 560px) { body { padding: 16px 12px 30px; } .hero { border-radius: 23px; } .group { border-radius: 19px; } .links { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 <main>
-  <div class="quote">"הזורעים בדמעה ברינה יקצורו" – תהילים קכ״ו</div>
-  <h1>ברוכים הבאים ללומדת החשבון!</h1>
-  <p class="intro">משחקי חשבון ותרגול מתמטיקה מהנים לילדים. בחרו משחק, התחילו לשחק וללמוד!</p>
+  <header class="hero">
+    <div class="quote">✨ ״הזורעים בדמעה ברינה יקצורו״ – תהילים קכ״ו</div>
+    <h1>לומדים חשבון,<br>משחקים בהנאה!</h1>
+    <p class="intro">ברוכים הבאים ללומדת החשבון — מקום שבו כל תרגיל הוא הרפתקה וכל הצלחה היא סיבה לחייך. בחרו משחק וצאו לדרך!</p>
+    <label class="search-wrap">
+      <span class="search-icon" aria-hidden="true">🔎</span>
+      <input id="game-search" type="search" placeholder="איזה משחק מתחשק לכם? חפשו כאן…" autocomplete="off" aria-label="חיפוש משחקים">
+    </label>
+  </header>
 
-  <section class="group" aria-labelledby="general"><h2 id="general">🎮 משחקי חשבון כלליים</h2><div class="links">
-    <a class="game" href="GenericGames/לוח הכפל.html">✖️ משחק לוח הכפל</a>
-    <a class="game" href="GenericGames/BridgeGame.html">🌉 גשר המספרים</a>
-    <a class="game" href="GenericGames/memory-game.html">🧠 משחק זיכרון</a>
-    <a class="game" href="GenericGames/MilionerGame.html">💰 מתמטיקאי המיליון</a>
-    <a class="game" href="GenericGames/SuperMario.html">🍄 סופר מריו חשבון</a>
-    <a class="game" href="GenericGames/ClassA-Puzzle.html">🧩 הרפתקת פאזל</a>
-  </div></section>
+  <div class="catalog" id="catalog">
+    <section class="group" aria-labelledby="general">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">🎮</span><h2 id="general">משחקי חשבון כלליים</h2></div>
+      <div class="links">
+        <a class="game" href="GenericGames/לוח הכפל.html">✖️ משחק לוח הכפל</a>
+        <a class="game" href="GenericGames/BridgeGame.html">🌉 גשר המספרים</a>
+        <a class="game" href="GenericGames/memory-game.html">🧠 משחק זיכרון</a>
+        <a class="game" href="GenericGames/MilionerGame.html">💰 מתמטיקאי המיליון</a>
+        <a class="game" href="GenericGames/SuperMario.html">🍄 סופר מריו חשבון</a>
+        <a class="game" href="GenericGames/ClassA-Puzzle.html">🧩 הרפתקת פאזל</a>
+      </div>
+    </section>
 
-  <section class="group" aria-labelledby="class-a"><h2 id="class-a">🔷 משחקי חשבון לכיתה א׳</h2><div class="links">
-    <a class="game" href="ClassA/core-1.html">➕ חיבור</a>
-    <a class="game" href="ClassA/core-1-minus.html">➖ חיסור</a>
-    <a class="game" href="ClassA/חיבור וחיסור עד 12.html">🔢 חיבור וחיסור עד 12</a>
-    <a class="game money" href="ClassA/coins-game.html">🪙 כמה כסף יש לי? – משחק מטבעות</a>
-  </div></section>
+    <section class="group" aria-labelledby="class-a">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">🔷</span><h2 id="class-a">משחקי חשבון לכיתה א׳</h2></div>
+      <div class="links">
+        <a class="game" href="ClassA/core-1.html">➕ חיבור</a>
+        <a class="game" href="ClassA/core-1-minus.html">➖ חיסור</a>
+        <a class="game" href="ClassA/חיבור וחיסור עד 12.html">🔢 חיבור וחיסור עד 12</a>
+        <a class="game" href="ClassA/coins-game.html">🪙 כמה כסף יש לי? – משחק מטבעות</a>
+      </div>
+    </section>
 
-  <section class="group" aria-labelledby="class-b"><h2 id="class-b">🟢 משחקי חשבון לכיתה ב׳</h2><div class="links">
-    <a class="game" href="ClassB/core-2.html">🧮 פעולות יסוד</a>
-    <a class="game" href="ClassB/classB_advanced.html">🚀 פעולות יסוד – מתקדם</a>
-    <a class="game" href="ClassB/core-2-adding-with-transit.html">🔁 חיבור עם המרה</a>
-    <a class="game" href="ClassB/core-2-decrease-with-transit.html">➖ חיסור עם המרה</a>
-    <a class="game" href="ClassB/classB_Geometry.html">📐 שטח והיקף</a>
-    <a class="game" href="ClassB/Word-Problems.html">❓ בעיות מילוליות – חיבור וחיסור</a>
-    <a class="game" href="ClassB/word-problems-%2B%2A%3A-core2.html">🧠 בעיות מילוליות – ארבע פעולות</a>
-  </div></section>
+    <section class="group" aria-labelledby="class-b">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">🟢</span><h2 id="class-b">משחקי חשבון לכיתה ב׳</h2></div>
+      <div class="links">
+        <a class="game" href="ClassB/core-2.html">🧮 פעולות יסוד</a>
+        <a class="game" href="ClassB/classB_advanced.html">🚀 פעולות יסוד – מתקדם</a>
+        <a class="game" href="ClassB/core-2-adding-with-transit.html">🔁 חיבור עם המרה</a>
+        <a class="game" href="ClassB/core-2-decrease-with-transit.html">➖ חיסור עם המרה</a>
+        <a class="game" href="ClassB/classB_Geometry.html">📐 שטח והיקף</a>
+        <a class="game" href="ClassB/Word-Problems.html">❓ בעיות מילוליות – חיבור וחיסור</a>
+        <a class="game" href="ClassB/word-problems-%2B%2A%3A-core2.html">🧠 בעיות מילוליות – ארבע פעולות</a>
+      </div>
+    </section>
 
-  <section class="group" aria-labelledby="class-c"><h2 id="class-c">🏅 משחקי חשבון לכיתה ג׳</h2><div class="links">
-    <a class="game" href="ClassC/core-3.html">🔢 סדר פעולות חשבון</a>
-    <a class="game" href="ClassC/StraightNumbers.html">📏 גיבורי ישר המספרים</a>
-    <a class="game" href="ClassC/Downloads.html">⬇️ הורדה וצפייה בקבצים</a>
-  </div></section>
+    <section class="group" aria-labelledby="class-c">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">🏅</span><h2 id="class-c">משחקי חשבון לכיתה ג׳</h2></div>
+      <div class="links">
+        <a class="game" href="ClassC/core-3.html">🔢 סדר פעולות חשבון</a>
+        <a class="game" href="ClassC/StraightNumbers.html">📏 גיבורי ישר המספרים</a>
+        <a class="game" href="ClassC/Downloads.html">⬇️ הורדה וצפייה בקבצים</a>
+      </div>
+    </section>
 
-  <section class="group" aria-labelledby="class-d"><h2 id="class-d">⭐ משחקי חשבון לכיתה ד׳</h2><div class="links">
-    <a class="game" href="ClassD/core-4.html">📈 חשבון מתקדם</a>
-    <a class="game" href="ClassD/mul_advanced.html">✖️ כפל מתקדם</a>
-    <a class="game" href="ClassD/div_advanced.html">➗ חילוק מתקדם</a>
-    <a class="game" href="ClassD/pow.html">⚡ חזקות</a>
-    <a class="game" href="ClassD/prime_number.html">⚛️ מספרים ראשוניים</a>
-    <a class="game" href="ClassD/frictions.html">🍰 שברים</a>
-    <a class="game" href="ClassD/frictions_simple.html">☂️ שבר פשוט</a>
-    <a class="game" href="ClassD/FrictionsAdvancedD.html">🧩 חיבור וחיסור שברים</a>
-    <a class="game" href="ClassD/Word-Problems-Advanced.html">🪄 בעיות מילוליות – שברים</a>
-    <a class="game" href="ClassD/ClassD-Mix.html">🧩 משחק פאזל אקראי</a>
-  </div></section>
+    <section class="group" aria-labelledby="class-d">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">⭐</span><h2 id="class-d">משחקי חשבון לכיתה ד׳</h2></div>
+      <div class="links">
+        <a class="game" href="ClassD/core-4.html">📈 חשבון מתקדם</a>
+        <a class="game" href="ClassD/mul_advanced.html">✖️ כפל מתקדם</a>
+        <a class="game" href="ClassD/div_advanced.html">➗ חילוק מתקדם</a>
+        <a class="game" href="ClassD/pow.html">⚡ חזקות</a>
+        <a class="game" href="ClassD/prime_number.html">⚛️ מספרים ראשוניים</a>
+        <a class="game" href="ClassD/frictions.html">🍰 שברים</a>
+        <a class="game" href="ClassD/frictions_simple.html">☂️ שבר פשוט</a>
+        <a class="game" href="ClassD/FrictionsAdvancedD.html">🧩 חיבור וחיסור שברים</a>
+        <a class="game" href="ClassD/Word-Problems-Advanced.html">🪄 בעיות מילוליות – שברים</a>
+        <a class="game" href="ClassD/ClassD-Mix.html">🧩 משחק פאזל אקראי</a>
+      </div>
+    </section>
 
-  <section class="group" aria-labelledby="class-e"><h2 id="class-e">🏆 משחקי חשבון לכיתה ה׳</h2><div class="links">
-    <a class="game" href="ClassE/FractionComp.html">⚖️ השוואת וסידור שברים</a>
-    <a class="game" href="ClassE/October25ExamePrep.html">🎓 הכנה למבחן – שברים</a>
-    <a class="game" href="ClassE/downloads.html">⬇️ הורדה וצפייה בקבצים</a>
-  </div></section>
+    <section class="group" aria-labelledby="class-e">
+      <div class="group-heading"><span class="group-icon" aria-hidden="true">🏆</span><h2 id="class-e">משחקי חשבון לכיתה ה׳</h2></div>
+      <div class="links">
+        <a class="game" href="ClassE/FractionComp.html">⚖️ השוואת וסידור שברים</a>
+        <a class="game" href="ClassE/October25ExamePrep.html">🎓 הכנה למבחן – שברים</a>
+        <a class="game" href="ClassE/downloads.html">⬇️ הורדה וצפייה בקבצים</a>
+      </div>
+    </section>
+  </div>
+  <p class="empty" id="empty-message" role="status">לא מצאנו משחק מתאים. נסו לחפש מילה אחרת 🙂</p>
   <p class="tip">💡 למידה היא מסע של גילוי. כל תרגיל שתפתרו מקרב אתכם להצלחה!</p>
+  <footer>כל הכבוד שבחרתם ללמוד ולשחק! 🌟</footer>
 </main>
+<script>
+  const search = document.getElementById('game-search');
+  const groups = [...document.querySelectorAll('.group')];
+  const emptyMessage = document.getElementById('empty-message');
+
+  search.addEventListener('input', () => {
+    const query = search.value.trim().toLocaleLowerCase('he');
+    let visibleGames = 0;
+
+    groups.forEach((group) => {
+      const games = [...group.querySelectorAll('.game')];
+      let visibleInGroup = 0;
+      games.forEach((game) => {
+        const matches = game.textContent.toLocaleLowerCase('he').includes(query);
+        game.hidden = !matches;
+        if (matches) visibleInGroup++;
+      });
+      group.hidden = visibleInGroup === 0;
+      visibleGames += visibleInGroup;
+    });
+
+    emptyMessage.classList.toggle('visible', visibleGames === 0);
+  });
+</script>
 </body>
 </html>
