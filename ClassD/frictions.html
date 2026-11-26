@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>אלוף השברים 🏆</title>
+  <title>אלוף השברים — הרפתקת החיבור והחיסור ✨</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* Reset & Base Styles (Fixed typo from original) */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -17,32 +16,23 @@
     }
 
     :root {
-      --bg-grad-1: #38bdf8;
-      --bg-grad-2: #818cf8;
-      --bg-grad-3: #c084fc;
       --card-bg: #ffffff;
       --text-main: #1e293b;
       --text-muted: #64748b;
       --primary: #2563eb;
-      --primary-dark: #1d4ed8;
       --primary-shadow: #1e40af;
       --green: #22c55e;
-      --green-dark: #16a34a;
       --green-shadow: #15803d;
-      --amber: #f59e0b;
-      --amber-light: #fef3c7;
-      --amber-dark: #b45309;
-      --red: #ef4444;
-      --red-light: #fee2e2;
-      --red-dark: #b91c1c;
       --purple: #8b5cf6;
       --purple-shadow: #6d28d9;
+      --pink: #ec4899;
+      --pink-shadow: #be185d;
     }
 
     body {
       font-family: 'Rubik', 'Segoe UI', Tahoma, sans-serif;
       direction: rtl;
-      background: linear-gradient(135deg, #e0f2fe 0%, #ede9fe 50%, #fef9c3 100%);
+      background: linear-gradient(135deg, #e0f2fe 0%, #fce7f3 48%, #fef9c3 100%);
       min-height: 100vh;
       padding: 1rem;
       color: var(--text-main);
@@ -65,7 +55,7 @@
     .bg-shape {
       position: absolute;
       font-weight: 900;
-      color: rgba(37, 99, 235, 0.08);
+      color: rgba(139, 92, 246, 0.08);
       user-select: none;
       animation: floatShape linear infinite;
     }
@@ -89,27 +79,29 @@
     /* Main Container */
     #app {
       width: 100%;
-      max-width: 520px;
+      max-width: 620px;
       position: relative;
       z-index: 10;
     }
 
-    /* Top Sound & Info Bar */
+    /* Top Bar */
     .top-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.75rem;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .sound-btn {
+    .sound-btn, .home-mini-btn {
       background: #ffffff;
       border: 2px solid #e2e8f0;
       border-bottom: 4px solid #cbd5e1;
       border-radius: 14px;
       padding: 6px 12px;
       font-family: 'Rubik', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-main);
       cursor: pointer;
@@ -118,7 +110,7 @@
       gap: 6px;
       transition: transform 0.1s, border-bottom-width 0.1s;
     }
-    .sound-btn:active {
+    .sound-btn:active, .home-mini-btn:active {
       transform: translateY(2px);
       border-bottom-width: 2px;
     }
@@ -129,63 +121,62 @@
       border-bottom: 4px solid #fcd34d;
       border-radius: 14px;
       padding: 6px 14px;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       color: #b45309;
       display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
-    /* Screens with Smooth Entrance */
+    /* Screens */
     .screen {
       display: none;
     }
     .screen.active {
       display: block;
-      animation: screenEnter 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: screenEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @keyframes screenEnter {
-      0% { opacity: 0; transform: scale(0.92) translateY(16px); }
+      0% { opacity: 0; transform: scale(0.94) translateY(14px); }
       100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    /* Playful Card */
+    /* Card */
     .card {
       background: var(--card-bg);
       border: 3px solid #e2e8f0;
       border-bottom: 8px solid #cbd5e1;
       border-radius: 26px;
-      padding: 1.5rem 1.4rem;
+      padding: 1.5rem 1.3rem;
       margin-bottom: 1rem;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
       position: relative;
     }
 
-    /* Mascot Container */
+    /* Mascot */
     .mascot-wrap {
       display: flex;
       justify-content: center;
-      margin-bottom: 0.75rem;
-      position: relative;
+      margin-bottom: 0.5rem;
     }
     .mascot-svg {
-      width: 92px;
-      height: 92px;
+      width: 84px;
+      height: 84px;
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       filter: drop-shadow(0 6px 10px rgba(37, 99, 235, 0.18));
     }
     .mascot-wrap.mini .mascot-svg {
-      width: 68px;
-      height: 68px;
+      width: 58px;
+      height: 58px;
     }
     .mascot-bounce {
       animation: mascotBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @keyframes mascotBounce {
       0%, 100% { transform: translateY(0) scale(1); }
-      40% { transform: translateY(-14px) scale(1.08); }
-      70% { transform: translateY(3px) scale(0.96); }
+      40% { transform: translateY(-12px) scale(1.07); }
+      70% { transform: translateY(2px) scale(0.96); }
     }
 
     .speech-bubble {
@@ -196,52 +187,221 @@
       font-weight: 700;
       padding: 6px 14px;
       border-radius: 16px;
-      position: relative;
       display: inline-block;
       margin-bottom: 0.6rem;
       box-shadow: 0 3px 0 #dbeafe;
     }
 
-    /* Typography */
     .title {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 900;
       color: #1e3a8a;
       text-align: center;
-      margin-bottom: 0.4rem;
-      letter-spacing: -0.5px;
+      margin-bottom: 0.35rem;
     }
     .subtitle {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-muted);
       text-align: center;
-      margin-bottom: 1.25rem;
-      line-height: 1.65;
+      margin-bottom: 1.2rem;
+      line-height: 1.6;
     }
 
-    /* Rules Box on Start Screen */
-    .rules-box {
+    /* Setup Sections on Start Screen */
+    .setup-section {
       background: #f8fafc;
-      border: 2px dashed #cbd5e1;
-      border-radius: 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 20px;
       padding: 1rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
       text-align: right;
-      font-size: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
     }
-    .rule-item {
+    .setup-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 0.65rem;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-weight: 500;
-      color: #334155;
+      justify-content: space-between;
+      gap: 8px;
     }
-    .rule-icon {
-      font-size: 20px;
-      flex-shrink: 0;
+    .setup-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    /* Character Selection Grid */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .char-card {
+      background: #ffffff;
+      border: 2.5px solid #e2e8f0;
+      border-bottom: 5px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    .char-card:hover {
+      transform: translateY(-2px);
+      border-color: #93c5fd;
+    }
+    .char-card.selected {
+      background: linear-gradient(180deg, #eff6ff 0%, #fdf2f8 100%);
+      border-color: #2563eb;
+      border-bottom: 5px solid #1d4ed8;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.16);
+      transform: translateY(-2px);
+    }
+    .char-pair {
+      font-size: 22px;
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .char-arrow {
+      font-size: 12px;
+      color: #94a3b8;
+      font-weight: 800;
+    }
+    .char-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .char-goal {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    /* Presets: Difficulty & Question Count */
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .preset-btn {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-bottom: 4px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 9px 6px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.14s ease;
+      line-height: 1.3;
+    }
+    .preset-btn span.desc {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .preset-btn.active {
+      background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%);
+      border-color: #2563eb;
+      border-bottom-color: #1d4ed8;
+      color: #1e3a8a;
+    }
+    .preset-btn.active span.desc {
+      color: #1d4ed8;
+    }
+
+    .count-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .count-btn {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-bottom: 4px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 8px 4px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 15px;
+      font-weight: 900;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .count-btn.active {
+      background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
+      border-color: #16a34a;
+      border-bottom-color: #15803d;
+      color: #14532d;
+    }
+
+    /* Journey Track on Game Screen */
+    .journey-box {
+      background: linear-gradient(180deg, #f0f9ff 0%, #fdf4ff 100%);
+      border: 2px solid #bae6fd;
+      border-radius: 20px;
+      padding: 10px 14px;
+      margin-bottom: 0.9rem;
+    }
+    .journey-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 8px;
+    }
+    .journey-track {
+      position: relative;
+      height: 36px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      border: 2px solid #cbd5e1;
+    }
+    .journey-fill {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: linear-gradient(90deg, #38bdf8 0%, #a855f7 60%, #ec4899 100%);
+      border-radius: 99px;
+      transition: width 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+      opacity: 0.35;
+    }
+    .journey-hero {
+      position: absolute;
+      right: 6px;
+      font-size: 26px;
+      transition: right 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 3;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.18));
+      transform: translateY(-1px);
+    }
+    .journey-goal {
+      position: absolute;
+      left: 8px;
+      font-size: 26px;
+      z-index: 2;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.15));
     }
 
     /* HUD: Lives & XP Bar */
@@ -250,7 +410,7 @@
       border: 2px solid #e2e8f0;
       border-bottom: 5px solid #cbd5e1;
       border-radius: 20px;
-      padding: 0.85rem 1rem;
+      padding: 0.75rem 1rem;
       margin-bottom: 0.9rem;
       position: relative;
     }
@@ -259,16 +419,17 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.65rem;
+      margin-bottom: 0.55rem;
+      gap: 8px;
     }
 
     .lives-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .heart {
-      font-size: 25px;
+      font-size: 22px;
       display: inline-block;
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s;
     }
@@ -284,29 +445,29 @@
       50% { transform: scale(1.25); }
     }
 
-    /* Step Dots (1 to 5) */
     .step-dots {
       display: flex;
-      gap: 6px;
-      direction: rtl;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      max-width: 240px;
     }
     .step-dot {
-      width: 24px;
-      height: 10px;
+      width: 14px;
+      height: 8px;
       border-radius: 99px;
       background: #e2e8f0;
-      transition: all 0.3s ease;
+      transition: all 0.25s ease;
     }
     .step-dot.done {
       background: var(--green);
     }
     .step-dot.current {
       background: var(--primary);
-      width: 34px;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      width: 22px;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
     }
 
-    /* XP Bar */
     .xp-wrap {
       display: flex;
       align-items: center;
@@ -317,37 +478,24 @@
       background: #f1f5f9;
       border: 2px solid #e2e8f0;
       border-radius: 99px;
-      height: 16px;
+      height: 15px;
       overflow: hidden;
-      position: relative;
     }
     .xp-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, #22c55e 0%, #4ade80 50%, #facc15 100%);
+      background: linear-gradient(90deg, #22c55e 0%, #4ade80 55%, #facc15 100%);
       border-radius: 99px;
       transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-    }
-    .xp-bar-fill::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 6px;
-      right: 6px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.45);
-      border-radius: 99px;
     }
     .xp-label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: #15803d;
-      min-width: 72px;
+      min-width: 74px;
       text-align: left;
       direction: ltr;
     }
 
-    /* Floating XP Gain Popup */
     .xp-float {
       position: absolute;
       top: -10px;
@@ -355,7 +503,7 @@
       background: #facc15;
       color: #713f12;
       font-weight: 900;
-      font-size: 16px;
+      font-size: 15px;
       padding: 4px 12px;
       border-radius: 99px;
       border: 2px solid #eab308;
@@ -370,23 +518,33 @@
       100% { opacity: 0; transform: translateY(-42px) scale(1); }
     }
 
-    /* Question Header */
+    /* Question Card */
     .q-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .q-label {
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 800;
       color: #475569;
       background: #f1f5f9;
       padding: 4px 12px;
       border-radius: 99px;
     }
+    .q-type-tag {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #ede9fe;
+      color: #6d28d9;
+      border: 1px solid #ddd6fe;
+    }
 
-    /* Simplify Hint Banner */
     .simplify-hint {
       display: flex;
       align-items: center;
@@ -396,25 +554,25 @@
       border: 2px solid #fbbf24;
       border-bottom: 4px solid #f59e0b;
       border-radius: 14px;
-      padding: 8px 14px;
-      font-size: 14px;
+      padding: 7px 12px;
+      font-size: 13px;
       font-weight: 700;
       color: #92400e;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
       text-align: center;
     }
 
-    /* Fraction Equation Display (Strictly LTR for math clarity) */
+    /* Fraction Equation Display */
     .fraction-arena {
       background: #f8fafc;
       border: 2px solid #e2e8f0;
       border-radius: 20px;
-      padding: 1.25rem 0.75rem;
-      margin-bottom: 1.1rem;
+      padding: 1.15rem 0.65rem;
+      margin-bottom: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 10px;
       direction: ltr;
       flex-wrap: wrap;
     }
@@ -424,31 +582,45 @@
       border: 2px solid #cbd5e1;
       border-bottom: 4px solid #94a3b8;
       border-radius: 16px;
-      padding: 8px 16px;
+      padding: 7px 14px;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       color: #0f172a;
       line-height: 1.1;
-      min-width: 64px;
+      min-width: 58px;
     }
     .frac-box .num {
-      border-bottom: 3.5px solid #0f172a;
-      padding: 0 8px 4px;
+      border-bottom: 3px solid #0f172a;
+      padding: 0 6px 3px;
       width: 100%;
       text-align: center;
     }
     .frac-box .den {
-      padding: 4px 8px 0;
+      padding: 3px 6px 0;
       width: 100%;
       text-align: center;
     }
 
+    .x-box {
+      background: linear-gradient(180deg, #fef3c7 0%, #fde68a 100%);
+      border: 2.5px solid #f59e0b;
+      border-bottom: 4px solid #d97706;
+      border-radius: 16px;
+      padding: 10px 16px;
+      font-size: 28px;
+      font-weight: 900;
+      color: #92400e;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .op-badge {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: #dbeafe;
       color: #1d4ed8;
@@ -456,40 +628,38 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
     }
     .op-equals {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 900;
       color: #64748b;
     }
 
-    /* Answer Input Fraction Box */
     .answer-frac-box {
       background: #eff6ff;
       border: 3px dashed #3b82f6;
       border-radius: 18px;
-      padding: 10px 14px;
+      padding: 9px 12px;
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     .answer-frac-box input {
-      width: 84px;
+      width: 78px;
       text-align: center;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 900;
       font-family: 'Rubik', sans-serif;
       border-radius: 12px;
       border: 2.5px solid #93c5fd;
-      padding: 6px;
+      padding: 5px;
       background: #ffffff;
       color: #1e3a8a;
       outline: none;
       transition: all 0.2s;
-      /* Hide ugly number spinners */
       -moz-appearance: textfield;
     }
     .answer-frac-box input::-webkit-outer-spin-button,
@@ -498,26 +668,26 @@
       margin: 0;
     }
     .answer-frac-box input::placeholder {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: #94a3b8;
     }
     .answer-frac-box input:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
-      transform: scale(1.04);
+      transform: scale(1.03);
     }
     .ans-line {
-      width: 84px;
-      height: 4px;
+      width: 78px;
+      height: 3.5px;
       background: #1e3a8a;
       border-radius: 99px;
     }
 
-    /* Visual Helper Drawer */
+    /* Visual Helper */
     .helper-toggle-wrap {
       text-align: center;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.7rem;
     }
     .helper-toggle-btn {
       background: #f3e8ff;
@@ -544,14 +714,15 @@
       border: 2px solid #e9d5ff;
       border-radius: 16px;
       padding: 12px;
-      margin-bottom: 1rem;
+      margin-bottom: 0.9rem;
       font-size: 13px;
       color: #581c87;
       text-align: center;
-      animation: screenEnter 0.3s ease;
+      line-height: 1.5;
     }
     .helper-box.open {
       display: block;
+      animation: screenEnter 0.25s ease;
     }
     .visual-bars {
       display: flex;
@@ -568,14 +739,14 @@
     }
     .v-bar-label {
       font-weight: 800;
-      font-size: 14px;
-      min-width: 36px;
+      font-size: 13px;
+      min-width: 38px;
       text-align: right;
     }
     .v-bar-track {
       display: flex;
-      width: 180px;
-      height: 18px;
+      width: 170px;
+      height: 16px;
       border: 2px solid #7e22ce;
       border-radius: 6px;
       overflow: hidden;
@@ -591,15 +762,15 @@
     .v-bar-seg.filled-1 { background: #3b82f6; }
     .v-bar-seg.filled-2 { background: #a855f7; }
 
-    /* Tactile 3D Buttons */
+    /* Buttons */
     .btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       width: 100%;
-      padding: 14px 20px;
-      font-size: 19px;
+      padding: 13px 18px;
+      font-size: 18px;
       font-weight: 800;
       font-family: 'Rubik', sans-serif;
       cursor: pointer;
@@ -609,49 +780,40 @@
       margin-bottom: 0.5rem;
       user-select: none;
     }
-    .btn:hover {
-      filter: brightness(1.04);
-    }
-    .btn:active {
-      transform: translateY(4px);
-    }
+    .btn:hover { filter: brightness(1.04); }
+    .btn:active { transform: translateY(4px); }
 
     .btn.primary {
       background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
       color: #ffffff;
       box-shadow: 0 5px 0 var(--primary-shadow), 0 8px 16px rgba(37, 99, 235, 0.25);
     }
-    .btn.primary:active {
-      box-shadow: 0 1px 0 var(--primary-shadow);
-    }
+    .btn.primary:active { box-shadow: 0 1px 0 var(--primary-shadow); }
 
     .btn.success {
       background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
       color: #ffffff;
       box-shadow: 0 5px 0 var(--green-shadow), 0 8px 16px rgba(22, 163, 74, 0.25);
     }
-    .btn.success:active {
-      box-shadow: 0 1px 0 var(--green-shadow);
-    }
+    .btn.success:active { box-shadow: 0 1px 0 var(--green-shadow); }
 
-    /* Feedback Banner */
+    /* Feedback */
     .feedback {
       text-align: center;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
-      min-height: 36px;
+      min-height: 34px;
       padding: 6px 12px;
       border-radius: 12px;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.7rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.25s;
     }
     .feedback:empty {
       background: transparent;
       padding: 0;
-      min-height: 24px;
+      min-height: 22px;
     }
     .feedback.ok {
       background: #dcfce7;
@@ -669,41 +831,35 @@
       border: 2px solid #fcd34d;
     }
 
-    /* Streak Chip */
     .streak-chip {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
       color: #92400e;
       border: 2px solid #f59e0b;
       border-radius: 99px;
-      padding: 4px 12px;
-      font-size: 13px;
+      padding: 3px 11px;
+      font-size: 12px;
       font-weight: 800;
-      animation: pop 0.4s ease;
     }
 
     /* Badges */
     .badge-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 7px;
       justify-content: center;
-      margin: 1rem 0;
+      margin: 0.85rem 0;
     }
     .badge {
-      font-size: 13px;
-      padding: 6px 14px;
+      font-size: 12px;
+      padding: 5px 12px;
       border-radius: 14px;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      transition: transform 0.2s;
-    }
-    .badge:hover {
-      transform: translateY(-2px);
+      gap: 4px;
     }
     .badge.earned {
       background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
@@ -717,68 +873,100 @@
       border: 2px solid #e2e8f0;
     }
 
-    /* End Screen Score & Table */
-    .score-card {
-      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-      border: 2px solid #93c5fd;
-      border-radius: 20px;
-      padding: 1rem;
-      margin: 0.75rem 0;
+    /* Summary Screen */
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 0.85rem 0;
     }
-    .score-big {
-      font-size: 46px;
-      font-weight: 900;
+    .stat-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 10px 6px;
       text-align: center;
+    }
+    .stat-val {
+      font-size: 22px;
+      font-weight: 900;
       color: #1d4ed8;
-      line-height: 1.1;
       direction: ltr;
     }
-    .score-sub {
-      text-align: center;
-      font-size: 16px;
+    .stat-lbl {
+      font-size: 11px;
       font-weight: 700;
-      color: #3b82f6;
-      margin-top: 4px;
+      color: #64748b;
+      margin-top: 2px;
     }
 
-    .result-table-wrap {
-      overflow-x: auto;
-      border-radius: 16px;
-      border: 2px solid #e2e8f0;
-      margin-top: 1rem;
+    .summary-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e293b;
+      margin: 1rem 0 0.5rem;
+      text-align: right;
     }
-    .result-grid {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
+
+    .detail-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: right;
+    }
+    .detail-item {
+      border-radius: 16px;
+      padding: 10px 12px;
+      border: 2px solid #e2e8f0;
       background: #ffffff;
     }
-    .result-grid th {
-      background: #f1f5f9;
-      color: #475569;
-      padding: 10px 6px;
-      font-weight: 800;
-      border-bottom: 2px solid #e2e8f0;
-      text-align: center;
+    .detail-item.is-right {
+      border-color: #86efac;
+      background: #f0fdf4;
     }
-    .result-grid td {
-      padding: 10px 6px;
-      text-align: center;
-      border-bottom: 1px solid #f1f5f9;
-      color: #1e293b;
-      vertical-align: middle;
-      font-weight: 600;
+    .detail-item.is-wrong {
+      border-color: #fca5a5;
+      background: #fef2f2;
     }
-    .result-grid tr:last-child td {
-      border-bottom: none;
-    }
-    .td-ok {
-      color: #16a34a;
+    .detail-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 5px;
+      font-size: 13px;
       font-weight: 800;
     }
-    .td-err {
-      color: #dc2626;
-      font-weight: 800;
+    .status-pill-ok {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+    }
+    .status-pill-err {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+    }
+    .detail-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 13px;
+      color: #334155;
+    }
+    .wrong-tries {
+      font-size: 12px;
+      color: #991b1b;
+      font-weight: 700;
+      margin-top: 4px;
+      direction: ltr;
+      text-align: right;
     }
 
     .eq-cell {
@@ -791,27 +979,26 @@
       display: inline-flex;
       flex-direction: column;
       align-items: center;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: #0f172a;
-      line-height: 1.1;
+      line-height: 1.08;
       vertical-align: middle;
     }
     .frac-sm .num {
-      border-bottom: 2px solid #0f172a;
-      padding: 0 4px 1px;
+      border-bottom: 1.8px solid #0f172a;
+      padding: 0 3px 1px;
     }
     .frac-sm .den {
-      padding: 1px 4px 0;
+      padding: 1px 3px 0;
     }
     .op-sm {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: #64748b;
-      margin: 0 4px;
+      margin: 0 3px;
     }
 
-    /* Mom & Dad Hug Note */
     .hug-note {
       background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
       border: 2px solid #f9a8d4;
@@ -821,11 +1008,10 @@
       padding: 12px 16px;
       border-radius: 16px;
       text-align: center;
-      margin-top: 1.1rem;
+      margin-top: 1rem;
       box-shadow: 0 4px 0 #fbcfe8;
     }
 
-    /* Animations */
     .shake {
       animation: sh 0.38s cubic-bezier(.36,.07,.19,.97) both;
     }
@@ -835,62 +1021,96 @@
       30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
       40%, 60% { transform: translate3d(7px, 0, 0); }
     }
-
     .pop {
       animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @keyframes pop {
       0% { transform: scale(1); }
-      45% { transform: scale(1.04); }
+      45% { transform: scale(1.03); }
       100% { transform: scale(1); }
     }
 
-    @media (max-width: 400px) {
-      .frac-box { font-size: 26px; padding: 6px 12px; min-width: 54px; }
-      .answer-frac-box input { width: 72px; font-size: 22px; }
-      .ans-line { width: 72px; }
-      .fraction-arena { gap: 8px; padding: 1rem 0.5rem; }
-      .op-badge { width: 34px; height: 34px; font-size: 20px; }
+    @media (max-width: 500px) {
+      .char-grid { grid-template-columns: repeat(2, 1fr); }
+      .count-row { grid-template-columns: repeat(3, 1fr); }
+      .frac-box { font-size: 24px; padding: 6px 10px; min-width: 50px; }
+      .answer-frac-box input { width: 68px; font-size: 21px; }
+      .ans-line { width: 68px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Floating Decorative Math Shapes -->
   <div class="bg-shapes" id="bg-shapes" aria-hidden="true"></div>
-
-  <!-- Confetti Canvas -->
   <canvas id="confetti-canvas"></canvas>
 
   <div id="app">
-    <!-- Top Sound & Title Bar -->
     <div class="top-controls">
-      <div class="level-pill">🏆 אלוף השברים</div>
-      <button class="sound-btn" id="sound-toggle" onclick="toggleSound()" aria-label="השתק או הפעל צלילים">
-        <span id="sound-icon">🔊</span>
-        <span id="sound-text">צלילים פעילים</span>
-      </button>
+      <div class="level-pill" id="header-pill">✨ אלוף השברים — חיבור וחיסור</div>
+      <div style="display:flex; gap:6px;">
+        <button class="home-mini-btn" id="home-btn" onclick="goHome()" style="display:none;" title="חזרה לתפריט הראשי">
+          <span>🏠</span>
+          <span>תפריט</span>
+        </button>
+        <button class="sound-btn" id="sound-toggle" onclick="toggleSound()" aria-label="השתק או הפעל צלילים">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-text">צלילים פעילים</span>
+        </button>
+      </div>
     </div>
 
-    <!-- ==================== מסך פתיחה ==================== -->
+    <!-- ==================== מסך פתיחה והתאמה אישית ==================== -->
     <div id="screen-start" class="screen active">
-      <div class="card" style="text-align:center; padding: 2rem 1.4rem;">
+      <div class="card" style="text-align:center; padding: 1.6rem 1.2rem;">
         <div class="mascot-wrap" id="mascot-start"></div>
-        <div class="speech-bubble">היי! אני שברול, מוכנים להרפתקה? ✨</div>
+        <div class="speech-bubble">היי! אני שברול — בחרו דמות, רמת קושי ומספר שאלות! ✨</div>
         <div class="title">אלוף השברים</div>
-        <div class="subtitle">בואו נתאמן על חיבור וחיסור שברים ונזכה במדליות!</div>
+        <div class="subtitle">הרפתקת חיבור וחיסור שברים — עזרו לדמות שלכם להגיע ליעד!</div>
 
-        <div class="rules-box">
-          <div class="rule-item"><span class="rule-icon">🎯</span><span><strong>5 שאלות</strong> מאתגרות של חיבור וחיסור שברים</span></div>
-          <div class="rule-item"><span class="rule-icon">❤️</span><span><strong>3 לבבות</strong> — שמרו עליהם היטב!</span></div>
-          <div class="rule-item"><span class="rule-icon">✂️</span><span><strong>חובה לצמצם!</strong> כתבו תמיד את השבר המצומצם ביותר</span></div>
+        <!-- בחירת דמות ויעד -->
+        <div class="setup-section">
+          <div class="setup-title">
+            <span>🎭 בחרו את הדמות והיעד</span>
+            <span class="setup-sub" id="selected-char-summary">פיה 🧚‍♀️ ← 🪄 שרביט הקסם</span>
+          </div>
+          <div class="char-grid" id="char-grid"></div>
         </div>
 
-        <div style="font-size:13px; font-weight:700; color:#64748b; margin-bottom:4px;">המדליות שאפשר להשיג:</div>
+        <!-- בחירת דרגת קושי -->
+        <div class="setup-section">
+          <div class="setup-title">
+            <span>🎚️ בחרו דרגת קושי</span>
+            <span class="setup-sub" id="diff-desc">מכנים עד 8, תרגילים ישירים</span>
+          </div>
+          <div class="preset-row">
+            <button type="button" class="preset-btn" data-diff="easy" onclick="selectDifficulty('easy')">
+              🌱 קל
+              <span class="desc">מכנים קטנים</span>
+            </button>
+            <button type="button" class="preset-btn active" data-diff="medium" onclick="selectDifficulty('medium')">
+              ⚡ בינוני
+              <span class="desc">מכנים 2–9</span>
+            </button>
+            <button type="button" class="preset-btn" data-diff="hard" onclick="selectDifficulty('hard')">
+              🔥 מאתגר
+              <span class="desc">מכנים עד 12 + נעלם X</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- בחירת מספר שאלות (5 עד 10) -->
+        <div class="setup-section">
+          <div class="setup-title">
+            <span>🔢 מספר שאלות במשחק</span>
+            <span class="setup-sub" id="count-label">5 שאלות</span>
+          </div>
+          <div class="count-row" id="count-row"></div>
+        </div>
+
         <div class="badge-row" id="badge-preview"></div>
 
-        <button class="btn success" onclick="startGame()" style="margin-top:0.5rem;">
-          <span>בואו נתחיל!</span>
+        <button class="btn success" onclick="startGame()" style="margin-top:0.4rem;">
+          <span>צאו להרפתקה!</span>
           <span>🚀</span>
         </button>
       </div>
@@ -898,7 +1118,20 @@
 
     <!-- ==================== מסך משחק ==================== -->
     <div id="screen-game" class="screen">
-      <!-- HUD Panel -->
+      <!-- מסלול התקדמות הדמות ליעד -->
+      <div class="journey-box">
+        <div class="journey-header">
+          <span id="journey-hero-label">🧚‍♀️ פיה על ענן</span>
+          <span id="journey-progress-text">0% בדרך אל 🪄 שרביט הקסם</span>
+        </div>
+        <div class="journey-track">
+          <div class="journey-fill" id="journey-fill"></div>
+          <span class="journey-hero" id="journey-hero">🧚‍♀️</span>
+          <span class="journey-goal" id="journey-goal">🪄</span>
+        </div>
+      </div>
+
+      <!-- HUD -->
       <div class="hud-panel" id="hud-panel">
         <div class="hud-top">
           <div class="lives-row" id="lives-row" title="הלבבות שלך"></div>
@@ -912,28 +1145,26 @@
         </div>
       </div>
 
-      <!-- Question Card -->
+      <!-- כרטיס שאלה -->
       <div class="card" id="question-card">
         <div class="q-header">
           <div class="q-label" id="q-label">שאלה 1 מתוך 5</div>
+          <div class="q-type-tag" id="q-type-tag">חיבור שברים</div>
           <div id="streak-area"></div>
         </div>
 
-        <!-- Mini Mascot Reaction -->
-        <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:0.8rem;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:0.7rem;">
           <div class="mascot-wrap mini" id="mascot-game" style="margin-bottom:0;"></div>
           <div class="speech-bubble" id="mascot-msg" style="margin-bottom:0;">מצאו מכנה משותף וחשבו!</div>
         </div>
 
-        <!-- Simplify Reminder -->
         <div class="simplify-hint">
           <span>✂️</span>
           <span>זכרו: כתבו את התשובה כשבר מצומצם!</span>
         </div>
 
-        <!-- Fraction Equation + Input Box -->
         <div class="fraction-arena" id="q-arena">
-          <div id="q-display" style="display:flex; align-items:center; gap:12px;"></div>
+          <div id="q-display" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
           <span class="op-equals">=</span>
           <div class="answer-frac-box">
             <input type="number" id="inp-num" placeholder="מונה" min="0" inputmode="numeric" aria-label="מונה">
@@ -942,11 +1173,10 @@
           </div>
         </div>
 
-        <!-- Optional Visual Fraction Bar Helper -->
         <div class="helper-toggle-wrap">
           <button type="button" class="helper-toggle-btn" onclick="toggleHelper()">
             <span>💡</span>
-            <span id="helper-btn-text">רמז ויזואלי (ציור שברים)</span>
+            <span id="helper-btn-text">רמז ויזואלי</span>
           </button>
         </div>
         <div class="helper-box" id="helper-box">
@@ -954,10 +1184,8 @@
           <div class="visual-bars" id="visual-bars"></div>
         </div>
 
-        <!-- Feedback Banner -->
         <div class="feedback" id="feedback"></div>
 
-        <!-- Check Button -->
         <button class="btn primary" id="check-btn" onclick="checkAnswer()">
           <span>בדיקה</span>
           <span>✓</span>
@@ -967,52 +1195,57 @@
 
     <!-- ==================== מסך גיים אובר ==================== -->
     <div id="screen-gameover" class="screen">
-      <div class="card" style="text-align:center; padding: 2rem 1.4rem;">
+      <div class="card" style="text-align:center; padding: 1.8rem 1.3rem;">
         <div class="mascot-wrap" id="mascot-gameover"></div>
         <div class="title" style="color:#b91c1c;">אוי... נגמרו הלבבות 💔</div>
-        <div class="subtitle" id="go-msg" style="font-size:16px; color:#334155;"></div>
+        <div class="subtitle" id="go-msg" style="font-size:15px; color:#334155;"></div>
+        <div class="detail-list" id="go-detail-list" style="margin-bottom:1rem;"></div>
         <button class="btn primary" onclick="startGame()">
-          <span>נסו שוב! אתם מסוגלים!</span>
+          <span>נסו שוב!</span>
           <span>💪</span>
+        </button>
+        <button class="btn" style="background:#f1f5f9; color:#334155; font-size:15px; padding:10px;" onclick="goHome()">
+          <span>שינוי דמות או רמת קושי</span>
         </button>
       </div>
     </div>
 
-    <!-- ==================== מסך סיום וניצחון ==================== -->
+    <!-- ==================== מסך סיכום מפורט ==================== -->
     <div id="screen-end" class="screen">
       <div class="card" style="text-align:center;">
         <div class="mascot-wrap" id="mascot-end"></div>
-        <div class="title" style="color:#15803d;">כל הכבוד! 🎉</div>
+        <div class="title" id="end-title" style="color:#15803d;">הגעתם ליעד! 🎉</div>
         <div class="subtitle" id="end-msg" style="font-weight:700; color:#334155; margin-bottom:0.5rem;"></div>
 
-        <div class="score-card">
-          <div class="score-big" id="end-score">0 XP</div>
-          <div class="score-sub" id="end-sub">5/5 נכונות</div>
+        <div class="summary-stats">
+          <div class="stat-box">
+            <div class="stat-val" id="end-score">0 XP</div>
+            <div class="stat-lbl">ניקוד כולל</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="end-accuracy">0/0</div>
+            <div class="stat-lbl">שאלות נכונות</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="end-time">0 שנ'</div>
+            <div class="stat-lbl">זמן כולל</div>
+          </div>
         </div>
 
         <div style="font-size:13px; font-weight:700; color:#64748b;">המדליות שצברת:</div>
         <div class="badge-row" id="end-badges"></div>
 
-        <div class="result-table-wrap">
-          <table class="result-grid">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>תרגיל</th>
-                <th>תשובה</th>
-                <th>ניסיונות</th>
-                <th>שניות</th>
-              </tr>
-            </thead>
-            <tbody id="result-body"></tbody>
-          </table>
-        </div>
+        <div class="summary-section-title">📋 פירוט מלא — איפה צדקת ואיפה טעית:</div>
+        <div class="detail-list" id="detail-list"></div>
 
         <div class="hug-note">אנא קרא לאמא או אבא לחיבוק גדול! 🤗</div>
 
-        <button class="btn success" style="margin-top:1.1rem;" onclick="startGame()">
-          <span>שחקו שוב</span>
+        <button class="btn success" style="margin-top:1rem;" onclick="startGame()">
+          <span>שחקו שוב באותן הגדרות</span>
           <span>🔄</span>
+        </button>
+        <button class="btn" style="background:#f1f5f9; color:#334155; font-size:15px; padding:10px;" onclick="goHome()">
+          <span>בחירת דמות או רמה חדשה</span>
         </button>
       </div>
     </div>
@@ -1020,7 +1253,7 @@
 
 <script>
   /* =========================================================
-     1. Sound Effects Engine (Web Audio API - Zero Dependencies)
+     1. Sound Effects Engine (Web Audio API)
      ========================================================= */
   let soundEnabled = true;
   let audioCtx = null;
@@ -1045,7 +1278,7 @@
     }
   }
 
-  function playTone(freq, type, duration, startTime = 0, vol = 0.15) {
+  function playTone(freq, type, duration, startTime = 0, vol = 0.14) {
     if (!soundEnabled) return;
     initAudio();
     if (!audioCtx) return;
@@ -1063,40 +1296,161 @@
     } catch (e) {}
   }
 
-  function playPopSound() {
-    playTone(520, 'sine', 0.08, 0, 0.12);
-  }
-
+  function playPopSound() { playTone(520, 'sine', 0.08, 0, 0.12); }
   function playCorrectSound() {
-    playTone(523.25, 'triangle', 0.14, 0, 0.18);     // C5
-    playTone(659.25, 'triangle', 0.14, 0.09, 0.18);  // E5
-    playTone(783.99, 'triangle', 0.25, 0.18, 0.2);   // G5
+    playTone(523.25, 'triangle', 0.14, 0, 0.16);
+    playTone(659.25, 'triangle', 0.14, 0.09, 0.16);
+    playTone(783.99, 'triangle', 0.24, 0.18, 0.18);
   }
-
   function playSimplifyHintSound() {
-    playTone(440, 'sine', 0.14, 0, 0.15);
-    playTone(554.37, 'sine', 0.2, 0.12, 0.15);
+    playTone(440, 'sine', 0.14, 0, 0.14);
+    playTone(554.37, 'sine', 0.2, 0.12, 0.14);
   }
-
   function playWrongSound() {
-    playTone(240, 'sawtooth', 0.18, 0, 0.12);
-    playTone(190, 'sawtooth', 0.25, 0.14, 0.12);
+    playTone(240, 'sawtooth', 0.18, 0, 0.11);
+    playTone(190, 'sawtooth', 0.24, 0.14, 0.11);
   }
-
   function playVictorySound() {
     const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
     const times = [0, 0.11, 0.22, 0.34, 0.50, 0.64];
-    notes.forEach((n, idx) => playTone(n, 'triangle', 0.25, times[idx], 0.2));
+    notes.forEach((n, idx) => playTone(n, 'triangle', 0.24, times[idx], 0.18));
   }
-
   function playGameOverSound() {
-    playTone(330, 'triangle', 0.22, 0, 0.15);
-    playTone(293.66, 'triangle', 0.22, 0.2, 0.15);
-    playTone(261.63, 'triangle', 0.4, 0.4, 0.15);
+    playTone(330, 'triangle', 0.22, 0, 0.14);
+    playTone(293.66, 'triangle', 0.22, 0.2, 0.14);
+    playTone(261.63, 'triangle', 0.38, 0.4, 0.14);
   }
 
   /* =========================================================
-     2. Custom Animated Mascot ("שברול" - Friendly Math Owl/Bot)
+     2. Characters & Goals (Balanced Boys, Girls & Fantasy)
+     ========================================================= */
+  const CHARACTERS = [
+    {
+      id: 'fairy',
+      hero: '🧚‍♀️',
+      heroName: 'פיה לילה',
+      goal: '🪄',
+      goalName: 'שרביט הקסם',
+      travelText: 'עפה על אבק כוכבים'
+    },
+    {
+      id: 'unicorn',
+      hero: '🦄',
+      heroName: 'חד-קרן קשת',
+      goal: '🌈',
+      goalName: 'גשר הקשת',
+      travelText: 'דואה בענני הקשת'
+    },
+    {
+      id: 'princess',
+      hero: '👸',
+      heroName: 'הנסיכה אביגיל',
+      goal: '👑',
+      goalName: 'הכתר המלכותי',
+      travelText: 'צועדת אל הארמון'
+    },
+    {
+      id: 'mermaid',
+      hero: '🧜‍♀️',
+      heroName: 'בת-הים מיה',
+      goal: '🐚',
+      goalName: 'פנינת האוקיינוס',
+      travelText: 'שוחה במעמקי הים'
+    },
+    {
+      id: 'dragon',
+      hero: '🐉',
+      heroName: 'הדרקון להב',
+      goal: '🏰',
+      goalName: 'טירת הלהבות',
+      travelText: 'פורש כנפיים לטירה'
+    },
+    {
+      id: 'astronaut',
+      hero: '🧑‍🚀',
+      heroName: 'האסטרונאוט עומר',
+      goal: '🪐',
+      goalName: 'כוכב הלכת שבתאי',
+      travelText: 'מרחף בחלל העמוק'
+    }
+  ];
+
+  let selectedCharId = 'fairy';
+  let difficulty = 'medium'; // 'easy' | 'medium' | 'hard'
+  let questionCount = 5;    // 5..10
+
+  const DIFF_INFO = {
+    easy: 'מכנים נוחים עד 6, תרגילי חיבור וחיסור ישירים',
+    medium: 'מכנים 2–9, תרגילי חיבור וחיסור מגוונים',
+    hard: 'מכנים עד 12 + משוואות חיבור וחיסור עם נעלם X'
+  };
+
+  function getSelectedChar() {
+    return CHARACTERS.find(c => c.id === selectedCharId) || CHARACTERS[0];
+  }
+
+  function renderCharacterGrid() {
+    const grid = document.getElementById('char-grid');
+    grid.innerHTML = '';
+    CHARACTERS.forEach(c => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'char-card' + (c.id === selectedCharId ? ' selected' : '');
+      card.onclick = () => {
+        playPopSound();
+        selectedCharId = c.id;
+        renderCharacterGrid();
+        updateCharSummary();
+      };
+      card.innerHTML = `
+        <div class="char-pair">
+          <span>${c.hero}</span>
+          <span class="char-arrow">←</span>
+          <span>${c.goal}</span>
+        </div>
+        <div class="char-name">${c.heroName}</div>
+        <div class="char-goal">אל ${c.goalName}</div>
+      `;
+      grid.appendChild(card);
+    });
+    updateCharSummary();
+  }
+
+  function updateCharSummary() {
+    const c = getSelectedChar();
+    document.getElementById('selected-char-summary').textContent =
+      `${c.hero} ${c.heroName} ← ${c.goal} ${c.goalName}`;
+  }
+
+  function selectDifficulty(diff) {
+    playPopSound();
+    difficulty = diff;
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.diff === diff);
+    });
+    document.getElementById('diff-desc').textContent = DIFF_INFO[diff];
+  }
+
+  function renderCountButtons() {
+    const row = document.getElementById('count-row');
+    row.innerHTML = '';
+    for (let n = 5; n <= 10; n++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'count-btn' + (n === questionCount ? ' active' : '');
+      btn.textContent = `${n}`;
+      btn.onclick = () => {
+        playPopSound();
+        questionCount = n;
+        document.getElementById('count-label').textContent = `${n} שאלות`;
+        renderCountButtons();
+      };
+      row.appendChild(btn);
+    }
+  }
+
+  /* =========================================================
+     3. Mascot & Confetti
      ========================================================= */
   function getMascotSVG(mood = 'happy') {
     let eyes = '';
@@ -1127,7 +1481,7 @@
       `;
       mouth = `<circle cx="52" cy="62" r="4" fill="#1e293b"/>`;
       extra = `<text x="75" y="26" font-size="18" font-weight="900" fill="#f59e0b">✂️</text>`;
-    } else if (mood === 'sad') {
+    } else {
       eyes = `
         <path d="M 33 50 L 43 46" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/>
         <path d="M 67 50 L 57 46" stroke="#1e293b" stroke-width="3.5" stroke-linecap="round"/>
@@ -1139,22 +1493,16 @@
 
     return `
       <svg class="mascot-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <!-- Antenna -->
         <line x1="50" y1="18" x2="50" y2="8" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
         <circle cx="50" cy="7" r="5" fill="#facc15" stroke="#eab308" stroke-width="2"/>
-        <!-- Ears -->
         <rect x="14" y="42" width="10" height="20" rx="5" fill="#3b82f6"/>
         <rect x="76" y="42" width="10" height="20" rx="5" fill="#3b82f6"/>
-        <!-- Head -->
         <rect x="20" y="18" width="60" height="62" rx="22" fill="#60a5fa" stroke="#2563eb" stroke-width="4"/>
-        <!-- Face Screen -->
         <rect x="27" y="32" width="46" height="40" rx="14" fill="#ffffff"/>
-        <!-- Cheeks -->
         <circle cx="33" cy="56" r="4" fill="#fda4af" opacity="0.7"/>
         <circle cx="67" cy="56" r="4" fill="#fda4af" opacity="0.7"/>
         ${eyes}
         ${mouth}
-        <!-- Fraction Badge on Forehead -->
         <rect x="40" y="21" width="20" height="9" rx="4" fill="#1d4ed8"/>
         <text x="50" y="28" font-size="7" font-weight="900" fill="#fde047" text-anchor="middle" font-family="Rubik, sans-serif">½ + ¼</text>
         ${extra}
@@ -1167,16 +1515,13 @@
     if (!el) return;
     el.innerHTML = getMascotSVG(mood);
     el.classList.remove('mascot-bounce');
-    void el.offsetWidth; // trigger reflow
+    void el.offsetWidth;
     el.classList.add('mascot-bounce');
     if (msgText !== null && containerId === 'mascot-game') {
       document.getElementById('mascot-msg').textContent = msgText;
     }
   }
 
-  /* =========================================================
-     3. Confetti Particle System
-     ========================================================= */
   const confettiCanvas = document.getElementById('confetti-canvas');
   const ctx = confettiCanvas.getContext('2d');
   let particles = [];
@@ -1212,10 +1557,9 @@
     particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      p.vy += 0.38; // gravity
+      p.vy += 0.38;
       p.rot += p.vRot;
       p.life -= 0.015;
-
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate((p.rot * Math.PI) / 180);
@@ -1233,7 +1577,7 @@
   }
 
   /* =========================================================
-     4. Core Game Logic & State (With Bug Fixes)
+     4. Math Engine: Addition & Subtraction (+ Optional X in Hard)
      ========================================================= */
   let questions = [];
   let cur = 0;
@@ -1242,54 +1586,64 @@
   let streak = 0;
   let startTime = 0;
   let attempts = 0;
+  let wrongInputsForCur = [];
   let log = [];
   let isTransitioning = false;
 
   const BADGES = [
     { id: 'speed',    label: '⚡ מהיר כברק',  desc: 'שאלה תוך 10 שניות' },
-    { id: 'perfect',  label: '🌟 ללא טעויות', desc: 'כל 5 שאלות בניסיון ראשון' },
+    { id: 'perfect',  label: '🌟 ללא טעויות', desc: 'כל השאלות בניסיון ראשון' },
     { id: 'streak3',  label: '🔥 3 ברצף',     desc: '3 נכונות ברצף' },
-    { id: 'comeback', label: '💪 חזרתי חזק',  desc: 'טעית ועדיין סיימת' },
+    { id: 'comeback', label: '💪 חזרתי חזק',  desc: 'תוקן לאחר טעות והגעת לסיום' },
   ];
   let earnedBadges = new Set();
 
   function gcd(a, b) {
     return b === 0 ? a : gcd(b, a % b);
   }
-
   function simplify(n, d) {
-    let g = gcd(Math.abs(n), Math.abs(d));
+    if (n === 0) return { n: 0, d: 1 };
+    const g = gcd(Math.abs(n), Math.abs(d));
     return { n: n / g, d: d / g };
   }
-
   function lcm(a, b) {
     return (a * b) / gcd(a, b);
   }
-
   function isSimplified(n, d) {
+    if (n === 0) return d === 1;
     return gcd(Math.abs(n), Math.abs(d)) === 1;
   }
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
 
-  function genQuestion() {
-    let op = ['+', '-'][Math.floor(Math.random() * 2)];
-    let d1, d2, n1, n2, common, a, b, resN;
+  function fracHTML(n, d) {
+    return `<div class="frac-box"><span class="num">${n}</span><span class="den">${d}</span></div>`;
+  }
+  function fracSmHTML(n, d) {
+    return `<span class="frac-sm"><span class="num">${n}</span><span class="den">${d}</span></span>`;
+  }
 
-    // Ensure different denominators and strictly positive result (resN > 0)
+  function genQuestion(index) {
+    const maxDen = difficulty === 'easy' ? 6 : difficulty === 'medium' ? 9 : 12;
+    const allowX = difficulty === 'hard' && index % 2 === 1;
+
+    let d1, d2, n1, n2, op, common, a, b, resN;
     do {
       do {
-        d1 = Math.floor(Math.random() * 8) + 2; // 2..9
-        d2 = Math.floor(Math.random() * 8) + 2; // 2..9
+        d1 = randInt(2, maxDen);
+        d2 = randInt(2, maxDen);
       } while (d1 === d2);
 
-      n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-      n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+      n1 = randInt(1, d1 - 1);
+      n2 = randInt(1, d2 - 1);
+      op = Math.random() < 0.5 ? '+' : '-';
 
       common = lcm(d1, d2);
       a = n1 * (common / d1);
       b = n2 * (common / d2);
 
       if (op === '-' && a <= b) {
-        // Swap fractions so subtraction is positive, or switch to '+'
         if (a < b) {
           [n1, n2] = [n2, n1];
           [d1, d2] = [d2, d1];
@@ -1298,16 +1652,88 @@
           op = '+';
         }
       }
-
       resN = op === '+' ? a + b : a - b;
-    } while (resN <= 0);
+    } while (resN <= 0 || resN >= common * 2);
 
-    let { n, d } = simplify(resN, common);
+    const sumOrDiff = simplify(resN, common);
+
+    // במצב מאתגר: חלק מהשאלות הן מציאת הנעלם X בחיבור או חיסור
+    if (allowX) {
+      if (op === '+') {
+        // n1/d1 + X = sumOrDiff.n/sumOrDiff.d  =>  X = sumOrDiff - n1/d1
+        const c2 = lcm(sumOrDiff.d, d1);
+        const xNumRaw = sumOrDiff.n * (c2 / sumOrDiff.d) - n1 * (c2 / d1);
+        if (xNumRaw > 0) {
+          const ans = simplify(xNumRaw, c2);
+          return {
+            kind: 'X',
+            typeLabel: 'משוואת חיבור עם X',
+            n1, d1, op: '+', n2: sumOrDiff.n, d2: sumOrDiff.d,
+            ans,
+            eqHTML: `${fracHTML(n1, d1)} <span class="op-badge">+</span> <span class="x-box">X</span> <span class="op-equals">=</span> ${fracHTML(sumOrDiff.n, sumOrDiff.d)}`,
+            summaryHTML: `<span class="eq-cell">${fracSmHTML(n1, d1)}<span class="op-sm">+</span><strong>X</strong><span class="op-sm">=</span>${fracSmHTML(sumOrDiff.n, sumOrDiff.d)}</span>`,
+            helperTip: `כדי למצוא את X במשוואת חיבור: חסרו את ${fracSmHTML(n1, d1)} מתוך ${fracSmHTML(sumOrDiff.n, sumOrDiff.d)}!`,
+            barA: { n: sumOrDiff.n, d: sumOrDiff.d, cls: 'filled-1' },
+            barB: { n: n1, d: d1, cls: 'filled-2' }
+          };
+        }
+      } else {
+        // n1/d1 - X = ans  (נבחר שבר קטן יותר ל-X כך שהתוצאה חיובית)
+        const c2 = lcm(d1, d2);
+        const topA = n1 * (c2 / d1);
+        const subB = n2 * (c2 / d2);
+        if (topA > subB) {
+          const resFrac = simplify(topA - subB, c2);
+          const xFrac = simplify(n2, d2);
+          return {
+            kind: 'X',
+            typeLabel: 'משוואת חיסור עם X',
+            n1, d1, op: '-', n2: resFrac.n, d2: resFrac.d,
+            ans: xFrac,
+            eqHTML: `${fracHTML(n1, d1)} <span class="op-badge">−</span> <span class="x-box">X</span> <span class="op-equals">=</span> ${fracHTML(resFrac.n, resFrac.d)}`,
+            summaryHTML: `<span class="eq-cell">${fracSmHTML(n1, d1)}<span class="op-sm">−</span><strong>X</strong><span class="op-sm">=</span>${fracSmHTML(resFrac.n, resFrac.d)}</span>`,
+            helperTip: `כדי למצוא כמה חסרו מ-${fracSmHTML(n1, d1)} כדי להגיע ל-${fracSmHTML(resFrac.n, resFrac.d)}: חשבו ${fracSmHTML(n1, d1)} − ${fracSmHTML(resFrac.n, resFrac.d)}!`,
+            barA: { n: n1, d: d1, cls: 'filled-1' },
+            barB: { n: resFrac.n, d: resFrac.d, cls: 'filled-2' }
+          };
+        }
+      }
+    }
+
+    const opSym = op === '+' ? '+' : '−';
     return {
-      n1, d1, op, n2, d2, common,
-      ans: { n, d },
-      display: `${n1}/${d1} ${op} ${n2}/${d2}`
+      kind: op,
+      typeLabel: op === '+' ? 'חיבור שברים' : 'חיסור שברים',
+      n1, d1, op, n2, d2,
+      ans: sumOrDiff,
+      eqHTML: `${fracHTML(n1, d1)} <span class="op-badge">${opSym}</span> ${fracHTML(n2, d2)}`,
+      summaryHTML: `<span class="eq-cell">${fracSmHTML(n1, d1)}<span class="op-sm">${opSym}</span>${fracSmHTML(n2, d2)}</span>`,
+      helperTip: `💡 טיפ: מצאו מכנה משותף ל-${d1} ול-${d2}, חשבו ואל תשכחו לצמצם!`,
+      barA: { n: n1, d: d1, cls: 'filled-1' },
+      barB: { n: n2, d: d2, cls: 'filled-2' }
     };
+  }
+
+  /* =========================================================
+     5. Journey & UI Rendering
+     ========================================================= */
+  function updateJourney(completedCount) {
+    const c = getSelectedChar();
+    const total = questions.length || 1;
+    const pct = Math.min(100, Math.round((completedCount / total) * 100));
+
+    document.getElementById('journey-hero').textContent = c.hero;
+    document.getElementById('journey-goal').textContent = c.goal;
+    document.getElementById('journey-hero-label').textContent = `${c.hero} ${c.heroName} — ${c.travelText}`;
+    document.getElementById('journey-progress-text').textContent = `${pct}% בדרך אל ${c.goal} ${c.goalName}`;
+    document.getElementById('journey-fill').style.width = pct + '%';
+
+    // Move hero smoothly from right (6px) toward left (calc(100% - 46px))
+    const heroEl = document.getElementById('journey-hero');
+    const trackWidth = heroEl.parentElement.clientWidth || 320;
+    const usableWidth = Math.max(40, trackWidth - 54);
+    const rightPx = 6 + (usableWidth * pct) / 100;
+    heroEl.style.right = `${rightPx}px`;
   }
 
   function renderLives() {
@@ -1341,24 +1767,43 @@
     setTimeout(() => el.remove(), 1200);
   }
 
+  function buildVisualHelper(q) {
+    document.getElementById('helper-text').innerHTML = q.helperTip;
+    const barsContainer = document.getElementById('visual-bars');
+    barsContainer.innerHTML = '';
+
+    [q.barA, q.barB].forEach(b => {
+      if (!b || b.d > 16 || b.n < 0) return;
+      const row = document.createElement('div');
+      row.className = 'v-bar-row';
+      let segs = '';
+      for (let i = 0; i < b.d; i++) {
+        segs += `<div class="v-bar-seg ${i < b.n ? b.cls : ''}"></div>`;
+      }
+      row.innerHTML = `<span class="v-bar-label">${b.n}/${b.d}</span><div class="v-bar-track">${segs}</div>`;
+      barsContainer.appendChild(row);
+    });
+  }
+
+  function toggleHelper() {
+    playPopSound();
+    document.getElementById('helper-box').classList.toggle('open');
+  }
+
   function renderQuestion() {
     isTransitioning = false;
     const q = questions[cur];
+    const c = getSelectedChar();
+
     document.getElementById('q-label').textContent = `שאלה ${cur + 1} מתוך ${questions.length}`;
-    document.getElementById('q-display').innerHTML = `
-      <div class="frac-box"><span class="num">${q.n1}</span><span class="den">${q.d1}</span></div>
-      <span class="op-badge">${q.op}</span>
-      <div class="frac-box"><span class="num">${q.n2}</span><span class="den">${q.d2}</span></div>
-    `;
+    document.getElementById('q-type-tag').textContent = q.typeLabel;
+    document.getElementById('q-display').innerHTML = q.eqHTML;
 
     document.getElementById('inp-num').value = '';
     document.getElementById('inp-den').value = '';
     document.getElementById('feedback').textContent = '';
     document.getElementById('feedback').className = 'feedback';
-
-    // Close visual helper on new question
-    const helperBox = document.getElementById('helper-box');
-    helperBox.classList.remove('open');
+    document.getElementById('helper-box').classList.remove('open');
     buildVisualHelper(q);
 
     document.getElementById('streak-area').innerHTML = streak >= 2
@@ -1367,50 +1812,19 @@
 
     startTime = Date.now();
     attempts = 0;
+    wrongInputsForCur = [];
 
     renderLives();
     renderStepDots();
+    updateJourney(cur);
 
-    const xpPct = Math.min((xp / 125) * 100, 100);
+    const maxPossibleXP = questions.length * 25;
+    const xpPct = Math.min((xp / maxPossibleXP) * 100, 100);
     document.getElementById('xp-bar').style.width = xpPct + '%';
     document.getElementById('xp-label').textContent = `${xp} XP ⭐`;
 
-    setMascot('mascot-game', 'happy', 'מצאו מכנה משותף וחשבו!');
-    setTimeout(() => document.getElementById('inp-num').focus(), 80);
-  }
-
-  function buildVisualHelper(q) {
-    document.getElementById('helper-text').innerHTML =
-      `💡 טיפ: כדי לחבר או לחסר שברים, מצאו מכנה משותף לשני המכנים (${q.d1} ו-${q.d2})!`;
-
-    const barsContainer = document.getElementById('visual-bars');
-    barsContainer.innerHTML = '';
-
-    // Bar 1 (Original fraction 1)
-    const row1 = document.createElement('div');
-    row1.className = 'v-bar-row';
-    let segs1 = '';
-    for (let i = 0; i < q.d1; i++) {
-      segs1 += `<div class="v-bar-seg ${i < q.n1 ? 'filled-1' : ''}"></div>`;
-    }
-    row1.innerHTML = `<span class="v-bar-label">${q.n1}/${q.d1}</span><div class="v-bar-track">${segs1}</div>`;
-
-    // Bar 2 (Original fraction 2)
-    const row2 = document.createElement('div');
-    row2.className = 'v-bar-row';
-    let segs2 = '';
-    for (let i = 0; i < q.d2; i++) {
-      segs2 += `<div class="v-bar-seg ${i < q.n2 ? 'filled-2' : ''}"></div>`;
-    }
-    row2.innerHTML = `<span class="v-bar-label">${q.n2}/${q.d2}</span><div class="v-bar-track">${segs2}</div>`;
-
-    barsContainer.appendChild(row1);
-    barsContainer.appendChild(row2);
-  }
-
-  function toggleHelper() {
-    playPopSound();
-    document.getElementById('helper-box').classList.toggle('open');
+    setMascot('mascot-game', 'happy', `${c.hero} עזרו לי להתקדם אל ${c.goal}!`);
+    setTimeout(() => document.getElementById('inp-num').focus(), 70);
   }
 
   function checkAnswer() {
@@ -1426,15 +1840,13 @@
       return;
     }
 
-    // Check numerical equivalence: uN / uD == q.ans.n / q.ans.d
     const valueCorrect = (uN * q.ans.d === uD * q.ans.n);
 
     if (valueCorrect && !isSimplified(uN, uD)) {
-      // Numerically right, but NOT simplified: guide gently without penalizing lives or attempts!
       playSimplifyHintSound();
       const commonDivisor = gcd(uN, uD);
-      setFeedback('hint-simplify', `✂️ נכון, אבל צמצמו עוד! חלקו מונה ומכנה ב-${commonDivisor}`);
-      setMascot('mascot-game', 'thinking', 'כמעט! רק נשאר לצמצם ✂️');
+      setFeedback('hint-simplify', `✂️ ערך נכון, אבל צמצמו עוד! חלקו מונה ומכנה ב-${commonDivisor}`);
+      setMascot('mascot-game', 'thinking', 'קרוב מאוד! נשאר לצמצם ✂️');
       const card = document.getElementById('question-card');
       card.classList.remove('shake');
       void card.offsetWidth;
@@ -1446,7 +1858,6 @@
     attempts++;
 
     if (n === q.ans.n && d === q.ans.d) {
-      // Correct & Simplified!
       isTransitioning = true;
       playCorrectSound();
       launchConfetti(45);
@@ -1457,12 +1868,14 @@
       xp += gained;
       streak++;
 
-      // Record single clean entry for this question
       log.push({
-        q: q.display,
+        num: cur + 1,
+        q: q.summaryHTML,
+        typeLabel: q.typeLabel,
         ans: `${q.ans.n}/${q.ans.d}`,
+        wrongTries: [...wrongInputsForCur],
         att: attempts,
-        secs: secs,
+        secs,
         ok: true
       });
 
@@ -1470,12 +1883,13 @@
       if (streak >= 3) earnedBadges.add('streak3');
 
       spawnFloatingXP(gained);
-      const xpPct = Math.min((xp / 125) * 100, 100);
-      document.getElementById('xp-bar').style.width = xpPct + '%';
+      const maxPossibleXP = questions.length * 25;
+      document.getElementById('xp-bar').style.width = Math.min((xp / maxPossibleXP) * 100, 100) + '%';
       document.getElementById('xp-label').textContent = `${xp} XP ⭐`;
 
+      updateJourney(cur + 1);
       setFeedback('ok', `${getOkMsg(streak)} (+${gained} XP)`);
-      setMascot('mascot-game', 'cheering', 'יש!! תשובה אלופה! 🌟');
+      setMascot('mascot-game', 'cheering', 'מצוין! מתקדמים ליעד! 🌟');
 
       const card = document.getElementById('question-card');
       card.classList.remove('pop');
@@ -1488,10 +1902,10 @@
         else renderQuestion();
       }, 1050);
     } else {
-      // Wrong Answer
       playWrongSound();
       streak = 0;
       lives--;
+      wrongInputsForCur.push(`${uN}/${uD}`);
       document.getElementById('streak-area').innerHTML = '';
 
       const card = document.getElementById('question-card');
@@ -1503,12 +1917,15 @@
 
       if (lives <= 0) {
         isTransitioning = true;
-        // Record failed question once before Game Over
+        const secs = Math.max(1, Math.round((Date.now() - startTime) / 1000));
         log.push({
-          q: q.display,
+          num: cur + 1,
+          q: q.summaryHTML,
+          typeLabel: q.typeLabel,
           ans: `${q.ans.n}/${q.ans.d}`,
+          wrongTries: [...wrongInputsForCur],
           att: attempts,
-          secs: '-',
+          secs,
           ok: false
         });
         setMascot('mascot-game', 'sad', 'אוי, נגמרו הלבבות...');
@@ -1516,13 +1933,11 @@
         return;
       }
 
-      // Open helper automatically after 1st mistake to assist child
       document.getElementById('helper-box').classList.add('open');
-
       const msgs = [
-        'לא נורא! בדקו את המכנה המשותף ונסו שוב 💪',
-        'כמעט! הציצו ברמז הוויזואלי למטה 💡',
-        'קחו נשימה עמוקה וחשבו שוב, אתם יכולים! 🌟'
+        'לא נורא! בדקו מכנה משותף ונסו שוב 💪',
+        'כמעט! הציצו ברמז הוויזואלי 💡',
+        'קחו נשימה עמוקה וחשבו שוב! 🌟'
       ];
       setFeedback('error', msgs[Math.min(attempts - 1, 2)]);
       setMascot('mascot-game', 'sad', 'לא נורא, נסו שוב! 💪');
@@ -1539,38 +1954,83 @@
   function setFeedback(type, msg) {
     const el = document.getElementById('feedback');
     el.textContent = msg;
-    if (type === 'ok') el.className = 'feedback ok';
-    else if (type === 'hint-simplify') el.className = 'feedback hint-simplify';
-    else el.className = 'feedback err';
+    el.className = 'feedback ' + (type === 'ok' ? 'ok' : type === 'hint-simplify' ? 'hint-simplify' : 'err');
   }
 
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => {
       s.classList.toggle('active', s.id === id);
     });
+    document.getElementById('home-btn').style.display = id === 'screen-start' ? 'none' : 'inline-flex';
+  }
+
+  function goHome() {
+    playPopSound();
+    showScreen('screen-start');
+    setMascot('mascot-start', 'happy');
   }
 
   function startGame() {
     initAudio();
     playPopSound();
     questions = [];
-    for (let i = 0; i < 5; i++) questions.push(genQuestion());
+    for (let i = 0; i < questionCount; i++) {
+      questions.push(genQuestion(i));
+    }
     cur = 0;
     lives = 3;
     xp = 0;
     streak = 0;
     log = [];
     earnedBadges = new Set();
+
+    const diffNames = { easy: 'קל', medium: 'בינוני', hard: 'מאתגר' };
+    document.getElementById('header-pill').textContent =
+      `✨ רמה: ${diffNames[difficulty]} · ${questionCount} שאלות`;
+
     showScreen('screen-game');
     renderQuestion();
   }
 
+  function buildDetailItemHTML(item) {
+    const p = item.ans.split('/');
+    const ansHTML = fracSmHTML(p[0], p[1]);
+    const isFirstTry = item.ok && item.att === 1;
+    const cls = item.ok ? 'is-right' : 'is-wrong';
+    const badgeHTML = item.ok
+      ? `<span class="status-pill-ok">${isFirstTry ? '✓ צדקת בניסיון 1' : `✓ צדקת (${item.att} ניסיונות)`}</span>`
+      : `<span class="status-pill-err">✗ טעית בשאלה זו</span>`;
+
+    const wrongLine = item.wrongTries && item.wrongTries.length > 0
+      ? `<div class="wrong-tries">ניסיונות שגויים שהוזנו: ${item.wrongTries.join(' , ')}</div>`
+      : '';
+
+    return `
+      <div class="detail-item ${cls}">
+        <div class="detail-top">
+          <span>שאלה ${item.num} · ${item.typeLabel}</span>
+          ${badgeHTML}
+        </div>
+        <div class="detail-body">
+          <span>תרגיל: ${item.q}</span>
+          <span>תשובה נכונה: <span class="eq-cell">${ansHTML}</span></span>
+          <span>⏱️ ${item.secs} שנ'</span>
+        </div>
+        ${wrongLine}
+      </div>
+    `;
+  }
+
   function gameOver() {
     playGameOverSound();
+    const c = getSelectedChar();
     const correct = log.filter(l => l.ok).length;
     setMascot('mascot-gameover', 'sad');
     document.getElementById('go-msg').textContent =
-      `פתרת נכון ${correct} מתוך ${questions.length} שאלות. כל טעות היא הזדמנות ללמוד — בואו ננסה שוב!`;
+      `${c.hero} ${c.heroName} עצר/ה ב-${correct} מתוך ${questions.length} שאלות. הנה מה שקרה עד כאן:`;
+
+    const list = document.getElementById('go-detail-list');
+    list.innerHTML = log.map(buildDetailItemHTML).join('');
     showScreen('screen-gameover');
   }
 
@@ -1578,22 +2038,29 @@
     playVictorySound();
     launchConfetti(100);
 
-    const perfect = log.every(l => l.att === 1 && l.ok);
-    const hadMistake = log.some(l => l.att > 1 || !l.ok);
+    const c = getSelectedChar();
+    const perfect = log.length === questions.length && log.every(l => l.ok && l.att === 1);
+    const hadMistake = log.some(l => l.ok && (l.att > 1 || (l.wrongTries && l.wrongTries.length > 0)));
     if (perfect) earnedBadges.add('perfect');
     if (hadMistake) earnedBadges.add('comeback');
 
     const correct = log.filter(l => l.ok).length;
+    const totalSecs = log.reduce((acc, item) => acc + (typeof item.secs === 'number' ? item.secs : 0), 0);
+
     setMascot('mascot-end', 'cheering');
+    document.getElementById('end-title').textContent = `${c.hero} הגיע/ה אל ${c.goal} ${c.goalName}! 🎉`;
 
     const msgs = [
-      'יפה מאוד, ממשיכים להשתפר!',
-      'מצוין! אתם שולטים בשברים!',
-      'מושלם! אתם אלופי השברים! 🏆'
+      'יפה מאוד! כל תרגיל מקרב אתכם לשליטה מלאה!',
+      'מצוין! אתם שולטים בחיבור וחיסור שברים!',
+      'מושלם! מסע אגדי והצלחה מלאה! 🏆'
     ];
-    document.getElementById('end-msg').textContent = correct >= 5 ? msgs[2] : correct >= 3 ? msgs[1] : msgs[0];
+    document.getElementById('end-msg').textContent =
+      correct === questions.length ? msgs[2] : correct >= Math.ceil(questions.length * 0.6) ? msgs[1] : msgs[0];
+
     document.getElementById('end-score').textContent = `${xp} XP`;
-    document.getElementById('end-sub').textContent = `${correct}/${questions.length} נכונות`;
+    document.getElementById('end-accuracy').textContent = `${correct}/${questions.length}`;
+    document.getElementById('end-time').textContent = `${totalSecs} שנ'`;
 
     const eb = document.getElementById('end-badges');
     eb.innerHTML = '';
@@ -1606,46 +2073,19 @@
       eb.appendChild(el);
     });
 
-    const tbody = document.getElementById('result-body');
-    tbody.innerHTML = '';
-    log.forEach((l, i) => {
-      const m = l.q.match(/(\d+)\/(\d+)\s*([+\-])\s*(\d+)\/(\d+)/);
-      const qHTML = m
-        ? `<span class="eq-cell">
-             <span class="frac-sm"><span class="num">${m[1]}</span><span class="den">${m[2]}</span></span>
-             <span class="op-sm">${m[3]}</span>
-             <span class="frac-sm"><span class="num">${m[4]}</span><span class="den">${m[5]}</span></span>
-           </span>`
-        : l.q;
-      const p = l.ans.split('/');
-      const aHTML = p.length === 2
-        ? `<span class="frac-sm"><span class="num">${p[0]}</span><span class="den">${p[1]}</span></span>`
-        : l.ans;
-
-      tbody.innerHTML += `<tr>
-        <td>${i + 1}</td>
-        <td>${qHTML}</td>
-        <td>${aHTML}</td>
-        <td class="${l.ok && l.att === 1 ? 'td-ok' : !l.ok ? 'td-err' : ''}">${l.att}</td>
-        <td>${l.secs}</td>
-      </tr>`;
-    });
-
+    document.getElementById('detail-list').innerHTML = log.map(buildDetailItemHTML).join('');
     showScreen('screen-end');
   }
 
   /* =========================================================
-     5. Keyboard Navigation & Initialization
+     6. Keyboard & Initial Setup
      ========================================================= */
   document.getElementById('inp-num').addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const denInput = document.getElementById('inp-den');
-      if (!denInput.value) {
-        denInput.focus();
-      } else {
-        checkAnswer();
-      }
+      if (!denInput.value) denInput.focus();
+      else checkAnswer();
     }
   });
 
@@ -1656,8 +2096,9 @@
     }
   });
 
-  // Initialize Start Screen Mascot, Badges & Floating Background Shapes
   setMascot('mascot-start', 'happy');
+  renderCharacterGrid();
+  renderCountButtons();
 
   const bp = document.getElementById('badge-preview');
   BADGES.forEach(b => {
@@ -1670,7 +2111,7 @@
 
   (function initBackgroundShapes() {
     const container = document.getElementById('bg-shapes');
-    const symbols = ['½', '¼', '¾', '⅓', '+', '−', '★', '⅔', '⅕'];
+    const symbols = ['½', '¼', '¾', '⅓', '+', '−', 'X', '✨', '⅔'];
     for (let i = 0; i < 16; i++) {
       const span = document.createElement('span');
       span.className = 'bg-shape';
