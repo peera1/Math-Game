@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>הרפתקת השברים - כיתה ו׳ 🏆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-shadow: #1e40af;
+      --green: #22c55e;
+      --green-shadow: #15803d;
+      --amber: #f59e0b;
+      --amber-light: #fef3c7;
+      --amber-dark: #92400e;
+      --red: #ef4444;
+      --red-light: #fee2e2;
+      --red-dark: #b91c1c;
+      --purple: #7c3aed;
+      --purple-light: #f3e8ff;
+    }
+
+    body {
+      font-family: 'Rubik', 'Segoe UI', Tahoma, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 48%, #fef3c7 100%);
+      min-height: 100vh;
+      padding: 0.9rem;
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    /* Floating Background Math Symbols */
+    .bg-shapes {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-shape {
+      position: absolute;
+      font-weight: 900;
+      color: rgba(37, 99, 235, 0.07);
+      user-select: none;
+      animation: floatShape linear infinite;
+    }
+    @keyframes floatShape {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-15vh) rotate(360deg); opacity: 0; }
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 600px;
+      position: relative;
+      z-index: 10;
+      margin: 0 auto;
+    }
+
+    /* Top Bar */
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      gap: 8px;
+    }
+
+    .brand-pill {
+      background: #ffffff;
+      border: 2px solid #fde68a;
+      border-bottom: 4px solid #fbbf24;
+      border-radius: 14px;
+      padding: 6px 14px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #92400e;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sound-btn {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-bottom: 4px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 6px 12px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, border-bottom-width 0.1s;
+    }
+    .sound-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active {
+      display: block;
+      animation: screenEnter 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes screenEnter {
+      0% { opacity: 0; transform: scale(0.94) translateY(14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 3px solid #e2e8f0;
+      border-bottom: 8px solid #cbd5e1;
+      border-radius: 26px;
+      padding: 1.4rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      position: relative;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 900;
+      color: #1e3a8a;
+      text-align: center;
+      margin-bottom: 0.3rem;
+    }
+    .subtitle {
+      font-size: 14.5px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 1.1rem;
+      line-height: 1.5;
+    }
+
+    /* Section Headings in Setup */
+    .setup-section {
+      margin-bottom: 1.2rem;
+    }
+    .setup-label {
+      font-size: 15px;
+      font-weight: 800;
+      color: #334155;
+      margin-bottom: 0.55rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Character Grid */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .char-card {
+      background: #f8fafc;
+      border: 2.5px solid #e2e8f0;
+      border-bottom: 5px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+    .char-card:hover {
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+    .char-card.selected {
+      background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+      border-color: #2563eb;
+      border-bottom-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+    }
+    .char-emoji {
+      font-size: 32px;
+      display: block;
+      margin-bottom: 2px;
+    }
+    .char-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .char-goal-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: #475569;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 99px;
+      padding: 2px 6px;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    /* Difficulty Presets */
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .diff-btn {
+      background: #f8fafc;
+      border: 2.5px solid #e2e8f0;
+      border-bottom: 5px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      font-family: 'Rubik', sans-serif;
+      transition: all 0.18s;
+    }
+    .diff-btn:hover { transform: translateY(-2px); }
+    .diff-btn.selected[data-diff="easy"] {
+      background: #dcfce7;
+      border-color: #22c55e;
+      border-bottom-color: #16a34a;
+      color: #14532d;
+    }
+    .diff-btn.selected[data-diff="medium"] {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      border-bottom-color: #d97706;
+      color: #78350f;
+    }
+    .diff-btn.selected[data-diff="hard"] {
+      background: #fee2e2;
+      border-color: #ef4444;
+      border-bottom-color: #dc2626;
+      color: #7f1d1d;
+    }
+    .diff-title {
+      font-size: 15px;
+      font-weight: 900;
+      display: block;
+    }
+    .diff-desc {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* Question Count Pills (5 to 10) */
+    .count-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .count-btn {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-bottom: 4px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 9px 4px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .count-btn.selected {
+      background: #7c3aed;
+      border-color: #6d28d9;
+      border-bottom-color: #5b21b6;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Tactile 3D Buttons */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 20px;
+      font-size: 18px;
+      font-weight: 800;
+      font-family: 'Rubik', sans-serif;
+      cursor: pointer;
+      border-radius: 18px;
+      border: none;
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+      user-select: none;
+    }
+    .btn:hover { filter: brightness(1.04); }
+    .btn:active { transform: translateY(4px); }
+
+    .btn.primary {
+      background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+      color: #ffffff;
+      box-shadow: 0 5px 0 var(--primary-shadow), 0 8px 16px rgba(37, 99, 235, 0.25);
+    }
+    .btn.primary:active { box-shadow: 0 1px 0 var(--primary-shadow); }
+
+    .btn.success {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      color: #ffffff;
+      box-shadow: 0 5px 0 var(--green-shadow), 0 8px 16px rgba(22, 163, 74, 0.25);
+    }
+    .btn.success:active { box-shadow: 0 1px 0 var(--green-shadow); }
+
+    .btn.secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border: 2px solid #cbd5e1;
+      box-shadow: 0 4px 0 #94a3b8;
+      font-size: 15px;
+      padding: 10px 16px;
+    }
+    .btn.secondary:active { box-shadow: 0 1px 0 #94a3b8; }
+
+    /* ==================== ADVENTURE JOURNEY TRACK ==================== */
+    .journey-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+      border: 2.5px solid #bae6fd;
+      border-bottom: 6px solid #7dd3fc;
+      border-radius: 22px;
+      padding: 0.85rem 1rem 1rem;
+      margin-bottom: 0.85rem;
+      position: relative;
+    }
+
+    .hud-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .lives-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .heart {
+      font-size: 22px;
+      display: inline-block;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s;
+    }
+    .heart.lost {
+      filter: grayscale(1) opacity(0.25);
+      transform: scale(0.75) rotate(-15deg);
+    }
+    .heart.pulse-danger { animation: heartDanger 0.9s infinite; }
+    @keyframes heartDanger {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+
+    .xp-pill {
+      background: #fef9c3;
+      border: 2px solid #facc15;
+      color: #854d0e;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      direction: ltr;
+    }
+
+    .journey-caption {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0369a1;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    /* Visual Path from Right (Start) to Left (Destination) */
+    .track-container {
+      position: relative;
+      height: 54px;
+      margin: 0 14px;
+      display: flex;
+      align-items: center;
+    }
+    .track-line-bg {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 99px;
+      border: 1.5px solid #cbd5e1;
+    }
+    .track-line-fill {
+      position: absolute;
+      right: 0;
+      height: 10px;
+      background: linear-gradient(270deg, #38bdf8 0%, #22c55e 100%);
+      border-radius: 99px;
+      transition: width 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .track-nodes {
+      position: relative;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+    }
+    .track-node {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid #94a3b8;
+      transition: all 0.3s;
+    }
+    .track-node.passed {
+      background: #22c55e;
+      border-color: #15803d;
+    }
+    .track-node.destination {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #fef3c7;
+      border: 3px solid #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      box-shadow: 0 3px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    .hero-avatar-mover {
+      position: absolute;
+      top: -12px;
+      right: 0%;
+      transform: translateX(50%);
+      font-size: 32px;
+      z-index: 5;
+      transition: right 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.18));
+      user-select: none;
+    }
+    .hero-hop {
+      animation: heroHop 0.6s ease;
+    }
+    @keyframes heroHop {
+      0%, 100% { transform: translateX(50%) translateY(0) scale(1); }
+      50% { transform: translateX(50%) translateY(-14px) scale(1.18); }
+    }
+
+    /* Floating XP Gain Popup */
+    .xp-float {
+      position: absolute;
+      top: -8px;
+      left: 16px;
+      background: #facc15;
+      color: #713f12;
+      font-weight: 900;
+      font-size: 15px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      border: 2px solid #eab308;
+      box-shadow: 0 4px 10px rgba(234, 179, 8, 0.4);
+      pointer-events: none;
+      z-index: 50;
+      animation: floatUpXP 1.2s ease-out forwards;
+    }
+    @keyframes floatUpXP {
+      0% { opacity: 1; transform: translateY(12px) scale(0.75); }
+      30% { opacity: 1; transform: translateY(-6px) scale(1.15); }
+      100% { opacity: 0; transform: translateY(-38px) scale(1); }
+    }
+
+    /* Question Header & Badges */
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .q-label {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #334155;
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 99px;
+    }
+    .q-type-tag {
+      font-size: 12.5px;
+      font-weight: 800;
+      padding: 4px 11px;
+      border-radius: 99px;
+    }
+    .q-type-tag.standard {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1.5px solid #7dd3fc;
+    }
+    .q-type-tag.algebra {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border: 1.5px solid #d8b4fe;
+    }
+
+    .streak-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      color: #92400e;
+      border: 2px solid #f59e0b;
+      border-radius: 99px;
+      padding: 3px 10px;
+      font-size: 12.5px;
+      font-weight: 800;
+      animation: pop 0.4s ease;
+    }
+
+    .simplify-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #fffbeb;
+      border: 2px solid #fbbf24;
+      border-bottom: 3px solid #f59e0b;
+      border-radius: 12px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #92400e;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    /* Equation Display (Strictly LTR for math accuracy) */
+    .fraction-arena {
+      background: #f8fafc;
+      border: 2.5px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 1.2rem 0.75rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      direction: ltr;
+      flex-wrap: wrap;
+    }
+
+    .frac-box {
+      background: #ffffff;
+      border: 2px solid #cbd5e1;
+      border-bottom: 4px solid #94a3b8;
+      border-radius: 15px;
+      padding: 7px 14px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.1;
+      min-width: 56px;
+    }
+    .frac-box .num {
+      border-bottom: 3px solid #0f172a;
+      padding: 0 6px 4px;
+      width: 100%;
+      text-align: center;
+    }
+    .frac-box .den {
+      padding: 4px 6px 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .x-variable-box {
+      background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+      border: 3px solid #9333ea;
+      border-bottom: 5px solid #7e22ce;
+      border-radius: 16px;
+      width: 58px;
+      height: 68px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: 900;
+      font-style: italic;
+      color: #581c87;
+      box-shadow: 0 4px 10px rgba(147, 51, 234, 0.2);
+    }
+
+    .op-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      border: 2px solid #93c5fd;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 900;
+    }
+    .op-equals {
+      font-size: 28px;
+      font-weight: 900;
+      color: #64748b;
+    }
+
+    /* Answer Input Area */
+    .answer-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 0.9rem;
+      direction: ltr;
+    }
+    .answer-prefix {
+      font-size: 26px;
+      font-weight: 900;
+      color: #581c87;
+      font-style: italic;
+    }
+    .answer-frac-box {
+      background: #eff6ff;
+      border: 3px dashed #3b82f6;
+      border-radius: 18px;
+      padding: 10px 14px;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .answer-frac-box input {
+      width: 86px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 900;
+      font-family: 'Rubik', sans-serif;
+      border-radius: 12px;
+      border: 2.5px solid #93c5fd;
+      padding: 6px;
+      background: #ffffff;
+      color: #1e3a8a;
+      outline: none;
+      transition: all 0.2s;
+      -moz-appearance: textfield;
+    }
+    .answer-frac-box input::-webkit-outer-spin-button,
+    .answer-frac-box input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .answer-frac-box input::placeholder {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+    .answer-frac-box input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+      transform: scale(1.03);
+    }
+    .ans-line {
+      width: 86px;
+      height: 4px;
+      background: #1e3a8a;
+      border-radius: 99px;
+    }
+
+    /* Strategy Tip Drawer */
+    .helper-toggle-wrap {
+      text-align: center;
+      margin-bottom: 0.7rem;
+    }
+    .helper-toggle-btn {
+      background: #f3e8ff;
+      border: 2px solid #d8b4fe;
+      border-bottom: 3px solid #c084fc;
+      color: #6b21a8;
+      font-family: 'Rubik', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .helper-box {
+      display: none;
+      background: #faf5ff;
+      border: 2px solid #e9d5ff;
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 0.85rem;
+      font-size: 13px;
+      font-weight: 600;
+      color: #581c87;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .helper-box.open { display: block; animation: screenEnter 0.25s ease; }
+
+    /* Feedback Banner */
+    .feedback {
+      text-align: center;
+      font-size: 14.5px;
+      font-weight: 700;
+      min-height: 36px;
+      padding: 7px 12px;
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feedback:empty { background: transparent; padding: 0; min-height: 20px; }
+    .feedback.ok { background: #dcfce7; color: #15803d; border: 2px solid #86efac; }
+    .feedback.err { background: #fee2e2; color: #b91c1c; border: 2px solid #fca5a5; }
+    .feedback.hint-simplify { background: #fef3c7; color: #92400e; border: 2px solid #fcd34d; }
+
+    /* ==================== END OF GAME DETAILED REPORT ==================== */
+    .summary-hero-banner {
+      font-size: 48px;
+      margin-bottom: 0.3rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 0.9rem 0;
+    }
+    .stat-box {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 18px;
+      font-weight: 900;
+      color: #1e3a8a;
+      direction: ltr;
+    }
+    .stat-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      margin: 0.75rem 0;
+    }
+    .badge {
+      font-size: 12px;
+      padding: 5px 11px;
+      border-radius: 12px;
+      font-weight: 700;
+    }
+    .badge.earned {
+      background: #dcfce7;
+      color: #15803d;
+      border: 2px solid #4ade80;
+    }
+    .badge.locked {
+      background: #f1f5f9;
+      color: #94a3b8;
+      border: 1.5px solid #e2e8f0;
+    }
+
+    /* Detailed Question-by-Question Review Cards */
+    .review-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 0.9rem;
+      text-align: right;
+    }
+    .review-item {
+      border-radius: 18px;
+      padding: 12px 14px;
+      border: 2px solid #e2e8f0;
+      background: #ffffff;
+    }
+    .review-item.status-ok {
+      border-color: #86efac;
+      background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    }
+    .review-item.status-recovered {
+      border-color: #fcd34d;
+      background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+    }
+    .review-item.status-fail {
+      border-color: #fca5a5;
+      background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+    }
+
+    .rev-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .rev-status-badge {
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+    }
+    .rev-status-badge.ok { background: #dcfce7; color: #15803d; }
+    .rev-status-badge.recovered { background: #fef3c7; color: #92400e; }
+    .rev-status-badge.fail { background: #fee2e2; color: #b91c1c; }
+
+    .rev-body {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+
+    .eq-inline {
+      direction: ltr;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .frac-sm {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.05;
+      vertical-align: middle;
+    }
+    .frac-sm .num { border-bottom: 2px solid currentColor; padding: 0 4px 1px; }
+    .frac-sm .den { padding: 1px 4px 0; }
+    .x-sm {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border: 1.5px solid #c084fc;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-style: italic;
+      font-weight: 900;
+    }
+
+    .rev-answers {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 13px;
+    }
+    .ans-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+    .ans-correct-pill {
+      background: #dcfce7;
+      color: #15803d;
+      padding: 2px 8px;
+      border-radius: 8px;
+      direction: ltr;
+      display: inline-flex;
+      align-items: center;
+    }
+    .ans-wrong-pill {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 2px 8px;
+      border-radius: 8px;
+      text-decoration: line-through;
+      direction: ltr;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 4px;
+    }
+
+    /* Animations */
+    .shake { animation: sh 0.38s cubic-bezier(.36,.07,.19,.97) both; }
+    @keyframes sh {
+      10%, 90% { transform: translate3d(-3px, 0, 0); }
+      20%, 80% { transform: translate3d(5px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-7px, 0, 0); }
+      40%, 60% { transform: translate3d(7px, 0, 0); }
+    }
+    .pop { animation: pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 440px) {
+      .char-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .frac-box { font-size: 22px; padding: 5px 10px; min-width: 46px; }
+      .x-variable-box { width: 48px; height: 56px; font-size: 28px; }
+      .op-badge { width: 32px; height: 32px; font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-shapes" id="bg-shapes" aria-hidden="true"></div>
+  <canvas id="confetti-canvas"></canvas>
+
+  <div id="app">
+    <!-- Top Header Controls -->
+    <div class="top-controls">
+      <div class="brand-pill">🎓 כיתה ו׳ • כפל, חילוק ונעלמים</div>
+      <button class="sound-btn" id="sound-toggle" onclick="toggleSound()">
+        <span id="sound-icon">🔊</span>
+        <span id="sound-text">צלילים פעילים</span>
+      </button>
+    </div>
+
+    <!-- ==================== מסך פתיחה והגדרות ==================== -->
+    <div id="screen-start" class="screen active">
+      <div class="card">
+        <div class="title">הרפתקת השברים 🚀</div>
+        <div class="subtitle">פתרו תרגילי כפל, חילוק ומשוואות עם נעלם <strong>X</strong> כדי להוביל את הדמות שלכם אל היעד!</div>
+
+        <!-- 1. בחירת דמות ויעד -->
+        <div class="setup-section">
+          <div class="setup-label">1️⃣ בחרו את הדמות והיעד שלכם:</div>
+          <div class="char-grid" id="char-grid"></div>
+        </div>
+
+        <!-- 2. בחירת רמת קושי -->
+        <div class="setup-section">
+          <div class="setup-label">2️⃣ בחרו רמת קושי:</div>
+          <div class="diff-grid" id="diff-grid">
+            <button type="button" class="diff-btn selected" data-diff="easy" onclick="selectDifficulty('easy')">
+              <span class="diff-title">🌱 קל</span>
+              <span class="diff-desc">מכנים קטנים ומעט X</span>
+            </button>
+            <button type="button" class="diff-btn" data-diff="medium" onclick="selectDifficulty('medium')">
+              <span class="diff-title">⚡ בינוני</span>
+              <span class="diff-desc">צמצום ושילוב נעלם X</span>
+            </button>
+            <button type="button" class="diff-btn" data-diff="hard" onclick="selectDifficulty('hard')">
+              <span class="diff-title">🔥 מאתגר</span>
+              <span class="diff-desc">שברים גדולים והרבה X</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. בחירת מספר שאלות (5 עד 10) -->
+        <div class="setup-section">
+          <div class="setup-label">3️⃣ כמה שאלות במסע? (5 עד 10):</div>
+          <div class="count-row" id="count-row"></div>
+        </div>
+
+        <button class="btn success" onclick="startGame()" id="start-btn">
+          <span>יוצאים לדרך!</span>
+          <span>🏁</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== מסך משחק ==================== -->
+    <div id="screen-game" class="screen">
+      <!-- Journey Map & HUD -->
+      <div class="journey-card" id="hud-panel">
+        <div class="hud-top">
+          <div class="lives-row" id="lives-row" title="הלבבות שלך"></div>
+          <div class="xp-pill" id="xp-label">0 XP ⭐</div>
+        </div>
+
+        <div class="journey-caption" id="journey-caption"></div>
+
+        <!-- Adventure Progress Track -->
+        <div class="track-container">
+          <div class="track-line-bg"></div>
+          <div class="track-line-fill" id="track-fill" style="width: 0%;"></div>
+          <div class="hero-avatar-mover" id="hero-mover">👸</div>
+          <div class="track-nodes" id="track-nodes"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="card" id="question-card">
+        <div class="q-header">
+          <div class="q-label" id="q-label">שאלה 1 מתוך 5</div>
+          <div id="q-type-badge" class="q-type-tag standard">כפל שברים</div>
+          <div id="streak-area"></div>
+        </div>
+
+        <div class="simplify-hint">
+          <span>✂️</span>
+          <span>כתבו את התשובה כשבר מצומצם (אם יצא מספר שלם, כתבו במכנה 1)</span>
+        </div>
+
+        <!-- Equation Display -->
+        <div class="fraction-arena" id="q-display"></div>
+
+        <!-- Answer Input Area -->
+        <div class="answer-section">
+          <span class="answer-prefix" id="answer-prefix" style="display:none;">X =</span>
+          <div class="answer-frac-box">
+            <input type="number" id="inp-num" placeholder="מונה" min="0" inputmode="numeric" aria-label="מונה">
+            <div class="ans-line"></div>
+            <input type="number" id="inp-den" placeholder="מכנה" min="1" inputmode="numeric" aria-label="מכנה">
+          </div>
+        </div>
+
+        <!-- Strategy Hint Toggle -->
+        <div class="helper-toggle-wrap">
+          <button type="button" class="helper-toggle-btn" onclick="toggleHelper()">
+            <span>💡</span>
+            <span>רמז לפתרון התרגיל</span>
+          </button>
+        </div>
+        <div class="helper-box" id="helper-box"></div>
+
+        <!-- Feedback Message -->
+        <div class="feedback" id="feedback"></div>
+
+        <!-- Submit Button -->
+        <button class="btn primary" onclick="checkAnswer()">
+          <span>בדיקת תשובה</span>
+          <span>✓</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== מסך סיום ודו"ח מפורט ==================== -->
+    <div id="screen-end" class="screen">
+      <div class="card" style="text-align:center;">
+        <div class="summary-hero-banner" id="end-hero-banner">👸 👑</div>
+        <div class="title" id="end-title">כל הכבוד! הגעת אל היעד!</div>
+        <div class="subtitle" id="end-subtitle"></div>
+
+        <!-- Key Metrics -->
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-val" id="stat-xp">0</div>
+            <div class="stat-lbl">נקודות XP</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-acc">0%</div>
+            <div class="stat-lbl">הצלחה</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-time">0 שנ׳</div>
+            <div class="stat-lbl">זמן כולל</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="stat-avg">0 שנ׳</div>
+            <div class="stat-lbl">ממוצע לשאלה</div>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="badge-row" id="end-badges"></div>
+
+        <div style="font-size:16px; font-weight:900; color:#1e3a8a; margin-top:1.1rem; text-align:right;">
+          📋 סיכום מפורט — היכן צדקת והיכן טעית:
+        </div>
+
+        <!-- Detailed Question-by-Question Breakdown -->
+        <div class="review-list" id="review-list"></div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.25rem;">
+          <button class="btn success" onclick="startGame()">
+            <span>שחק שוב</span>
+            <span>🔄</span>
+          </button>
+          <button class="btn secondary" onclick="backToSetup()">
+            <span>שינוי דמות / רמה</span>
+            <span>⚙️</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* =========================================================
+     1. Sound Effects Engine (Web Audio API)
+     ========================================================= */
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audioCtx = new AC();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+    document.getElementById('sound-text').textContent = soundEnabled ? 'צלילים פעילים' : 'ללא צליל';
+    if (soundEnabled) { initAudio(); playPop(); }
+  }
+
+  function playTone(freq, type, duration, delay = 0, vol = 0.14) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(audioCtx.currentTime + delay);
+      osc.stop(audioCtx.currentTime + delay + duration);
+    } catch (e) {}
+  }
+
+  function playPop() { playTone(520, 'sine', 0.08, 0, 0.11); }
+  function playCorrect() {
+    playTone(523.25, 'triangle', 0.14, 0, 0.16);
+    playTone(659.25, 'triangle', 0.14, 0.09, 0.16);
+    playTone(783.99, 'triangle', 0.24, 0.18, 0.18);
+  }
+  function playHint() {
+    playTone(440, 'sine', 0.13, 0, 0.14);
+    playTone(554.37, 'sine', 0.18, 0.11, 0.14);
+  }
+  function playWrong() {
+    playTone(230, 'sawtooth', 0.16, 0, 0.11);
+    playTone(185, 'sawtooth', 0.22, 0.13, 0.11);
+  }
+  function playVictory() {
+    const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+    const times = [0, 0.11, 0.22, 0.34, 0.48, 0.62];
+    notes.forEach((n, i) => playTone(n, 'triangle', 0.24, times[i], 0.18));
+  }
+  function playGameOver() {
+    playTone(320, 'triangle', 0.2, 0, 0.14);
+    playTone(280, 'triangle', 0.2, 0.18, 0.14);
+    playTone(240, 'triangle', 0.35, 0.36, 0.14);
+  }
+
+  /* =========================================================
+     2. Confetti System
+     ========================================================= */
+  const confettiCanvas = document.getElementById('confetti-canvas');
+  const ctx = confettiCanvas.getContext('2d');
+  let particles = [];
+  let confettiAnimId = null;
+
+  function resizeConfetti() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeConfetti);
+  resizeConfetti();
+
+  function launchConfetti(count = 55) {
+    const colors = ['#3b82f6', '#22c55e', '#facc15', '#ec4899', '#8b5cf6', '#f97316'];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: window.innerWidth / 2 + (Math.random() - 0.5) * 180,
+        y: window.innerHeight * 0.42,
+        vx: (Math.random() - 0.5) * 14,
+        vy: (Math.random() - 1.1) * 14 - 3,
+        size: Math.random() * 8 + 5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rot: Math.random() * 360,
+        vRot: (Math.random() - 0.5) * 12,
+        life: 1
+      });
+    }
+    if (!confettiAnimId) animateConfetti();
+  }
+
+  function animateConfetti() {
+    ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.38;
+      p.rot += p.vRot;
+      p.life -= 0.015;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate((p.rot * Math.PI) / 180);
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    });
+    particles = particles.filter(p => p.life > 0);
+    if (particles.length > 0) confettiAnimId = requestAnimationFrame(animateConfetti);
+    else confettiAnimId = null;
+  }
+
+  /* =========================================================
+     3. Characters & Adventure Presets
+     ========================================================= */
+  const CHARACTERS = [
+    { id: 'princess',  emoji: '👸', name: 'נסיכה',     goalEmoji: '👑', goalName: 'הכתר המלכותי' },
+    { id: 'dragon',    emoji: '🐉', name: 'דרקון',     goalEmoji: '🏰', goalName: 'טירת הלהבות' },
+    { id: 'astronaut', emoji: '🧑‍🚀', name: 'אסטרונאוט', goalEmoji: '🪐', goalName: 'כוכב הלכת' },
+    { id: 'ninja',     emoji: '🥷', name: 'נינג׳ה',     goalEmoji: '📜', goalName: 'מגילת המאסטר' },
+    { id: 'wizard',    emoji: '🧙‍♂️', name: 'קוסם',      goalEmoji: '🔮', goalName: 'גביש הקסמים' },
+    { id: 'pirate',    emoji: '🏴‍☠️', name: 'פיראט',     goalEmoji: '💎', goalName: 'תיבת האוצר' }
+  ];
+
+  let selectedChar = CHARACTERS[0];
+  let selectedDiff = 'easy';
+  let selectedCount = 6;
+
+  function initSetupUI() {
+    const charGrid = document.getElementById('char-grid');
+    charGrid.innerHTML = '';
+    CHARACTERS.forEach(ch => {
+      const div = document.createElement('div');
+      div.className = 'char-card' + (ch.id === selectedChar.id ? ' selected' : '');
+      div.innerHTML = `
+        <span class="char-emoji">${ch.emoji}</span>
+        <div class="char-name">${ch.name}</div>
+        <div class="char-goal-tag">אל ${ch.goalEmoji} ${ch.goalName}</div>
+      `;
+      div.onclick = () => {
+        playPop();
+        selectedChar = ch;
+        document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+        div.classList.add('selected');
+      };
+      charGrid.appendChild(div);
+    });
+
+    const countRow = document.getElementById('count-row');
+    countRow.innerHTML = '';
+    for (let n = 5; n <= 10; n++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'count-btn' + (n === selectedCount ? ' selected' : '');
+      btn.textContent = n;
+      btn.onclick = () => {
+        playPop();
+        selectedCount = n;
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      };
+      countRow.appendChild(btn);
+    }
+  }
+
+  function selectDifficulty(diff) {
+    playPop();
+    selectedDiff = diff;
+    document.querySelectorAll('.diff-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.diff === diff);
+    });
+  }
+
+  /* =========================================================
+     4. 6th-Grade Fraction Multiplication, Division & Algebra Engine
+     ========================================================= */
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    return b === 0 ? a : gcd(b, a % b);
+  }
+
+  function simplify(n, d) {
+    if (d < 0) { n = -n; d = -d; }
+    const g = gcd(n, d);
+    return { n: n / g, d: d / g };
+  }
+
+  function isSimplified(n, d) {
+    return gcd(n, d) === 1;
+  }
+
+  function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function genFraction(minDen, maxDen, allowImproper = false) {
+    const d = randInt(minDen, maxDen);
+    let n;
+    if (allowImproper && Math.random() < 0.35) {
+      n = randInt(d + 1, d + Math.max(2, Math.floor(d * 0.8)));
+    } else {
+      n = randInt(1, d - 1);
+    }
+    return simplify(n, d);
+  }
+
+  /**
+   * Generates a 6th-grade fraction equation:
+   * - Direct multiplication: A × B = ?
+   * - Direct division:       A ÷ B = ?
+   * - Algebra with X:
+   *     * A × X = C   (X = C ÷ A)
+   *     * X × B = C   (X = C ÷ B)
+   *     * A ÷ X = C   (X = A ÷ C)
+   *     * X ÷ B = C   (X = C × B)
+   */
+  function generateQuestion(diff) {
+    const config = {
+      easy:   { minDen: 2, maxDen: 6,  xChance: 0.30, allowImproper: false, maxAnsDen: 15, maxAnsNum: 15 },
+      medium: { minDen: 2, maxDen: 9,  xChance: 0.45, allowImproper: true,  maxAnsDen: 24, maxAnsNum: 25 },
+      hard:   { minDen: 3, maxDen: 12, xChance: 0.60, allowImproper: true,  maxAnsDen: 36, maxAnsNum: 36 }
+    }[diff];
+
+    let attemptGuard = 0;
+    while (attemptGuard < 200) {
+      attemptGuard++;
+      const op = Math.random() < 0.5 ? '×' : '÷';
+      const isAlgebra = Math.random() < config.xChance;
+
+      // Construct from clean simplified factors F1 and F2 so numbers stay student-friendly
+      let f1 = genFraction(config.minDen, config.maxDen, config.allowImproper);
+      let f2 = genFraction(config.minDen, config.maxDen, config.allowImproper);
+
+      // Avoid trivial 1/1 fractions
+      if (f1.n === f1.d) f1 = { n: 1, d: randInt(2, config.maxDen) };
+      if (f2.n === f2.d) f2 = { n: 2, d: randInt(3, config.maxDen) };
+
+      let left, right, result, ans, type, hintText;
+
+      if (!isAlgebra) {
+        // Standard calculation: f1 (× or ÷) f2 = ?
+        left = f1;
+        right = f2;
+        if (op === '×') {
+          ans = simplify(f1.n * f2.n, f1.d * f2.d);
+          type = 'direct_mul';
+          hintText = 'בכפל שברים: כופלים מונה במונה ומכנה במכנה (כדאי לצמצם באלכסון לפני הכפל!).';
+        } else {
+          ans = simplify(f1.n * f2.d, f1.d * f2.n);
+          type = 'direct_div';
+          hintText = 'בחילוק שברים: משאירים את השבר הראשון, הופכים את סימן החילוק לכפל, והופכים את השבר השני (כפל בהופכי).';
+        }
+        result = ans;
+      } else {
+        // Algebraic equation with X!
+        // Let X be f2 (or f1), and compute the result cleanly so X is guaranteed to be a nice fraction!
+        const xPos = (diff === 'easy')
+          ? (Math.random() < 0.5 ? 'right' : 'left')
+          : ['right', 'left'][Math.floor(Math.random() * 2)];
+
+        if (op === '×') {
+          if (xPos === 'right') {
+            // f1 × X = prod  =>  X = f2
+            left = f1;
+            right = 'X';
+            result = simplify(f1.n * f2.n, f1.d * f2.d);
+            ans = f2;
+            type = 'alg_mul_right';
+            hintText = 'כדי למצוא גורם חסר בכפל (A × X = B), מחלקים את התוצאה בגורם הידוע: X = B ÷ A.';
+          } else {
+            // X × f2 = prod  =>  X = f1
+            left = 'X';
+            right = f2;
+            result = simplify(f1.n * f2.n, f1.d * f2.d);
+            ans = f1;
+            type = 'alg_mul_left';
+            hintText = 'כדי למצוא גורם חסר בכפל (X × A = B), מחלקים את התוצאה בגורם הידוע: X = B ÷ A.';
+          }
+        } else {
+          // Division with X
+          if (xPos === 'left' || diff === 'easy') {
+            // X ÷ f2 = quot  =>  X = quot × f2
+            // Pick f1 as quot, f2 as divisor, so X = f1 × f2
+            left = 'X';
+            right = f2;
+            result = f1;
+            ans = simplify(f1.n * f2.n, f1.d * f2.d);
+            type = 'alg_div_left';
+            hintText = 'כדי למצוא מחולק חסר (X ÷ A = B), כופלים את המנה במחלק: X = B × A.';
+          } else {
+            // f1 ÷ X = quot  =>  X = f1 ÷ quot
+            // Pick ans = f2, result = quot = f1 ÷ f2
+            left = f1;
+            right = 'X';
+            result = simplify(f1.n * f2.d, f1.d * f2.n);
+            ans = f2;
+            type = 'alg_div_right';
+            hintText = 'כדי למצוא מחלק חסר (A ÷ X = B), מחלקים את המחולק במנה: X = A ÷ B.';
+          }
+        }
+      }
+
+      // Keep final answer numbers clean and reasonable for 6th graders
+      if (ans.n >= 1 && ans.d >= 1 && ans.n <= config.maxAnsNum && ans.d <= config.maxAnsDen) {
+        if (!isAlgebra || (result.n <= config.maxAnsNum * 2 && result.d <= config.maxAnsDen * 2)) {
+          return {
+            op,
+            isAlgebra,
+            left,
+            right,
+            result,
+            ans,
+            type,
+            hintText
+          };
+        }
+      }
+    }
+
+    // Fallback guaranteed question
+    return {
+      op: '×',
+      isAlgebra: false,
+      left: { n: 2, d: 3 },
+      right: { n: 3, d: 4 },
+      result: { n: 1, d: 2 },
+      ans: { n: 1, d: 2 },
+      type: 'direct_mul',
+      hintText: 'כפלו מונה במונה ומכנה במכנה, וצמצמו.'
+    };
+  }
+
+  /* =========================================================
+     5. Game State & Progression
+     ========================================================= */
+  let questions = [];
+  let cur = 0;
+  let lives = 3;
+  let maxLives = 3;
+  let xp = 0;
+  let streak = 0;
+  let questionStartTime = 0;
+  let gameStartTime = 0;
+  let currentWrongAttempts = [];
+  let log = [];
+  let isTransitioning = false;
+
+  const BADGES = [
+    { id: 'speed',    label: '⚡ מהיר כברק',    desc: 'פתרון שאלה תוך 12 שניות' },
+    { id: 'perfect',  label: '🌟 מושלם ללא טעות', desc: 'כל השאלות בניסיון ראשון' },
+    { id: 'streak3',  label: '🔥 רצף לוהט',     desc: '3 תשובות נכונות ברצף' },
+    { id: 'algebra',  label: '🧠 אלוף הנעלמים',  desc: 'פתרת בהצלחה משוואות עם X' },
+    { id: 'comeback', label: '💪 לא מוותר',      desc: 'טעית בדרך אבל הגעת ליעד' }
+  ];
+  let earnedBadges = new Set();
+
+  function renderFracHTML(val, small = false) {
+    if (val === 'X') {
+      return small
+        ? `<span class="x-sm">X</span>`
+        : `<div class="x-variable-box">X</div>`;
+    }
+    if (small) {
+      return `<span class="frac-sm"><span class="num">${val.n}</span><span class="den">${val.d}</span></span>`;
+    }
+    return `<div class="frac-box"><span class="num">${val.n}</span><span class="den">${val.d}</span></div>`;
+  }
+
+  function renderEquationHTML(q, small = false) {
+    const opHTML = small
+      ? `<span style="margin:0 3px; color:#64748b;">${q.op}</span>`
+      : `<span class="op-badge">${q.op}</span>`;
+    const eqHTML = small
+      ? `<span style="margin:0 3px; color:#64748b;">=</span>`
+      : `<span class="op-equals">=</span>`;
+
+    if (!q.isAlgebra) {
+      if (small) {
+        return `<span class="eq-inline">${renderFracHTML(q.left, true)}${opHTML}${renderFracHTML(q.right, true)}${eqHTML}?</span>`;
+      }
+      return `${renderFracHTML(q.left)}${opHTML}${renderFracHTML(q.right)}${eqHTML}`;
+    } else {
+      if (small) {
+        return `<span class="eq-inline">${renderFracHTML(q.left, true)}${opHTML}${renderFracHTML(q.right, true)}${eqHTML}${renderFracHTML(q.result, true)}</span>`;
+      }
+      return `${renderFracHTML(q.left)}${opHTML}${renderFracHTML(q.right)}${eqHTML}${renderFracHTML(q.result)}`;
+    }
+  }
+
+  function renderLives() {
+    const r = document.getElementById('lives-row');
+    r.innerHTML = '';
+    for (let i = 0; i < maxLives; i++) {
+      const h = document.createElement('span');
+      const isLost = i >= lives;
+      h.className = 'heart' + (isLost ? ' lost' : '') + (lives === 1 && !isLost ? ' pulse-danger' : '');
+      h.textContent = '❤️';
+      r.appendChild(h);
+    }
+  }
+
+  function buildTrackNodes() {
+    const nodesWrap = document.getElementById('track-nodes');
+    nodesWrap.innerHTML = '';
+    for (let i = 0; i <= questions.length; i++) {
+      const node = document.createElement('div');
+      if (i === questions.length) {
+        node.className = 'track-node destination';
+        node.textContent = selectedChar.goalEmoji;
+        node.title = selectedChar.goalName;
+      } else {
+        node.className = 'track-node' + (i <= cur ? ' passed' : '');
+      }
+      nodesWrap.appendChild(node);
+    }
+    document.getElementById('hero-mover').textContent = selectedChar.emoji;
+    updateTrackPosition(false);
+  }
+
+  function updateTrackPosition(hop = true) {
+    const pct = Math.min((cur / questions.length) * 100, 100);
+    document.getElementById('track-fill').style.width = pct + '%';
+    const mover = document.getElementById('hero-mover');
+    mover.style.right = pct + '%';
+
+    if (hop) {
+      mover.classList.remove('hero-hop');
+      void mover.offsetWidth;
+      mover.classList.add('hero-hop');
+    }
+
+    const remaining = questions.length - cur;
+    const cap = document.getElementById('journey-caption');
+    if (remaining > 0) {
+      cap.textContent = `${selectedChar.name} בדרך אל ${selectedChar.goalName} (${selectedChar.goalEmoji}) — עוד ${remaining} צעדים!`;
+    } else {
+      cap.textContent = `${selectedChar.name} הגיע אל ${selectedChar.goalName}! ${selectedChar.goalEmoji}`;
+    }
+
+    // Update node dots
+    const nodes = document.querySelectorAll('#track-nodes .track-node');
+    nodes.forEach((n, idx) => {
+      if (idx < questions.length) {
+        n.classList.toggle('passed', idx <= cur);
+      }
+    });
+  }
+
+  function spawnFloatingXP(amount) {
+    const hud = document.getElementById('hud-panel');
+    const el = document.createElement('div');
+    el.className = 'xp-float';
+    el.textContent = `+${amount} XP! ⭐`;
+    hud.appendChild(el);
+    setTimeout(() => el.remove(), 1200);
+  }
+
+  function renderQuestion() {
+    isTransitioning = false;
+    const q = questions[cur];
+
+    document.getElementById('q-label').textContent = `שאלה ${cur + 1} מתוך ${questions.length}`;
+
+    const typeBadge = document.getElementById('q-type-badge');
+    if (q.isAlgebra) {
+      typeBadge.className = 'q-type-tag algebra';
+      typeBadge.textContent = '🔍 מצאו את X';
+      document.getElementById('answer-prefix').style.display = 'inline';
+    } else {
+      typeBadge.className = 'q-type-tag standard';
+      typeBadge.textContent = q.op === '×' ? '✖️ כפל שברים' : '➗ חילוק שברים';
+      document.getElementById('answer-prefix').style.display = 'none';
+    }
+
+    document.getElementById('q-display').innerHTML = renderEquationHTML(q, false);
+
+    document.getElementById('inp-num').value = '';
+    document.getElementById('inp-den').value = '';
+    document.getElementById('feedback').textContent = '';
+    document.getElementById('feedback').className = 'feedback';
+
+    const helperBox = document.getElementById('helper-box');
+    helperBox.classList.remove('open');
+    helperBox.textContent = '💡 ' + q.hintText;
+
+    document.getElementById('streak-area').innerHTML = streak >= 2
+      ? `<span class="streak-chip">🔥 רצף ${streak}!</span>`
+      : '';
+
+    questionStartTime = Date.now();
+    currentWrongAttempts = [];
+
+    renderLives();
+    updateTrackPosition(cur > 0);
+    document.getElementById('xp-label').textContent = `${xp} XP ⭐`;
+
+    setTimeout(() => document.getElementById('inp-num').focus(), 80);
+  }
+
+  function toggleHelper() {
+    playPop();
+    document.getElementById('helper-box').classList.toggle('open');
+  }
+
+  function setFeedback(type, msg) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg;
+    if (type === 'ok') el.className = 'feedback ok';
+    else if (type === 'hint-simplify') el.className = 'feedback hint-simplify';
+    else el.className = 'feedback err';
+  }
+
+  function checkAnswer() {
+    if (isTransitioning) return;
+
+    const q = questions[cur];
+    const rawNum = document.getElementById('inp-num').value.trim();
+    const rawDen = document.getElementById('inp-den').value.trim();
+
+    const uN = parseInt(rawNum, 10);
+    // Allow whole number entry if denominator left blank when numerator is entered
+    const uD = rawDen === '' && !isNaN(uN) ? 1 : parseInt(rawDen, 10);
+
+    if (isNaN(uN) || isNaN(uD) || uN <= 0 || uD <= 0) {
+      playWrong();
+      setFeedback('error', 'אנא מלאו מונה ומכנה תקינים (מספרים גדולים מ-0)');
+      return;
+    }
+
+    // Check numerical equivalence: uN / uD === q.ans.n / q.ans.d
+    const valueCorrect = (uN * q.ans.d === uD * q.ans.n);
+
+    if (valueCorrect && !isSimplified(uN, uD)) {
+      // Numerically right, but NOT reduced — friendly hint without losing hearts!
+      playHint();
+      const divisor = gcd(uN, uD);
+      setFeedback('hint-simplify', `✂️ התשובה נכונה, אבל צריך לצמצם! חלקו מונה ומכנה ב-${divisor}`);
+      const card = document.getElementById('question-card');
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+      return;
+    }
+
+    const { n, d } = simplify(uN, uD);
+
+    if (n === q.ans.n && d === q.ans.d) {
+      // CORRECT & SIMPLIFIED!
+      isTransitioning = true;
+      playCorrect();
+      launchConfetti(45);
+
+      const secs = Math.max(1, Math.round((Date.now() - questionStartTime) / 1000));
+      const totalAttempts = currentWrongAttempts.length + 1;
+
+      const diffMultiplier = selectedDiff === 'hard' ? 1.5 : selectedDiff === 'medium' ? 1.2 : 1;
+      let gained = Math.round((totalAttempts === 1 ? 20 : 10) * diffMultiplier);
+      if (secs <= 12) gained += 5;
+      xp += gained;
+      streak++;
+
+      if (secs <= 12) earnedBadges.add('speed');
+      if (streak >= 3) earnedBadges.add('streak3');
+      if (q.isAlgebra) earnedBadges.add('algebra');
+
+      log.push({
+        qObj: q,
+        userCorrect: { n, d },
+        wrongAttempts: [...currentWrongAttempts],
+        attemptsCount: totalAttempts,
+        secs: secs,
+        solved: true
+      });
+
+      spawnFloatingXP(gained);
+      document.getElementById('xp-label').textContent = `${xp} XP ⭐`;
+
+      const okPrefix = q.isAlgebra ? `✓ מצוין! X = ${n}/${d}` : '✓ נכון ומצומצם!';
+      setFeedback('ok', `${okPrefix} (+${gained} XP)`);
+
+      const card = document.getElementById('question-card');
+      card.classList.remove('pop');
+      void card.offsetWidth;
+      card.classList.add('pop');
+
+      cur++;
+      updateTrackPosition(true);
+
+      setTimeout(() => {
+        if (cur >= questions.length) {
+          endGame(true);
+        } else {
+          renderQuestion();
+        }
+      }, 1050);
+
+    } else {
+      // WRONG ANSWER
+      playWrong();
+      streak = 0;
+      lives--;
+      currentWrongAttempts.push({ n: uN, d: uD });
+      document.getElementById('streak-area').innerHTML = '';
+
+      const card = document.getElementById('question-card');
+      card.classList.remove('shake');
+      void card.offsetWidth;
+      card.classList.add('shake');
+
+      renderLives();
+
+      if (lives <= 0) {
+        isTransitioning = true;
+        const secs = Math.max(1, Math.round((Date.now() - questionStartTime) / 1000));
+        log.push({
+          qObj: q,
+          userCorrect: null,
+          wrongAttempts: [...currentWrongAttempts],
+          attemptsCount: currentWrongAttempts.length,
+          secs: secs,
+          solved: false
+        });
+        setFeedback('error', `אוי, נגמרו הלבבות! התשובה הנכונה היא ${q.ans.n}/${q.ans.d}`);
+        setTimeout(() => endGame(false), 1200);
+        return;
+      }
+
+      // Open strategy tip automatically after mistake
+      document.getElementById('helper-box').classList.add('open');
+      setFeedback('error', 'לא מדויק — בדקו את דרך הפתרון ונסו שוב! 💪');
+    }
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => {
+      s.classList.toggle('active', s.id === id);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function backToSetup() {
+    playPop();
+    showScreen('screen-start');
+  }
+
+  function startGame() {
+    initAudio();
+    playPop();
+
+    questions = [];
+    for (let i = 0; i < selectedCount; i++) {
+      questions.push(generateQuestion(selectedDiff));
+    }
+
+    cur = 0;
+    maxLives = selectedDiff === 'hard' ? 4 : 3;
+    lives = maxLives;
+    xp = 0;
+    streak = 0;
+    log = [];
+    currentWrongAttempts = [];
+    earnedBadges = new Set();
+    gameStartTime = Date.now();
+
+    buildTrackNodes();
+    showScreen('screen-game');
+    renderQuestion();
+  }
+
+  function endGame(won) {
+    const totalSecs = Math.max(1, Math.round((Date.now() - gameStartTime) / 1000));
+    const solvedCount = log.filter(item => item.solved).length;
+    const accuracy = Math.round((solvedCount / questions.length) * 100);
+    const avgSecs = log.length > 0
+      ? Math.round(log.reduce((acc, item) => acc + item.secs, 0) / log.length)
+      : 0;
+
+    if (won) {
+      playVictory();
+      launchConfetti(110);
+      document.getElementById('end-hero-banner').textContent = `${selectedChar.emoji} ✨ ${selectedChar.goalEmoji}`;
+      document.getElementById('end-title').textContent = `כל הכבוד! ${selectedChar.name} הגיע אל ${selectedChar.goalName}!`;
+      document.getElementById('end-title').style.color = '#15803d';
+      document.getElementById('end-subtitle').textContent = `השלמת בהצלחה ${solvedCount} מתוך ${questions.length} שאלות!`;
+
+      const allFirstTry = log.length === questions.length && log.every(l => l.solved && l.attemptsCount === 1);
+      const hadAnyMistake = log.some(l => l.wrongAttempts.length > 0);
+      if (allFirstTry) earnedBadges.add('perfect');
+      if (hadAnyMistake) earnedBadges.add('comeback');
+    } else {
+      playGameOver();
+      document.getElementById('end-hero-banner').textContent = `${selectedChar.emoji} 💔`;
+      document.getElementById('end-title').textContent = 'אוי... נגמרו הלבבות בדרך';
+      document.getElementById('end-title').style.color = '#b91c1c';
+      document.getElementById('end-subtitle').textContent = `פתרת נכון ${solvedCount} מתוך ${questions.length} שאלות. הנה הסיכום שיעזור לך להצליח בסיבוב הבא!`;
+    }
+
+    document.getElementById('stat-xp').textContent = `${xp} XP`;
+    document.getElementById('stat-acc').textContent = `${accuracy}%`;
+    document.getElementById('stat-time').textContent = `${totalSecs} שנ׳`;
+    document.getElementById('stat-avg').textContent = `${avgSecs} שנ׳`;
+
+    // Render Badges
+    const eb = document.getElementById('end-badges');
+    eb.innerHTML = '';
+    BADGES.forEach(b => {
+      const el = document.createElement('div');
+      const hasIt = earnedBadges.has(b.id);
+      el.className = 'badge ' + (hasIt ? 'earned' : 'locked');
+      el.textContent = b.label;
+      el.title = b.desc;
+      eb.appendChild(el);
+    });
+
+    // Render Detailed Question-by-Question Review
+    const reviewList = document.getElementById('review-list');
+    reviewList.innerHTML = '';
+
+    log.forEach((item, index) => {
+      const q = item.qObj;
+      const hadMistakes = item.wrongAttempts.length > 0;
+      const statusClass = !item.solved ? 'status-fail' : hadMistakes ? 'status-recovered' : 'status-ok';
+      const badgeClass = !item.solved ? 'fail' : hadMistakes ? 'recovered' : 'ok';
+      const statusText = !item.solved
+        ? '❌ לא הושלם'
+        : hadMistakes
+          ? `⚠️ תוקן (${item.attemptsCount} ניסיונות)`
+          : '✅ נכון בניסיון ראשון!';
+
+      const wrongPillsHTML = item.wrongAttempts.map(w =>
+        `<span class="ans-wrong-pill">${w.n}/${w.d}</span>`
+      ).join('');
+
+      const correctLabel = q.isAlgebra ? `X = ${q.ans.n}/${q.ans.d}` : `${q.ans.n}/${q.ans.d}`;
+
+      const card = document.createElement('div');
+      card.className = `review-item ${statusClass}`;
+      card.innerHTML = `
+        <div class="rev-top">
+          <span>שאלה ${index + 1} • ⏱️ ${item.secs} שניות</span>
+          <span class="rev-status-badge ${badgeClass}">${statusText}</span>
+        </div>
+        <div class="rev-body">
+          <div>${renderEquationHTML(q, true)}</div>
+          <div class="rev-answers">
+            ${hadMistakes ? `<div class="ans-tag"><span>התשובות השגויות שלך:</span><div>${wrongPillsHTML}</div></div>` : ''}
+            <div class="ans-tag">
+              <span>${item.solved ? 'התשובה הנכונה שפתרת:' : 'התשובה הנכונה:'}</span>
+              <span class="ans-correct-pill">${correctLabel}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      reviewList.appendChild(card);
+    });
+
+    // If game ended early due to losing all hearts, also show unreached questions for completeness
+    for (let j = log.length; j < questions.length; j++) {
+      const q = questions[j];
+      const correctLabel = q.isAlgebra ? `X = ${q.ans.n}/${q.ans.d}` : `${q.ans.n}/${q.ans.d}`;
+      const card = document.createElement('div');
+      card.className = 'review-item';
+      card.style.opacity = '0.65';
+      card.innerHTML = `
+        <div class="rev-top">
+          <span>שאלה ${j + 1}</span>
+          <span class="rev-status-badge" style="background:#f1f5f9; color:#64748b;">⏸️ לא הגעת לשאלה זו</span>
+        </div>
+        <div class="rev-body">
+          <div>${renderEquationHTML(q, true)}</div>
+          <div class="rev-answers">
+            <div class="ans-tag">
+              <span>הפתרון:</span>
+              <span class="ans-correct-pill">${correctLabel}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      reviewList.appendChild(card);
+    }
+
+    showScreen('screen-end');
+  }
+
+  /* =========================================================
+     6. Keyboard Navigation & Background Shapes
+     ========================================================= */
+  document.getElementById('inp-num').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const den = document.getElementById('inp-den');
+      if (!den.value) den.focus();
+      else checkAnswer();
+    }
+  });
+
+  document.getElementById('inp-den').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      checkAnswer();
+    }
+  });
+
+  (function initBackground() {
+    const container = document.getElementById('bg-shapes');
+    const symbols = ['×', '÷', 'X', '½', '¾', '⅔', '⅕', '★'];
+    for (let i = 0; i < 16; i++) {
+      const span = document.createElement('span');
+      span.className = 'bg-shape';
+      span.textContent = symbols[i % symbols.length];
+      span.style.left = `${Math.random() * 95}%`;
+      span.style.fontSize = `${Math.floor(Math.random() * 26) + 22}px`;
+      span.style.animationDuration = `${Math.random() * 14 + 12}s`;
+      span.style.animationDelay = `-${Math.random() * 20}s`;
+      container.appendChild(span);
+    }
+  })();
+
+  initSetupUI();
+</script>
+</body>
+</html>
